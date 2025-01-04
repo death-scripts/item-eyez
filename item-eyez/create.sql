@@ -1,9 +1,8 @@
-CREATE DATABASE ITEMEYEZ;
-USE ITEMEYES;
+USE ITEMEYEZ;
 
 -- Table for items
 CREATE TABLE item (
-    id INT PRIMARY KEY,
+    id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
     name VARCHAR(255) NOT NULL,
     description TEXT,
     value DECIMAL(10, 2),
@@ -13,7 +12,7 @@ GO
 
 -- Table for containers
 CREATE TABLE container (
-    id INT PRIMARY KEY,
+    id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
     name VARCHAR(255) NOT NULL,
     description TEXT
 );
@@ -21,7 +20,7 @@ GO
 
 -- Table for rooms
 CREATE TABLE room (
-    id INT PRIMARY KEY,
+    id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
     name VARCHAR(255) NOT NULL,
     description TEXT
 );
@@ -29,8 +28,8 @@ GO
 
 -- Relationship: item is contained in a container
 CREATE TABLE isContainedIn (
-    item_id INT,
-    container_id INT,
+    item_id UNIQUEIDENTIFIER,
+    container_id UNIQUEIDENTIFIER,
     PRIMARY KEY (item_id, container_id),
     FOREIGN KEY (item_id) REFERENCES item(id) ON DELETE CASCADE,
     FOREIGN KEY (container_id) REFERENCES container(id) ON DELETE CASCADE
@@ -39,12 +38,81 @@ GO
 
 -- Relationship: item is stored in a room
 CREATE TABLE isStoredIn (
-    item_id INT,
-    room_id INT,
+    item_id UNIQUEIDENTIFIER,
+    room_id UNIQUEIDENTIFIER,
     PRIMARY KEY (item_id, room_id),
     FOREIGN KEY (item_id) REFERENCES item(id) ON DELETE CASCADE,
     FOREIGN KEY (room_id) REFERENCES room(id) ON DELETE CASCADE
 );
+GO
+
+CREATE PROCEDURE AddRoom
+    @roomName VARCHAR(255),      -- Room name
+    @roomDescription TEXT        -- Room description
+AS
+BEGIN
+    INSERT INTO room (name, description)
+    VALUES (@roomName, @roomDescription);
+
+    PRINT 'Room added successfully.';
+END;
+GO
+
+CREATE PROCEDURE AddContainer
+    @containerName VARCHAR(255),    
+    @containerDescription TEXT        
+AS
+BEGIN
+    INSERT INTO container (name, description)
+    VALUES (@containerName, @containerDescription);
+END;
+GO
+
+CREATE PROCEDURE UpdateContainer
+    @containerId UNIQUEIDENTIFIER,
+    @newName VARCHAR(255),
+    @newDescription TEXT
+AS
+BEGIN
+    UPDATE room
+    SET name = @newName,
+        description = @newDescription
+    WHERE id = @containerId;
+END;
+GO
+
+CREATE PROCEDURE UpdateRoom
+    @roomId UNIQUEIDENTIFIER,
+    @newName VARCHAR(255),
+    @newDescription TEXT
+AS
+BEGIN
+    UPDATE room
+    SET name = @newName,
+        description = @newDescription
+    WHERE id = @roomId;
+END;
+GO
+
+
+CREATE PROCEDURE DeleteContainer
+    @containerId UNIQUEIDENTIFIER
+AS
+BEGIN
+    DELETE FROM isContainedIn WHERE container_id = @containerId;
+    DELETE FROM container WHERE id = @containerId;
+END;
+GO
+
+CREATE PROCEDURE DeleteRoom
+    @roomId UNIQUEIDENTIFIER
+AS
+BEGIN
+    -- Delete associations in `isStoredIn`
+    DELETE FROM isStoredIn WHERE room_id = @roomId;
+    -- Delete the item itself
+    DELETE FROM room WHERE id = @roomId;
+END;
 GO
 
 -- Procedure to add an item
@@ -62,8 +130,8 @@ GO
 
 -- Procedure to associate an item with a container
 CREATE PROCEDURE AssociateItemWithContainer
-    @itemId INT,
-    @containerId INT
+    @itemId UNIQUEIDENTIFIER,
+    @containerId UNIQUEIDENTIFIER
 AS
 BEGIN
     INSERT INTO isContainedIn (item_id, container_id)
@@ -73,8 +141,8 @@ GO
 
 -- Procedure to associate an item with a room
 CREATE PROCEDURE AssociateItemWithRoom
-    @itemId INT,
-    @roomId INT
+    @itemId UNIQUEIDENTIFIER,
+    @roomId UNIQUEIDENTIFIER
 AS
 BEGIN
     INSERT INTO isStoredIn (item_id, room_id)
@@ -84,7 +152,7 @@ GO
 
 -- Procedure to update an item
 CREATE PROCEDURE UpdateItem
-    @itemId INT,
+    @itemId UNIQUEIDENTIFIER,
     @newName VARCHAR(255),
     @newDescription TEXT,
     @newValue DECIMAL(10, 2),
@@ -102,7 +170,7 @@ GO
 
 -- Procedure to delete an item
 CREATE PROCEDURE DeleteItem
-    @itemId INT
+    @itemId UNIQUEIDENTIFIER
 AS
 BEGIN
     -- Delete associations in `isContainedIn`
