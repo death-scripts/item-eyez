@@ -16,24 +16,24 @@
     <Grid>
         <Border Margin="0,276,10,-89">
             <DataGrid
-                Background="Pink"
                 Name="datagrid"
                 AlternatingRowBackground="LightBlue"
                 AlternationCount="1"
                 AutoGenerateColumns="False"
+                Background="Pink"
                 CanUserDeleteRows="True"
                 CanUserResizeColumns="True"
                 CellEditEnding="datagrid_CellEditEnding"
                 ItemsSource="{Binding Items}"
                 SelectedItem="{Binding SelectedItem}">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Binding="{Binding name}" Header="Name" />
+                    <DataGridTextColumn Binding="{Binding Name, UpdateSourceTrigger=LostFocus}" Header="Name" />
                     <DataGridTemplateColumn Header="Description">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBlock
                                     Width="300"
-                                    Text="{Binding description}"
+                                    Text="{Binding Description, UpdateSourceTrigger=LostFocus}"
                                     TextWrapping="Wrap" />
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
@@ -41,7 +41,7 @@
                             <DataTemplate>
                                 <TextBox
                                     Width="300"
-                                    Text="{Binding description, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                    Text="{Binding Description, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"
                                     TextWrapping="Wrap" />
                             </DataTemplate>
                         </DataGridTemplateColumn.CellEditingTemplate>
@@ -51,7 +51,7 @@
                             <DataTemplate>
                                 <TextBlock
                                     Width="300"
-                                    Text="{Binding categories}"
+                                    Text="{Binding Categories, UpdateSourceTrigger=LostFocus}"
                                     TextWrapping="Wrap" />
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
@@ -59,39 +59,76 @@
                             <DataTemplate>
                                 <TextBox
                                     Width="300"
-                                    Text="{Binding categories, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                    Text="{Binding Categories, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"
                                     TextWrapping="Wrap" />
                             </DataTemplate>
                         </DataGridTemplateColumn.CellEditingTemplate>
                     </DataGridTemplateColumn>
-                    <DataGridTextColumn Binding="{Binding value}" Header="Value" />
-                    <DataGridTextColumn Header="Container" />
-                    <DataGridTextColumn Header="Room" />
+                    <DataGridTextColumn Binding="{Binding Value}" Header="Value" />
+                    <DataGridTemplateColumn Header="Container">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding ContainedIn.Name}" TextWrapping="Wrap" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                        <DataGridTemplateColumn.CellEditingTemplate>
+                            <DataTemplate>
+                                <ComboBox
+                                    DisplayMemberPath="Name"
+                                    ItemsSource="{x:Static local:ItemEyezDatabase.Containers}"
+                                    SelectedItem="{Binding ContainedIn, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellEditingTemplate>
+                    </DataGridTemplateColumn>
+
+                    <DataGridTemplateColumn Header="Room">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding StoredIn.Name}" TextWrapping="Wrap" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                        <DataGridTemplateColumn.CellEditingTemplate>
+                            <DataTemplate>
+                                <ComboBox
+                                    DisplayMemberPath="Name"
+                                    ItemsSource="{x:Static local:ItemEyezDatabase.Rooms}"
+                                    SelectedItem="{Binding StoredIn, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellEditingTemplate>
+                    </DataGridTemplateColumn>
                 </DataGrid.Columns>
             </DataGrid>
         </Border>
         <GroupBox Margin="0,0,715,452" Header="search filter">
-            <TextBox Text="{Binding SearchFilter, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBox Text="{Binding SearchFilter, UpdateSourceTrigger=LostFocus}" />
         </GroupBox>
         <GroupBox Margin="485,0,378,452" Header="put in container">
-            <ComboBox />
+            <ComboBox
+                local:ComboBoxBehavior.DropDownOpenedCommand="{Binding ContainersDroppedDownCommand}"
+                DisplayMemberPath="Name"
+                ItemsSource="{Binding Containers}"
+                SelectedItem="{Binding SelectedContainer}" />
         </GroupBox>
-        <GroupBox Margin="827,0,10,452" Header="put in room">
-            <ComboBox />
+        <GroupBox Margin="827,0,10,452" Header="store in room">
+            <ComboBox
+                local:ComboBoxBehavior.DropDownOpenedCommand="{Binding RoomsDroppedDownCommand}"
+                DisplayMemberPath="Name"
+                ItemsSource="{Binding Rooms}"
+                SelectedItem="{Binding SelectedRoom}" />
         </GroupBox>
-        <GroupBox Margin="0,103,1022,356" Header="name">
-            <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
+        <GroupBox Margin="0,103,968,356" Header="name">
+            <TextBox Text="{Binding Name, UpdateSourceTrigger=LostFocus}" />
         </GroupBox>
-        <GroupBox Margin="178,103,710,280" Header="description">
-            <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" />
+        <GroupBox Margin="237,103,651,280" Header="description">
+            <TextBox Text="{Binding Description, UpdateSourceTrigger=LostFocus}" TextWrapping="Wrap" />
         </GroupBox>
-        <GroupBox Margin="490,103,317,280" Header="Catagories">
-            <TextBox Text="{Binding Catagories, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" />
+        <GroupBox Margin="554,103,317,280" Header="Catagories">
+            <TextBox Text="{Binding Catagories, UpdateSourceTrigger=LostFocus}" TextWrapping="Wrap" />
         </GroupBox>
         <Button
             Margin="888,129,10,280"
             Command="{Binding AddItemCommand}"
             Content="Add Item"
-            Style="{StaticResource CustomAddButtonStyle}" />
+            FontSize="25" />
     </Grid>
 </UserControl>

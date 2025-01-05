@@ -1,4 +1,5 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using item_eyez;
+using Microsoft.Data.SqlClient;
 
 public class DatabaseInitializer
 {
@@ -9,11 +10,13 @@ public class DatabaseInitializer
         _serverConnectionString = serverConnectionString;
     }
 
-    public void InitializeDatabase(string script, string databaseName)
+    public static void InitializeDatabase(string serverConnectionString, string databaseName)
     {
-        using (var connection = new SqlConnection(_serverConnectionString))
+        using (var connection = new SqlConnection(serverConnectionString))
         {
             connection.Open();
+
+            DatabaseHelper.Instance = new DatabaseHelper(serverConnectionString, databaseName);
 
             // Check if the database exists
             var checkDbCommand = new SqlCommand($"IF DB_ID('{databaseName}') IS NOT NULL SELECT 1 ELSE SELECT 0;", connection);
@@ -25,23 +28,7 @@ public class DatabaseInitializer
                 return;
             }
 
-            // Create the database if it does not exist
-            var createDbCommand = new SqlCommand($"CREATE DATABASE {databaseName};", connection);
-            createDbCommand.ExecuteNonQuery();
-
-            // Switch to the new database
-            connection.ChangeDatabase(databaseName);
-
-            // Split the script into batches and execute each batch
-            foreach (var batch in script.Split(new[] { "GO" }, StringSplitOptions.RemoveEmptyEntries))
-            {
-                using (var command = new SqlCommand(batch, connection))
-                {
-                    command.ExecuteNonQuery();
-                }
-            }
-
-            Console.WriteLine($"Database '{databaseName}' initialized successfully.");
+            DatabaseHelper.Instance.CreateDatabase();
         }
     }
 

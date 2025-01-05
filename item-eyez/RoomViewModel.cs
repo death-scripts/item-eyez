@@ -20,7 +20,7 @@ namespace item_eyez
         }
         public ICommand AddRoomCommand => new RelayCommand(AddRoom);
 
-        public ObservableCollection<DataRowView> Rooms { get; set; }
+        public ObservableCollection<Room> Rooms { get; set; }
 
         public string SearchFilter
         {
@@ -37,18 +37,19 @@ namespace item_eyez
             if (string.IsNullOrWhiteSpace(filterString))
             {
                 // Reset the collection to show all rooms
-                var dataTable = _dbHelper.GetRooms();
-                var allRooms = new ObservableCollection<DataRowView>(dataTable.DefaultView.Cast<DataRowView>());
-                Rooms = new ObservableCollection<DataRowView>(allRooms);
+                Rooms = _dbHelper.GetRoomsList();
             }
             else
             {
-                // Filter the collection
-                var dataTable = _dbHelper.GetRooms();
-                var filteredRooms = new ObservableCollection<DataRowView>(dataTable.DefaultView.Cast<DataRowView>())
-                    .Where(row => row["name"].ToString().Contains(filterString, StringComparison.OrdinalIgnoreCase) ||
-                                  row["description"].ToString().Contains(filterString, StringComparison.OrdinalIgnoreCase));
-                Rooms = new ObservableCollection<DataRowView>(filteredRooms);
+                // Filter the collection based on the search string
+                var allRooms = _dbHelper.GetRoomsList();
+                var filteredRooms = new ObservableCollection<Room>(
+                    allRooms.Where(room =>
+                        (!string.IsNullOrEmpty(room.Name) && room.Name.Contains(filterString, StringComparison.OrdinalIgnoreCase)) ||
+                        (!string.IsNullOrEmpty(room.Description) && room.Description.Contains(filterString, StringComparison.OrdinalIgnoreCase))
+                    )
+                );
+                Rooms = filteredRooms;
             }
 
             OnPropertyChanged(nameof(Rooms));
@@ -76,9 +77,7 @@ namespace item_eyez
 
         public void LoadRooms()
         {
-            var dataTable = _dbHelper.GetRooms();
-            Rooms = new ObservableCollection<DataRowView>(dataTable.DefaultView.Cast<DataRowView>());
-            Rooms.CollectionChanged -= this.Rooms_CollectionChanged;
+            Rooms = _dbHelper.GetRoomsList();
             Rooms.CollectionChanged += this.Rooms_CollectionChanged;
             OnPropertyChanged(nameof(Rooms));
         }
@@ -87,9 +86,9 @@ namespace item_eyez
         {
             if (e.OldItems != null)
             {
-                foreach (DataRowView row in e.OldItems)
+                foreach (Room room in e.OldItems)
                 {
-                    _dbHelper.DeleteRoom((Guid)row[0]);
+                    _dbHelper.DeleteRoom(room.Id);
                 }
             }
         }

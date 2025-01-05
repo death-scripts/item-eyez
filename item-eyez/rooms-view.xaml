@@ -27,13 +27,13 @@
                 ItemsSource="{Binding Rooms}"
                 SelectedItem="{Binding SelectedRoom}">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Binding="{Binding name}" Header="Name" />
+                    <DataGridTextColumn Binding="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Header="Name" />
                     <DataGridTemplateColumn Header="Description">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBlock
                                     Width="300"
-                                    Text="{Binding description}"
+                                    Text="{Binding Description}"
                                     TextWrapping="Wrap" />
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
@@ -41,7 +41,7 @@
                             <DataTemplate>
                                 <TextBox
                                     Width="300"
-                                    Text="{Binding description, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                    Text="{Binding Description, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                                     TextWrapping="Wrap" />
                             </DataTemplate>
                         </DataGridTemplateColumn.CellEditingTemplate>
@@ -58,10 +58,10 @@
         <GroupBox Margin="277,104,152,279" Header="description">
             <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" />
         </GroupBox>
-        <Button
+        <Button 
+            FontSize="25"
             Margin="653,130,10,279"
             Command="{Binding AddRoomCommand}"
-            Content="Add Room"
-            Style="{StaticResource CustomAddButtonStyle}" />
+            Content="Add Room"/>
     </Grid>
 </UserControl>

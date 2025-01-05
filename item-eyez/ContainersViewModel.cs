@@ -1,5 +1,6 @@
 ﻿
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Data;
 using System.Windows.Input;
@@ -20,11 +21,48 @@ namespace item_eyez
         }
         public ICommand AddContainerCommand => new RelayCommand(Add);
 
-        public ObservableCollection<DataRowView> Containers { get; set; }
-        internal List<Container> AvailableContainers { get; set; }
-        internal List<Room> Rooms { get; set; }
-        internal List<object> RoomContainerList { get; set; }
+        public ICommand ContainersDroppedDownCommand => new RelayCommand(ContainersDroppedDown);
+        public ObservableCollection<Container> Containers { get; set; }
 
+        private void ContainersDroppedDown()
+        {
+            this.Containers = _dbHelper.GetContainersWithRelationships();
+            OnPropertyChanged(nameof(Containers));
+        }
+
+        public ICommand RoomsDroppedDownCommand => new RelayCommand(RoomsDroppedDown);
+
+        private void RoomsDroppedDown()
+        {
+            this.Rooms = _dbHelper.GetRoomsList().ToList();
+            OnPropertyChanged(nameof(Rooms));
+        }
+        private Room _selectedRoom;
+        public Room SelectedRoom
+        {
+            get => _selectedRoom;
+            set
+            {
+                _selectedRoom = value;
+                OnPropertyChanged(nameof(SelectedRoom));
+                this._selectedContainer = null;
+                OnPropertyChanged(nameof(SelectedContainer));
+            }
+        }
+        public List<Room> Rooms { get; private set; }
+        public ObservableCollection<DataRowView> Items { get; set; }
+        private Container _selectedContainer;
+        public Container SelectedContainer
+        {
+            get => _selectedContainer;
+            set
+            {
+                _selectedContainer = value;
+                OnPropertyChanged(nameof(SelectedContainer));
+                this._selectedRoom = null;
+                OnPropertyChanged(nameof(SelectedRoom));
+            }
+        }
         public string SearchFilter
         {
             get => _searchFilter;
@@ -40,20 +78,20 @@ namespace item_eyez
             if (string.IsNullOrWhiteSpace(filterString))
             {
                 // Reset the collection to show all rooms
-                var dataTable = _dbHelper.GetContainers();
-                var allContainers = new ObservableCollection<DataRowView>(dataTable.DefaultView.Cast<DataRowView>());
-                Containers = new ObservableCollection<DataRowView>(allContainers);
+                Containers = _dbHelper.GetContainersWithRelationships();
             }
             else
             {
-                // Filter the collection
-                var dataTable = _dbHelper.GetContainers();
-                var filterContainers = new ObservableCollection<DataRowView>(dataTable.DefaultView.Cast<DataRowView>())
-                    .Where(row => row["name"].ToString().Contains(filterString, StringComparison.OrdinalIgnoreCase) ||
-                                  row["description"].ToString().Contains(filterString, StringComparison.OrdinalIgnoreCase));
-                Containers = new ObservableCollection<DataRowView>(filterContainers);
+                // Filter the collection based on the search string
+                var allRooms = _dbHelper.GetContainersWithRelationships();
+                var filteredRooms = new ObservableCollection<Container>(
+                    allRooms.Where(container =>
+                        (!string.IsNullOrEmpty(container.Name) && container.Name.Contains(filterString, StringComparison.OrdinalIgnoreCase)) ||
+                        (!string.IsNullOrEmpty(container.Description) && container.Description.Contains(filterString, StringComparison.OrdinalIgnoreCase))
+                    )
+                );
+                Containers = filteredRooms;
             }
-
             OnPropertyChanged(nameof(Containers));
         }
 
@@ -79,28 +117,18 @@ namespace item_eyez
 
         public void Load()
         {
-            var dataTable = _dbHelper.GetContainers();
-            Containers = new ObservableCollection<DataRowView>(dataTable.DefaultView.Cast<DataRowView>());
+            Containers = _dbHelper.GetContainersWithRelationships();
             Containers.CollectionChanged += this.Rooms_CollectionChanged;
             OnPropertyChanged(nameof(Containers));
-            RoomContainerList =
-            [
-                new Container
-                {
-                    Id = 1,
-                    Name = "TEST"
-                },
-            ];
-            OnPropertyChanged(nameof(RoomContainerList));
         }
 
-        private void Rooms_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        private void Rooms_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
             if (e.OldItems != null)
             {
-                foreach (DataRowView row in e.OldItems)
+                foreach (Container container in e.OldItems)
                 {
-                    _dbHelper.DeleteContainer((Guid)row[0]);
+                    _dbHelper.DeleteContainer(container.Id);
                 }
             }
         }
@@ -110,7 +138,17 @@ namespace item_eyez
             if (!string.IsNullOrWhiteSpace(Name))
             {
                 Description = Description == null ? string.Empty : Description;
-                _dbHelper.AddContainer(Name, Description);
+                Guid newId = _dbHelper.AddContainer(Name, Description);
+
+                if (this.SelectedContainer != null)
+                {
+                    _dbHelper.AssociateItemWithContainer(newId, this.SelectedContainer.Id);
+                }
+                else if (this.SelectedRoom != null)
+                {
+                    _dbHelper.AssociateItemWithRoom(newId, this.SelectedRoom.Id);
+                }
+
                 Load();
                 Name = string.Empty; // Clear input fields
                 Description = string.Empty;

@@ -1,16 +1,20 @@
 ﻿namespace item_eyez
 {
-    public class Container : ViewModelBase
+    public class Item : ViewModelBase
     {
         private string description;
         private string name;
+        private string categories;
+        private decimal value;
         private Guid id;
 
-        public Container(Guid id, string name, string description)
+        public Item(Guid id, string name, string description, decimal value, string catagories)
         {
             this.id = id;
             this.name = name;
             this.description = description;
+            this.value = value;
+            this.categories = catagories;
         }
 
         public Guid Id
@@ -28,10 +32,12 @@
             set
             {
                 this.name = value;
-                ItemEyezDatabase.Instance().UpdateContainer(
+                ItemEyezDatabase.Instance().UpdateItem(
                             this.Id,
                             this.Name,
-                            this.Description
+                            this.Description,
+                            this.Value,
+                            this.Categories
                         );
             }
         }
@@ -41,10 +47,43 @@
             set
             {
                 this.description = value;
-                ItemEyezDatabase.Instance().UpdateContainer(
+                ItemEyezDatabase.Instance().UpdateItem(
                             this.Id,
                             this.Name,
-                            this.Description
+                            this.Description,
+                            this.Value,
+                            this.Categories
+                        );
+            }
+        }
+        public decimal Value
+        {
+            get { return value; }
+            set
+            {
+                this.value = value;
+                ItemEyezDatabase.Instance().UpdateItem(
+                            this.Id,
+                            this.Name,
+                            this.Description,
+                            this.Value,
+                            this.Categories
+                        );
+            }
+        }
+
+        public string Categories
+        {
+            get { return categories; }
+            set
+            {
+                this.categories = value;
+                ItemEyezDatabase.Instance().UpdateItem(
+                            this.Id,
+                            this.Name,
+                            this.Description,
+                            this.Value,
+                            this.Categories
                         );
             }
         }
@@ -77,4 +116,5 @@
             }
         }
     }
+
 }

@@ -17,12 +17,50 @@ namespace item_eyez
         public ItemsViewModel()
         {
             _dbHelper = ItemEyezDatabase.Instance();
-            LoadRooms();
+            Load();
         }
         public ICommand AddItemCommand => new RelayCommand(Add);
+        public ICommand ContainersDroppedDownCommand => new RelayCommand(ContainersDroppedDown);
+        public ObservableCollection<Container> Containers { get; private set; }
+        private void ContainersDroppedDown()
+        {
+            this.Containers = _dbHelper.GetContainersWithRelationships();
+            OnPropertyChanged(nameof(Containers));
+        }
 
-        public ObservableCollection<DataRowView> Items { get; set; }
+        public ICommand RoomsDroppedDownCommand => new RelayCommand(RoomsDroppedDown);
 
+        private void RoomsDroppedDown()
+        {
+            this.Rooms = _dbHelper.GetRoomsList().ToList();
+            OnPropertyChanged(nameof(Rooms));
+        }
+        private Room _selectedRoom;
+        public Room SelectedRoom
+        {
+            get => _selectedRoom;
+            set
+            {
+                _selectedRoom = value;
+                OnPropertyChanged(nameof(SelectedRoom));
+                this._selectedContainer = null;
+                OnPropertyChanged(nameof(SelectedContainer));
+            }
+        }
+        public List<Room> Rooms { get; private set; }
+        public ObservableCollection<Item> Items { get; set; }
+        private Container _selectedContainer;
+        public Container SelectedContainer
+        {
+            get => _selectedContainer;
+            set
+            {
+                _selectedContainer = value;
+                OnPropertyChanged(nameof(SelectedContainer));
+                this._selectedRoom = null;
+                OnPropertyChanged(nameof(SelectedRoom));
+            }
+        }
         public string SearchFilter
         {
             get => _searchFilter;
@@ -38,21 +76,20 @@ namespace item_eyez
             if (string.IsNullOrWhiteSpace(filterString))
             {
                 // Reset the collection to show all rooms
-                var dataTable = _dbHelper.GetItems();
-                var allItems = new ObservableCollection<DataRowView>(dataTable.DefaultView.Cast<DataRowView>());
-                Items = new ObservableCollection<DataRowView>(allItems);
+                Items = _dbHelper.GetItemsWithRelationships();
             }
             else
             {
-                // Filter the collection
-                var dataTable = _dbHelper.GetItems();
-                var filteredItems = new ObservableCollection<DataRowView>(dataTable.DefaultView.Cast<DataRowView>())
-                    .Where(row => row["name"].ToString().Contains(filterString, StringComparison.OrdinalIgnoreCase) ||
-                                  row["description"].ToString().Contains(filterString, StringComparison.OrdinalIgnoreCase) ||
-                                  row["catagories"].ToString().Contains(filterString, StringComparison.OrdinalIgnoreCase));
-                Items = new ObservableCollection<DataRowView>(filteredItems);
+                // Filter the collection based on the search string
+                var allRooms = _dbHelper.GetItemsWithRelationships();
+                var filteredRooms = new ObservableCollection<Item>(
+                    allRooms.Where(item =>
+                        (!string.IsNullOrEmpty(item.Name) && item.Name.Contains(filterString, StringComparison.OrdinalIgnoreCase)) ||
+                        (!string.IsNullOrEmpty(item.Description) && item.Description.Contains(filterString, StringComparison.OrdinalIgnoreCase))
+                    )
+                );
+                Items = filteredRooms;
             }
-
             OnPropertyChanged(nameof(Items));
         }
 
@@ -96,10 +133,9 @@ namespace item_eyez
             }
         }
 
-        public void LoadRooms()
+        public void Load()
         {
-            var dataTable = _dbHelper.GetItems();
-            Items = new ObservableCollection<DataRowView>(dataTable.DefaultView.Cast<DataRowView>());
+            Items = _dbHelper.GetItemsWithRelationships();
             Items.CollectionChanged += this.Items_CollectionChanged;
             OnPropertyChanged(nameof(Items));
         }
@@ -108,9 +144,9 @@ namespace item_eyez
         {
             if (e.OldItems != null)
             {
-                foreach (DataRowView row in e.OldItems)
+                foreach (Item item in e.OldItems)
                 {
-                    _dbHelper.DeleteRoom((Guid)row[0]);
+                    _dbHelper.DeleteItem(item.Id);
                 }
             }
         }
@@ -124,11 +160,23 @@ namespace item_eyez
                 decimal value;
                 decimal.TryParse(Value, out value);
 
-                _dbHelper.AddItem(Name, Description, value, Catagories);
-                LoadRooms();
+                Guid newId = _dbHelper.AddItem(Name, Description, value, Catagories);
+
+                if (this.SelectedContainer != null)
+                {
+                    _dbHelper.AssociateItemWithContainer(newId, this.SelectedContainer.Id);
+                }
+                else if (this.SelectedRoom != null)
+                {
+                    _dbHelper.AssociateItemWithRoom(newId, this.SelectedRoom.Id);
+                }
+
                 Name = string.Empty; // Clear input fields
                 Description = string.Empty;
+                Load();
             }
+
+
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

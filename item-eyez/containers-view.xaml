@@ -17,23 +17,23 @@
         <Border Margin="0,276,10,-89">
             <DataGrid
                 Name="datagrid"
-                Background="Pink"
                 AlternatingRowBackground="LightBlue"
                 AlternationCount="1"
                 AutoGenerateColumns="False"
+                Background="Pink"
                 CanUserDeleteRows="True"
                 CanUserResizeColumns="True"
                 CellEditEnding="datagrid_CellEditEnding"
                 ItemsSource="{Binding Containers}"
-                SelectedItem="{Binding SelectedContainer}">
+                SelectedItem="{Binding SelectedContainerRow}">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Binding="{Binding name}" Header="Name" />
+                    <DataGridTextColumn Binding="{Binding Name}" Header="Name" />
                     <DataGridTemplateColumn Header="Description">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBlock
                                     Width="300"
-                                    Text="{Binding description}"
+                                    Text="{Binding Description}"
                                     TextWrapping="Wrap" />
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
@@ -41,21 +41,51 @@
                             <DataTemplate>
                                 <TextBox
                                     Width="300"
-                                    Text="{Binding description, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                    Text="{Binding Description, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                                     TextWrapping="Wrap" />
                             </DataTemplate>
                         </DataGridTemplateColumn.CellEditingTemplate>
                     </DataGridTemplateColumn>
-                    <DataGridComboBoxColumn
-                        DisplayMemberPath="Value"
-                        Header="Is contained in"
-                        ItemsSource="{Binding RoomContainerList}"
-                        SelectedValueBinding="{Binding SelectedRoomOrContainerId}"
-                        SelectedValuePath="Name" />
+                    <DataGridTemplateColumn Header="Container">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock
+                                    Text="{Binding ContainedIn.Name}"
+                                    TextWrapping="Wrap" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                        <DataGridTemplateColumn.CellEditingTemplate>
+                            <DataTemplate>
+                                <ComboBox
+                                    DisplayMemberPath="Name"
+                                    ItemsSource="{x:Static local:ItemEyezDatabase.Containers}"
+                                    SelectedItem="{Binding ContainedIn, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellEditingTemplate>
+                    </DataGridTemplateColumn>
+                    
+                    <DataGridTemplateColumn Header="Room">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock
+                                    Text="{Binding StoredIn.Name}"
+                                    TextWrapping="Wrap" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                        <DataGridTemplateColumn.CellEditingTemplate>
+                            <DataTemplate>
+                                <ComboBox
+                                    DisplayMemberPath="Name"
+                                    ItemsSource="{x:Static local:ItemEyezDatabase.Rooms}"
+                                    SelectedItem="{Binding StoredIn, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellEditingTemplate>
+                    </DataGridTemplateColumn>
+
                 </DataGrid.Columns>
             </DataGrid>
         </Border>
-        <GroupBox Margin="0,0,10,452" Header="search filter">
+        <GroupBox Margin="0,0,528,452" Header="search filter">
             <TextBox Text="{Binding SearchFilter, UpdateSourceTrigger=PropertyChanged}" />
         </GroupBox>
         <GroupBox Margin="0,103,528,356" Header="name">
@@ -66,8 +96,22 @@
         </GroupBox>
         <Button
             Margin="624,130,10,279"
+            FontSize="23"
             Command="{Binding AddContainerCommand}"
-            Content="Add Container"
-            Style="{StaticResource CustomAddButtonStyle}" />
+            Content="Add Container" />
+        <GroupBox Margin="277,0,269,452" Header="put in container">
+            <ComboBox
+                local:ComboBoxBehavior.DropDownOpenedCommand="{Binding ContainersDroppedDownCommand}"
+                DisplayMemberPath="Name"
+                ItemsSource="{Binding Containers}"
+                SelectedItem="{Binding SelectedContainer}" />
+        </GroupBox>
+        <GroupBox Margin="536,0,10,452" Header="store in room">
+            <ComboBox
+                local:ComboBoxBehavior.DropDownOpenedCommand="{Binding RoomsDroppedDownCommand}"
+                DisplayMemberPath="Name"
+                ItemsSource="{Binding Rooms}"
+                SelectedItem="{Binding SelectedRoom}" />
+        </GroupBox>
     </Grid>
 </UserControl>

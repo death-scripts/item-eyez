@@ -31,7 +31,6 @@ CREATE TABLE isContainedIn (
     item_id UNIQUEIDENTIFIER,
     container_id UNIQUEIDENTIFIER,
     PRIMARY KEY (item_id, container_id),
-    FOREIGN KEY (item_id) REFERENCES item(id) ON DELETE CASCADE,
     FOREIGN KEY (container_id) REFERENCES container(id) ON DELETE CASCADE
 );
 GO
@@ -41,7 +40,6 @@ CREATE TABLE isStoredIn (
     item_id UNIQUEIDENTIFIER,
     room_id UNIQUEIDENTIFIER,
     PRIMARY KEY (item_id, room_id),
-    FOREIGN KEY (item_id) REFERENCES item(id) ON DELETE CASCADE,
     FOREIGN KEY (room_id) REFERENCES room(id) ON DELETE CASCADE
 );
 GO
@@ -60,11 +58,46 @@ GO
 
 CREATE PROCEDURE AddContainer
     @containerName VARCHAR(255),    
-    @containerDescription TEXT        
+    @containerDescription TEXT,
+    @containerId UNIQUEIDENTIFIER OUTPUT       
 AS
 BEGIN
-    INSERT INTO container (name, description)
-    VALUES (@containerName, @containerDescription);
+    SET @containerId = NEWID();
+    INSERT INTO container (id, name, description)
+    VALUES (@containerId, @containerName, @containerDescription);
+END;
+GO
+
+-- Procedure to add an item
+CREATE PROCEDURE AddItem
+    @itemName VARCHAR(255),
+    @itemDescription TEXT,
+    @itemValue DECIMAL(10, 2),
+    @itemCategories TEXT,
+    @itemId UNIQUEIDENTIFIER OUTPUT
+AS
+BEGIN
+    SET @itemId = NEWID();
+    INSERT INTO item (id, name, description, value, categories)
+    VALUES (@itemId, @itemName, @itemDescription, @itemValue, @itemCategories);
+END;
+GO
+
+-- Procedure to update an item
+CREATE PROCEDURE UpdateItem
+    @itemId UNIQUEIDENTIFIER,
+    @newName VARCHAR(255),
+    @newDescription TEXT,
+    @newValue DECIMAL(10, 2),
+    @newCategories TEXT
+AS
+BEGIN
+    UPDATE item
+    SET name = @newName,
+        description = @newDescription,
+        value = @newValue,
+        categories = @newCategories
+    WHERE id = @itemId;
 END;
 GO
 
@@ -94,6 +127,19 @@ BEGIN
 END;
 GO
 
+-- Procedure to delete an item
+CREATE PROCEDURE DeleteItem
+    @itemId UNIQUEIDENTIFIER
+AS
+BEGIN
+    -- Delete associations in `isContainedIn`
+    DELETE FROM isContainedIn WHERE item_id = @itemId;
+    -- Delete associations in `isStoredIn`
+    DELETE FROM isStoredIn WHERE item_id = @itemId;
+    -- Delete the item itself
+    DELETE FROM item WHERE id = @itemId;
+END;
+GO
 
 CREATE PROCEDURE DeleteContainer
     @containerId UNIQUEIDENTIFIER
@@ -115,19 +161,6 @@ BEGIN
 END;
 GO
 
--- Procedure to add an item
-CREATE PROCEDURE AddItem
-    @itemName VARCHAR(255),
-    @itemDescription TEXT,
-    @itemValue DECIMAL(10, 2),
-    @itemCategories TEXT
-AS
-BEGIN
-    INSERT INTO item (name, description, value, categories)
-    VALUES (@itemName, @itemDescription, @itemValue, @itemCategories);
-END;
-GO
-
 -- Procedure to associate an item with a container
 CREATE PROCEDURE AssociateItemWithContainer
     @itemId UNIQUEIDENTIFIER,
@@ -136,6 +169,17 @@ AS
 BEGIN
     INSERT INTO isContainedIn (item_id, container_id)
     VALUES (@itemId, @containerId);
+END;
+GO
+
+CREATE PROCEDURE UnassociateItemFromContainer
+    @itemId UNIQUEIDENTIFIER
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DELETE FROM isContainedIn
+    WHERE item_id = @itemId;
 END;
 GO
 
@@ -150,34 +194,53 @@ BEGIN
 END;
 GO
 
--- Procedure to update an item
-CREATE PROCEDURE UpdateItem
-    @itemId UNIQUEIDENTIFIER,
-    @newName VARCHAR(255),
-    @newDescription TEXT,
-    @newValue DECIMAL(10, 2),
-    @newCategories TEXT
-AS
-BEGIN
-    UPDATE item
-    SET name = @newName,
-        description = @newDescription,
-        value = @newValue,
-        categories = @newCategories
-    WHERE id = @itemId;
-END;
-GO
-
--- Procedure to delete an item
-CREATE PROCEDURE DeleteItem
+CREATE PROCEDURE UnassociateItemFromRoom
     @itemId UNIQUEIDENTIFIER
 AS
 BEGIN
-    -- Delete associations in `isContainedIn`
-    DELETE FROM isContainedIn WHERE item_id = @itemId;
-    -- Delete associations in `isStoredIn`
-    DELETE FROM isStoredIn WHERE item_id = @itemId;
-    -- Delete the item itself
-    DELETE FROM item WHERE id = @itemId;
+    SET NOCOUNT ON;
+
+    DELETE FROM isStoredIn
+    WHERE item_id = @itemId;
+END;
+GO
+
+CREATE PROCEDURE GetContainerIdForItem
+    @itemId UNIQUEIDENTIFIER,       -- Input: The ID of the item
+    @containerId UNIQUEIDENTIFIER OUTPUT -- Output: The container ID
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Select the container_id where the item_id matches
+    SELECT TOP 1 @containerId = container_id
+    FROM isContainedIn
+    WHERE item_id = @itemId;
+
+    -- If no container is found, set @containerId to NULL
+    IF @containerId IS NULL
+    BEGIN
+        SET @containerId = NULL;
+    END
+END;
+GO
+
+CREATE PROCEDURE GetRoomIdForItem
+    @itemId UNIQUEIDENTIFIER,   -- Input: The ID of the item
+    @roomId UNIQUEIDENTIFIER OUTPUT -- Output: The room ID
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Select the room_id where the item_id matches
+    SELECT TOP 1 @roomId = room_id
+    FROM isStoredIn
+    WHERE item_id = @itemId;
+
+    -- If no room is found, set @roomId to NULL
+    IF @roomId IS NULL
+    BEGIN
+        SET @roomId = NULL;
+    END
 END;
 GO
