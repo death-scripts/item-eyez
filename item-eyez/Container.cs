@@ -28,11 +28,7 @@
             set
             {
                 this.name = value;
-                ItemEyezDatabase.Instance().UpdateContainer(
-                            this.Id,
-                            this.Name,
-                            this.Description
-                        );
+                ItemEyezDatabase.Instance().UpdateContainer(this.Id, this.Name, this.Description);
             }
         }
         public string Description
@@ -41,11 +37,7 @@
             set
             {
                 this.description = value;
-                ItemEyezDatabase.Instance().UpdateContainer(
-                            this.Id,
-                            this.Name,
-                            this.Description
-                        );
+                ItemEyezDatabase.Instance().UpdateContainer(this.Id, this.Name, this.Description);
             }
         }
         public Container ContainedIn

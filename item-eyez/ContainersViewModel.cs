@@ -63,6 +63,8 @@ namespace item_eyez
                 OnPropertyChanged(nameof(SelectedRoom));
             }
         }
+        public bool PreserveDescription { get; set; }
+        public bool NameFocused { get; set; }
         public string SearchFilter
         {
             get => _searchFilter;
@@ -151,7 +153,14 @@ namespace item_eyez
 
                 Load();
                 Name = string.Empty; // Clear input fields
-                Description = string.Empty;
+
+                if (!this.PreserveDescription)
+                {
+                    Description = string.Empty;
+                }
+
+                this.NameFocused = true;
+                this.OnPropertyChanged(nameof(NameFocused));
             }
         }
 

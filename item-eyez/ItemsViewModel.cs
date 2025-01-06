@@ -150,6 +150,7 @@ namespace item_eyez
                 }
             }
         }
+        public bool NameFocused { get; set; }
 
         public void Add()
         {
@@ -174,6 +175,9 @@ namespace item_eyez
                 Name = string.Empty; // Clear input fields
                 Description = string.Empty;
                 Load();
+
+                this.NameFocused = true;
+                this.OnPropertyChanged(nameof(NameFocused));
             }
 
 

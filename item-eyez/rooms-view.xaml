@@ -23,7 +23,6 @@
                 AutoGenerateColumns="False"
                 CanUserDeleteRows="True"
                 CanUserResizeColumns="True"
-                CellEditEnding="datagrid_CellEditEnding"
                 ItemsSource="{Binding Rooms}"
                 SelectedItem="{Binding SelectedRoom}">
                 <DataGrid.Columns>
@@ -53,7 +52,10 @@
             <TextBox Text="{Binding SearchFilter, UpdateSourceTrigger=PropertyChanged}" />
         </GroupBox>
         <GroupBox Margin="0,103,528,356" Header="name">
-            <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBox
+                local:EnterKeyBehavior.Command="{Binding AddRoomCommand}"
+                local:FocusBehavior.IsFocused="{Binding NameFocused, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
         </GroupBox>
         <GroupBox Margin="277,104,152,279" Header="description">
             <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" />

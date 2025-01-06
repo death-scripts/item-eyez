@@ -23,7 +23,6 @@
                 Background="Pink"
                 CanUserDeleteRows="True"
                 CanUserResizeColumns="True"
-                CellEditEnding="datagrid_CellEditEnding"
                 ItemsSource="{Binding Containers}"
                 SelectedItem="{Binding SelectedContainerRow}">
                 <DataGrid.Columns>
@@ -49,9 +48,7 @@
                     <DataGridTemplateColumn Header="Container">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock
-                                    Text="{Binding ContainedIn.Name}"
-                                    TextWrapping="Wrap" />
+                                <TextBlock Text="{Binding ContainedIn.Name}" TextWrapping="Wrap" />
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                         <DataGridTemplateColumn.CellEditingTemplate>
@@ -63,13 +60,11 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.CellEditingTemplate>
                     </DataGridTemplateColumn>
-                    
+
                     <DataGridTemplateColumn Header="Room">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock
-                                    Text="{Binding StoredIn.Name}"
-                                    TextWrapping="Wrap" />
+                                <TextBlock Text="{Binding StoredIn.Name}" TextWrapping="Wrap" />
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                         <DataGridTemplateColumn.CellEditingTemplate>
@@ -89,16 +84,24 @@
             <TextBox Text="{Binding SearchFilter, UpdateSourceTrigger=PropertyChanged}" />
         </GroupBox>
         <GroupBox Margin="0,103,528,356" Header="name">
-            <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBox
+                local:EnterKeyBehavior.Command="{Binding AddContainerCommand}"
+                local:FocusBehavior.IsFocused="{Binding NameFocused, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
         </GroupBox>
         <GroupBox Margin="277,104,181,279" Header="description">
             <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" />
         </GroupBox>
+        <CheckBox
+            Margin="448,128,239,0"
+            VerticalAlignment="Top"
+            Content="preserve"
+            IsChecked="{Binding PreserveDescription}" />
         <Button
             Margin="624,130,10,279"
-            FontSize="23"
             Command="{Binding AddContainerCommand}"
-            Content="Add Container" />
+            Content="Add Container"
+            FontSize="23" />
         <GroupBox Margin="277,0,269,452" Header="put in container">
             <ComboBox
                 local:ComboBoxBehavior.DropDownOpenedCommand="{Binding ContainersDroppedDownCommand}"

@@ -32,6 +32,7 @@ namespace item_eyez
                 FilterRooms(_searchFilter);
             }
         }
+        public bool NameFocused { get; set; }
         public void FilterRooms(string filterString)
         {
             if (string.IsNullOrWhiteSpace(filterString))
@@ -102,6 +103,9 @@ namespace item_eyez
                 LoadRooms();
                 Name = string.Empty; // Clear input fields
                 Description = string.Empty;
+
+                this.NameFocused = true;
+                this.OnPropertyChanged(nameof(NameFocused));
             }
         }
 
