@@ -6,6 +6,14 @@ namespace item_eyez
 {
     public class ItemEyezDatabase
     {
+        public delegate void DataChangedEventHandler(object sender, EventArgs e);
+        public event DataChangedEventHandler? DataChanged;
+
+
+        public virtual void OnDataChanged()
+        {
+            DataChanged?.Invoke(this, EventArgs.Empty);
+        }
         private static ItemEyezDatabase _instance;
         private static readonly object _lock = new object();
         private static string _connectionString;
@@ -57,6 +65,7 @@ namespace item_eyez
                 connection.Open();
                 command.ExecuteNonQuery();
             }
+            OnDataChanged();
         }
 
         public Guid AddContainer(string name, string description)
@@ -80,6 +89,7 @@ namespace item_eyez
                 connection.Open();
                 command.ExecuteNonQuery();
 
+                OnDataChanged();
                 // Return the generated ID
                 return (Guid)idParam.Value;
             }
@@ -111,6 +121,7 @@ namespace item_eyez
 
                     command.ExecuteNonQuery();
 
+                    OnDataChanged();
                     // Return the generated ID
                     return (Guid)idParam.Value;
                 }
@@ -131,6 +142,7 @@ namespace item_eyez
                 connection.Open();
                 command.ExecuteNonQuery();
             }
+            OnDataChanged();
         }
 
         public void UpdateRoom(Guid roomId, string newName, string newDescription)
@@ -147,6 +159,7 @@ namespace item_eyez
                 connection.Open();
                 command.ExecuteNonQuery();
             }
+            OnDataChanged();
         }
 
         public void UpdateItem(Guid itemId, string newName, string newDescription, decimal newValue, string newCategories)
@@ -165,6 +178,7 @@ namespace item_eyez
                 connection.Open();
                 command.ExecuteNonQuery();
             }
+            OnDataChanged();
         }
 
         public void DeleteContainer(Guid roomId)
@@ -179,6 +193,7 @@ namespace item_eyez
                 connection.Open();
                 command.ExecuteNonQuery();
             }
+            OnDataChanged();
         }
 
         public void DeleteRoom(Guid roomId)
@@ -193,6 +208,7 @@ namespace item_eyez
                 connection.Open();
                 command.ExecuteNonQuery();
             }
+            OnDataChanged();
         }
 
         public void DeleteItem(Guid itemId)
@@ -207,6 +223,7 @@ namespace item_eyez
                 connection.Open();
                 command.ExecuteNonQuery();
             }
+            OnDataChanged();
         }
 
         public DataTable GetRooms()
@@ -219,6 +236,7 @@ namespace item_eyez
                 adapter.Fill(table);
                 return table;
             }
+            OnDataChanged();
         }
 
         public DataTable GetContainers()
@@ -231,6 +249,7 @@ namespace item_eyez
                 adapter.Fill(table);
                 return table;
             }
+            OnDataChanged();
         }
 
         public DataTable GetItems()
@@ -258,6 +277,7 @@ namespace item_eyez
                 connection.Open();
                 command.ExecuteNonQuery();
             }
+            OnDataChanged();
         }
 
         public void AssociateItemWithRoom(Guid itemId, Guid roomId)
@@ -273,6 +293,7 @@ namespace item_eyez
                 connection.Open();
                 command.ExecuteNonQuery();
             }
+            OnDataChanged();
         }
 
         public Room GetItemsRoom(Guid itemId)
@@ -319,6 +340,7 @@ namespace item_eyez
             {
                 ItemEyezDatabase.Instance().AssociateItemWithRoom(itemId, (Guid)roomId);
             }
+            OnDataChanged();
         }
         public void SetItemsContainer(Guid itemId, Guid? containerId)
         {
@@ -328,6 +350,7 @@ namespace item_eyez
             {
                 ItemEyezDatabase.Instance().AssociateItemWithContainer(itemId, (Guid)containerId);
             }
+            OnDataChanged();
         }
 
         public ObservableCollection<Item> GetItemsWithRelationships()
@@ -479,6 +502,7 @@ namespace item_eyez
                 connection.Open();
                 command.ExecuteNonQuery();
             }
+            OnDataChanged();
         }
 
         public void UnassociateItemFromContainer(Guid itemId)
@@ -494,6 +518,7 @@ namespace item_eyez
                 connection.Open();
                 command.ExecuteNonQuery();
             }
+            OnDataChanged();
         }
 
         public ObservableCollection<Room> GetRoomsList()

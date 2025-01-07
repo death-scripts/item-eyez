@@ -64,6 +64,11 @@
             set
             {
                 Guid? id = value == null ? null : value.Id;
+                if (this.ContainedIn != null)
+                {
+                    ItemEyezDatabase.Instance().UnassociateItemFromContainer(this.Id);
+                }
+
                 ItemEyezDatabase.Instance().SetItemsRoom(this.Id, id);
                 OnPropertyChanged(nameof(StoredIn));
             }

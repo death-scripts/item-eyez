@@ -155,51 +155,6 @@
             </Setter>
         </Style>
 
-        <!--<Style x:Key="CustomAddButtonStyle" TargetType="Button">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border
-                            x:Name="border"
-                            Background="Coral"
-                            BorderBrush="Purple"
-                            BorderThickness="10"
-                            CornerRadius="4">
-                            <Label
-                                Margin="5"
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center"
-                                Content="{TemplateBinding Content}"
-                                FontSize="17"
-                                FontWeight="Bold" />
-                        </Border>
-                        <ControlTemplate.Triggers>
-        -->
-        <!--  MouseOver Effect  -->
-        <!--
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="DarkSalmon" />
-                                <Setter TargetName="border" Property="BorderBrush" Value="OrangeRed" />
-                            </Trigger>
-
-        -->
-        <!--  MouseDown Effect  -->
-        <!--
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="Firebrick" />
-                                <Setter TargetName="border" Property="BorderBrush" Value="Red" />
-                            </Trigger>
-
-                            <Trigger Property="IsKeyboardFocused" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="DarkSalmon" />
-                                <Setter TargetName="border" Property="BorderBrush" Value="OrangeRed" />
-                            </Trigger>
-
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>-->
         <Style x:Key="FocusVisual">
             <Setter Property="Control.Template">
                 <Setter.Value>
@@ -239,20 +194,25 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type Button}">
                         <Border
-                            x:Name="border"
-                            Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="7"
-                            CornerRadius="10"
-                            SnapsToDevicePixels="true">
-                            <ContentPresenter
-                                x:Name="contentPresenter"
-                                Margin="{TemplateBinding Padding}"
-                                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                Focusable="False"
-                                RecognizesAccessKey="True"
-                                SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                            BorderBrush="Black"
+                            BorderThickness="2"
+                            CornerRadius="13">
+                            <Border
+                                x:Name="border"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="7"
+                                CornerRadius="10"
+                                SnapsToDevicePixels="true">
+                                    <ContentPresenter
+                                        x:Name="contentPresenter"
+                                        Margin="{TemplateBinding Padding}"
+                                        HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                        VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                        Focusable="False"
+                                        RecognizesAccessKey="True"
+                                        SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                            </Border>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsDefaulted" Value="true">

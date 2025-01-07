@@ -25,6 +25,7 @@ namespace item_eyez
                 {
                     DatabaseHelper.Instance.DeleteDatabase();
                     DatabaseHelper.Instance.CreateDatabase();
+                    ItemEyezDatabase.Instance().OnDataChanged();
                     MessageBox.Show("Database reset successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 catch (Exception ex)

@@ -124,7 +124,7 @@
         <GroupBox Margin="237,103,651,280" Header="description">
             <TextBox Text="{Binding Description, UpdateSourceTrigger=LostFocus}" TextWrapping="Wrap" />
         </GroupBox>
-        <GroupBox Margin="554,103,317,280" Header="Catagories">
+        <GroupBox Margin="554,103,317,280" Header="catagories">
             <TextBox Text="{Binding Catagories, UpdateSourceTrigger=LostFocus}" TextWrapping="Wrap" />
         </GroupBox>
         <Button

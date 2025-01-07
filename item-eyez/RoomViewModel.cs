@@ -16,8 +16,14 @@ namespace item_eyez
         public RoomViewModel()
         {
             _dbHelper = ItemEyezDatabase.Instance();
-            LoadRooms();
+            Load();
+            _dbHelper.DataChanged += _dbHelper_DataChanged;
         }
+        private void _dbHelper_DataChanged(object sender, EventArgs e)
+        {
+            this.Load();
+        }
+
         public ICommand AddRoomCommand => new RelayCommand(AddRoom);
 
         public ObservableCollection<Room> Rooms { get; set; }
@@ -76,7 +82,7 @@ namespace item_eyez
             }
         }
 
-        public void LoadRooms()
+        public void Load()
         {
             Rooms = _dbHelper.GetRoomsList();
             Rooms.CollectionChanged += this.Rooms_CollectionChanged;
@@ -100,7 +106,7 @@ namespace item_eyez
             {
                 Description = Description == null ? string.Empty : Description;
                 _dbHelper.AddRoom(Name, Description);
-                LoadRooms();
+                Load();
                 Name = string.Empty; // Clear input fields
                 Description = string.Empty;
 

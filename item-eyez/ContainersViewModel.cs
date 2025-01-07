@@ -17,8 +17,15 @@ namespace item_eyez
         public ContainersViewModel()
         {
             _dbHelper = ItemEyezDatabase.Instance();
+            _dbHelper.DataChanged += _dbHelper_DataChanged;
             Load();
         }
+
+        private void _dbHelper_DataChanged(object sender, EventArgs e)
+        {
+            this.Load();
+        }
+
         public ICommand AddContainerCommand => new RelayCommand(Add);
 
         public ICommand ContainersDroppedDownCommand => new RelayCommand(ContainersDroppedDown);
