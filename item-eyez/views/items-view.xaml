@@ -17,6 +17,7 @@
         <Border Margin="0,276,10,-89">
             <DataGrid
                 Name="datagrid"
+                RowBackground="SkyBlue"
                 AlternatingRowBackground="LightBlue"
                 AlternationCount="1"
                 AutoGenerateColumns="False"

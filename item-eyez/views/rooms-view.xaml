@@ -18,6 +18,7 @@
             <DataGrid
                 Background="Pink"
                 Name="datagrid"
+                RowBackground="SkyBlue"
                 AlternatingRowBackground="LightBlue"
                 AlternationCount="1"
                 AutoGenerateColumns="False"

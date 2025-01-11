@@ -6,12 +6,13 @@
         xmlns:local="clr-namespace:item_eyez"
         mc:Ignorable="d"
         SizeToContent="WidthAndHeight"
-        Title="MainWindow" Height="550" Width="900">
+        Background="Lavender"
+        Title="MainWindow">
     <Window.DataContext>
         <local:MainViewModel />
     </Window.DataContext>
     <StackPanel>
-        <Menu>
+        <Menu Style="{DynamicResource MenuStyle1}">
             <MenuItem Header="File">
                 <MenuItem Header="Reset Database" Command="{Binding ResetDatabaseCommand}" />
             </MenuItem>
