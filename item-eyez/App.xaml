@@ -6,31 +6,6 @@
     xmlns:theme="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2"
     StartupUri="MainWindow.xaml">
     <Application.Resources>
-        <Style x:Key="WatermarkTextBox" TargetType="TextBox">
-            <Setter Property="Margin" Value="10" />
-            <Setter Property="Width" Value="200" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TextBox">
-                        <GroupBox FontSize="20" Header="{TemplateBinding Tag}">
-                            <Border
-                                x:Name="border"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="Gray"
-                                BorderThickness="1">
-                                <TextBox x:Name="innerTextBox" Text="{Binding Text, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                            </Border>
-                        </GroupBox>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsKeyboardFocused" Value="True">
-                                <Setter TargetName="innerTextBox" Property="BorderBrush" Value="Blue" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
         <Style TargetType="GroupBox">
             <Setter Property="FontSize" Value="30" />
             <Setter Property="BorderBrush" Value="Cyan" />
@@ -42,14 +17,67 @@
         <Style TargetType="Label">
             <Setter Property="FontSize" Value="18" />
         </Style>
-
-        <Style TargetType="TextBox">
-            <Setter Property="BorderBrush" Value="Pink" />
-            <Setter Property="BorderThickness" Value="6" />
+        
+        <LinearGradientBrush x:Key="TextBox.Static.Border" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Offset="0.0" Color="Pink" />
+            <GradientStop Offset="1.0" Color="Pink" />
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="TextBox.Focus.Border" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Offset="0.0" Color="#FF569DE5" />
+            <GradientStop Offset="1.0" Color="#FF569DE5" />
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="TextBox.MouseOver.Border" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Offset="0.0" Color="#FF569DE5" />
+            <GradientStop Offset="1.0" Color="#FF569DE5" />
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="TextBox.Static.Background" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Offset="0.0" Color="#db4437" />
+            <GradientStop Offset="1.0" Color="Cyan" />
+        </LinearGradientBrush>
+        <Style TargetType="{x:Type TextBox}">
+            <Setter Property="Background" Value="{StaticResource TextBox.Static.Background}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource TextBox.Static.Border}"/>
+            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+            <Setter Property="BorderThickness" Value="6"/>
+            <Setter Property="KeyboardNavigation.TabNavigation" Value="None"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="AllowDrop" Value="true"/>
+            <Setter Property="ScrollViewer.PanningMode" Value="VerticalFirst"/>
+            <Setter Property="Stylus.IsFlicksEnabled" Value="False"/>
             <Setter Property="FontSize" Value="20" />
-            <Setter Property="Background" Value="MediumAquamarine" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type TextBox}">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" SnapsToDevicePixels="True">
+                            <ScrollViewer x:Name="PART_ContentHost" Focusable="false" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Opacity" TargetName="border" Value="0.56"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource TextBox.MouseOver.Border}"/>
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="true">
+                                <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource TextBox.Focus.Border}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsInactiveSelectionHighlightEnabled" Value="true"/>
+                        <Condition Property="IsSelectionActive" Value="false"/>
+                    </MultiTrigger.Conditions>
+                    <Setter Property="SelectionBrush" Value="{DynamicResource {x:Static SystemColors.InactiveSelectionHighlightBrushKey}}"/>
+                </MultiTrigger>
+            </Style.Triggers>
         </Style>
-
+        
+        
         <Style TargetType="DataGrid">
             <Setter Property="FontSize" Value="16" />
         </Style>
@@ -236,7 +264,6 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        <SolidColorBrush x:Key="TextBox.Static.Background" Color="Cyan" />
         <Style x:Key="ComboBoxEditableTextBox" TargetType="{x:Type TextBox}">
             <Setter Property="OverridesDefaultStyle" Value="true" />
             <Setter Property="AllowDrop" Value="true" />
