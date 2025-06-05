@@ -15,6 +15,7 @@
         <Menu Style="{DynamicResource MenuStyle1}">
             <MenuItem Header="File">
                 <MenuItem Header="Reset Database" Command="{Binding ResetDatabaseCommand}" />
+                <MenuItem Header="Populate Sample Data" Command="{Binding PopulateSampleDataCommand}" />
             </MenuItem>
         </Menu>
         <local:main_view />

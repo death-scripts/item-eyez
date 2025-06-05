@@ -107,7 +107,7 @@ CREATE PROCEDURE UpdateContainer
     @newDescription TEXT
 AS
 BEGIN
-    UPDATE room
+    UPDATE container
     SET name = @newName,
         description = @newDescription
     WHERE id = @containerId;

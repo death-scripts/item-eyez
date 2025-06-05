@@ -29,6 +29,7 @@
             {
                 this.name = value;
                 ItemEyezDatabase.Instance().UpdateContainer(this.Id, this.Name, this.Description);
+                OnPropertyChanged(nameof(Name));
             }
         }
         public string Description
@@ -38,6 +39,7 @@
             {
                 this.description = value;
                 ItemEyezDatabase.Instance().UpdateContainer(this.Id, this.Name, this.Description);
+                OnPropertyChanged(nameof(Description));
             }
         }
         public Container ContainedIn
