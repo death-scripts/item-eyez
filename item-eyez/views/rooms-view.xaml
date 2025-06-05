@@ -9,9 +9,38 @@
     <UserControl.DataContext>
         <local:RoomViewModel />
     </UserControl.DataContext>
-    <Grid>
-        <Border Margin="0,276,10,-89">
-            <DataGrid
+    <Grid Margin="5">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Margin="0,0,0,5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <GroupBox Header="search filter" Margin="0,0,5,0">
+                <TextBox Text="{Binding SearchFilter, UpdateSourceTrigger=PropertyChanged}" />
+            </GroupBox>
+            <GroupBox Grid.Column="1" Header="name" Margin="0,0,5,0">
+                <TextBox
+                    local:EnterKeyBehavior.Command="{Binding AddRoomCommand}"
+                    local:FocusBehavior.IsFocused="{Binding NameFocused, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
+            </GroupBox>
+            <GroupBox Grid.Column="2" Header="description" Margin="0,0,5,0">
+                <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" />
+            </GroupBox>
+        </Grid>
+
+        <Grid Grid.Row="1" Margin="0,0,0,5">
+            <Button Width="120" Height="35" Command="{Binding AddRoomCommand}" Content="Add Room" FontSize="25" />
+        </Grid>
+
+        <DataGrid Grid.Row="2"
                 Background="Pink"
                 Name="datagrid"
                 RowBackground="SkyBlue"
@@ -44,23 +73,5 @@
                     </DataGridTemplateColumn>
                 </DataGrid.Columns>
             </DataGrid>
-        </Border>
-        <GroupBox Margin="0,0,10,452" Header="search filter">
-            <TextBox Text="{Binding SearchFilter, UpdateSourceTrigger=PropertyChanged}" />
-        </GroupBox>
-        <GroupBox Margin="0,103,528,356" Header="name">
-            <TextBox
-                local:EnterKeyBehavior.Command="{Binding AddRoomCommand}"
-                local:FocusBehavior.IsFocused="{Binding NameFocused, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
-        </GroupBox>
-        <GroupBox Margin="277,104,152,279" Header="description">
-            <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" />
-        </GroupBox>
-        <Button 
-            FontSize="25"
-            Margin="653,130,10,279"
-            Command="{Binding AddRoomCommand}"
-            Content="Add Room"/>
     </Grid>
 </UserControl>

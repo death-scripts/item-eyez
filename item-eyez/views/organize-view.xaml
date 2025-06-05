@@ -11,13 +11,13 @@
             <GradientStop Color="Red" Offset="0" />
             <GradientStop Color="LemonChiffon" Offset="1" />
         </LinearGradientBrush>
-        <LinearGradientBrush x:Key="NodeBackgroundBrush" StartPoint="0,0" EndPoint="1,0">
-            <GradientStop Color="Pink" Offset="0" />
-            <GradientStop Color="Teal" Offset="1" />
+        <LinearGradientBrush x:Key="NodeBackgroundBrush" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#FF69B4" Offset="0" />
+            <GradientStop Color="#40E0D0" Offset="1" />
         </LinearGradientBrush>
         <LinearGradientBrush x:Key="TreeBackgroundBrush" StartPoint="0,0" EndPoint="0,1">
-            <GradientStop Color="White" Offset="0" />
-            <GradientStop Color="LightGray" Offset="1" />
+            <GradientStop Color="#20B2AA" Offset="0" />
+            <GradientStop Color="#FFDAB9" Offset="1" />
         </LinearGradientBrush>
     </UserControl.Resources>
     <UserControl.DataContext>
