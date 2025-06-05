@@ -39,6 +39,15 @@ namespace item_eyez
             }
         }
         public bool NameFocused { get; set; }
+
+        private Room _selectedRoomRow;
+        public Room SelectedRoomRow
+        {
+            get => _selectedRoomRow;
+            set { _selectedRoomRow = value; OnPropertyChanged(nameof(SelectedRoomRow)); }
+        }
+
+        public ICommand DeleteRoomCommand => new RelayCommand(DeleteSelectedRoom);
         public void FilterRooms(string filterString)
         {
             if (string.IsNullOrWhiteSpace(filterString))
@@ -112,6 +121,14 @@ namespace item_eyez
 
                 this.NameFocused = true;
                 this.OnPropertyChanged(nameof(NameFocused));
+            }
+        }
+
+        private void DeleteSelectedRoom()
+        {
+            if (SelectedRoomRow != null)
+            {
+                Rooms.Remove(SelectedRoomRow);
             }
         }
 

@@ -10,6 +10,7 @@ namespace item_eyez
     {
         private Point _startPoint;
         private TreeViewItem? _highlighted;
+        private readonly ItemEyezDatabase _db = ItemEyezDatabase.Instance();
         public organize_view()
         {
             InitializeComponent();
@@ -92,6 +93,88 @@ namespace item_eyez
                 source = VisualTreeHelper.GetParent(source);
             }
             return null;
+        }
+
+        private void TreeViewItem_LeftClick(object sender, MouseButtonEventArgs e)
+        {
+            var item = (TreeViewItem)sender;
+            item.IsSelected = true;
+            var node = item.DataContext as HierarchyNode;
+            if (node == null) return;
+
+            ContextMenu menu = new ContextMenu();
+            if (node.Entity is Container cont)
+            {
+                var addItem = new MenuItem { Header = "Add Item", DataContext = cont };
+                addItem.Click += AddItem_OnClick;
+                menu.Items.Add(addItem);
+
+                var addContainer = new MenuItem { Header = "Add Container", DataContext = cont };
+                addContainer.Click += AddContainer_OnClick;
+                menu.Items.Add(addContainer);
+            }
+            menu.Items.Add(new MenuItem { Header = "Delete", DataContext = node, Command = null });
+            ((MenuItem)menu.Items[^1]).Click += DeleteNode_OnClick;
+            menu.IsOpen = true;
+        }
+
+        private void Tree_LeftClick(object sender, MouseButtonEventArgs e)
+        {
+            if (GetContainerFromEvent(tree, e.OriginalSource as DependencyObject) == null)
+            {
+                ContextMenu menu = new ContextMenu();
+                menu.Items.Add(new MenuItem { Header = "Add Item" });
+                ((MenuItem)menu.Items[0]).Click += (s, _) => AddItem_OnClick(s, _);
+                menu.Items.Add(new MenuItem { Header = "Add Container" });
+                ((MenuItem)menu.Items[1]).Click += (s, _) => AddContainer_OnClick(s, _);
+                menu.Items.Add(new MenuItem { Header = "Add Room" });
+                ((MenuItem)menu.Items[2]).Click += (s, _) => AddRoomRoot_Click(s, _);
+                menu.IsOpen = true;
+            }
+        }
+
+        private void AddItem_OnClick(object sender, RoutedEventArgs e)
+        {
+            Container? parent = (sender as MenuItem)?.DataContext as Container;
+            var id = _db.AddItem("New Item", string.Empty, 0m, string.Empty);
+            if (parent != null)
+                _db.AssociateItemWithContainer(id, parent.Id);
+        }
+
+        private void AddItemRoot_Click(object sender, RoutedEventArgs e) => AddItem_OnClick(sender, e);
+
+        private void AddContainer_OnClick(object sender, RoutedEventArgs e)
+        {
+            Container? parent = (sender as MenuItem)?.DataContext as Container;
+            var id = _db.AddContainer("New Container", string.Empty);
+            if (parent != null)
+                _db.AssociateItemWithContainer(id, parent.Id);
+        }
+
+        private void AddContainerRoot_Click(object sender, RoutedEventArgs e) => AddContainer_OnClick(sender, e);
+
+        private void AddRoomRoot_Click(object sender, RoutedEventArgs e)
+        {
+            _db.AddRoom("New Room", string.Empty);
+        }
+
+        private void DeleteNode_OnClick(object sender, RoutedEventArgs e)
+        {
+            if ((sender as MenuItem)?.DataContext is HierarchyNode node)
+            {
+                switch (node.Entity)
+                {
+                    case Item item:
+                        _db.DeleteItem(item.Id);
+                        break;
+                    case Container cont:
+                        _db.DeleteContainer(cont.Id);
+                        break;
+                    case Room room:
+                        _db.DeleteRoom(room.Id);
+                        break;
+                }
+            }
         }
     }
 }

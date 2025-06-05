@@ -17,7 +17,19 @@
         </Grid.RowDefinitions>
 
         <!-- search box on its own row -->
-        <GroupBox Grid.Row="0" Margin="0,0,0,5" Header="search filter">
+                  SelectedItem="{Binding SelectedRoomRow}">
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                    <EventSetter Event="PreviewMouseLeftButtonDown" Handler="DataGridRow_LeftClick" />
+                    <Setter Property="ContextMenu">
+                        <Setter.Value>
+                            <ContextMenu>
+                                <MenuItem Header="Delete" Click="DeleteRow_Click" />
+                            </ContextMenu>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </DataGrid.RowStyle>
             <TextBox Text="{Binding SearchFilter, UpdateSourceTrigger=PropertyChanged}" />
         </GroupBox>
 
