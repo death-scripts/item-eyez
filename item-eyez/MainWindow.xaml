@@ -8,12 +8,6 @@
         SizeToContent="WidthAndHeight"
         Background="{StaticResource WindowBackgroundBrush}"
         Title="MainWindow">
-    <Window.Resources>
-        <LinearGradientBrush x:Key="WindowBackgroundBrush" StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="HotPink" Offset="0" />
-            <GradientStop Color="MediumAquamarine" Offset="1" />
-        </LinearGradientBrush>
-    </Window.Resources>
     <Window.DataContext>
         <local:MainViewModel />
     </Window.DataContext>

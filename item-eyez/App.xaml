@@ -31,6 +31,12 @@
             </Setter>
         </Style>
 
+        <!-- gradient background for the main window -->
+        <LinearGradientBrush x:Key="WindowBackgroundBrush" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="HotPink" Offset="0" />
+            <GradientStop Color="MediumAquamarine" Offset="1" />
+        </LinearGradientBrush>
+
         <LinearGradientBrush x:Key="GroupBox.Static.Background" StartPoint="0,0" EndPoint="0,1">
             <GradientStop Offset="0.0" Color="Red" />
             <GradientStop Offset="1.0" Color="Orange" />

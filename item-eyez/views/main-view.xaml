@@ -8,17 +8,8 @@
     d:DesignHeight="550"
     d:DesignWidth="800"
     mc:Ignorable="d">
-    <UserControl.Resources>
-        <LinearGradientBrush x:Key="TabBackgroundBrush" StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="Purple" Offset="0" />
-            <GradientStop Color="Orange" Offset="0.25" />
-            <GradientStop Color="Red" Offset="0.5" />
-            <GradientStop Color="Green" Offset="0.75" />
-            <GradientStop Color="Yellow" Offset="1" />
-        </LinearGradientBrush>
-    </UserControl.Resources>
     <Grid>
-        <TabControl Background="{StaticResource TabBackgroundBrush}">
+        <TabControl Background="Beige">
             <TabItem Header="ROOMS">
                 <local:rooms_view />
             </TabItem>
