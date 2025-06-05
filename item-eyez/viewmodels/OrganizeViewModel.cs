@@ -44,6 +44,14 @@ namespace item_eyez
         {
             foreach (var node in Roots)
                 MarkMatches(node);
+            foreach (var node in RightRoots)
+                MarkMatches(node);
+
+            if (!string.IsNullOrWhiteSpace(SearchText))
+            {
+                SortCollection(Roots);
+                SortCollection(RightRoots);
+            }
         }
 
         private bool MarkMatches(HierarchyNode node)
@@ -163,6 +171,40 @@ namespace item_eyez
                     return true;
             }
             return false;
+        }
+
+        private bool NodeHasMatch(HierarchyNode node)
+        {
+            if (node.IsMatch)
+                return true;
+            foreach (var child in node.Children)
+                if (NodeHasMatch(child))
+                    return true;
+            return false;
+        }
+
+        private void SortChildren(HierarchyNode node)
+        {
+            foreach (var child in node.Children)
+                SortChildren(child);
+
+            var hits = node.Children.Where(NodeHasMatch).OrderBy(c => c.Children.Count).ToList();
+            var others = node.Children.Where(c => !NodeHasMatch(c)).ToList();
+            node.Children.Clear();
+            foreach (var c in hits.Concat(others))
+                node.Children.Add(c);
+        }
+
+        private void SortCollection(ObservableCollection<HierarchyNode> list)
+        {
+            foreach (var node in list)
+                SortChildren(node);
+
+            var hits = list.Where(NodeHasMatch).OrderBy(n => n.Children.Count).ToList();
+            var others = list.Where(n => !NodeHasMatch(n)).ToList();
+            list.Clear();
+            foreach (var n in hits.Concat(others))
+                list.Add(n);
         }
     }
 }
