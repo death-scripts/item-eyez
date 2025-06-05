@@ -10,14 +10,16 @@
         <local:OrganizeViewModel />
     </UserControl.DataContext>
     <Grid>
-        <TreeView Name="tree" ItemsSource="{Binding Roots}"
-                  PreviewMouseLeftButtonDown="Tree_PreviewMouseLeftButtonDown"
-                  MouseMove="Tree_MouseMove"
-                  AllowDrop="True"
-                  Drop="Tree_Drop">
+        <TreeView Name="tree" ItemsSource="{Binding Roots}" AllowDrop="True"
+                  Drop="Tree_Drop" DragOver="Tree_DragOver">
             <TreeView.Resources>
                 <HierarchicalDataTemplate DataType="{x:Type local:HierarchyNode}" ItemsSource="{Binding Children}">
-                    <TextBox Text="{Binding Name, UpdateSourceTrigger=LostFocus}" BorderThickness="0" Background="Transparent" />
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="☰" Margin="0,0,4,0"
+                                   PreviewMouseLeftButtonDown="DragHandle_PreviewMouseLeftButtonDown"
+                                   MouseMove="DragHandle_MouseMove"/>
+                        <TextBox Text="{Binding Name, UpdateSourceTrigger=LostFocus}" BorderThickness="0" Background="Transparent" />
+                    </StackPanel>
                 </HierarchicalDataTemplate>
             </TreeView.Resources>
         </TreeView>

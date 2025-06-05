@@ -48,10 +48,17 @@
             }
             set
             {
-
                 Guid? id = value == null ? null : value.Id;
                 ItemEyezDatabase.Instance().SetItemsContainer(this.Id, id);
+
+                if (value != null)
+                {
+                    Guid? roomId = ItemEyezDatabase.Instance().GetRoomIdForEntity(value.Id);
+                    ItemEyezDatabase.Instance().SetItemsRoom(this.Id, roomId);
+                }
+
                 OnPropertyChanged(nameof(ContainedIn));
+                OnPropertyChanged(nameof(StoredIn));
             }
         }
         public Room StoredIn

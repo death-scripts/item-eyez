@@ -9,17 +9,18 @@ namespace item_eyez
     public partial class organize_view : UserControl
     {
         private Point _startPoint;
+        private TreeViewItem? _highlighted;
         public organize_view()
         {
             InitializeComponent();
         }
 
-        private void Tree_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void DragHandle_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             _startPoint = e.GetPosition(null);
         }
 
-        private void Tree_MouseMove(object sender, MouseEventArgs e)
+        private void DragHandle_MouseMove(object sender, MouseEventArgs e)
         {
             if (e.LeftButton == MouseButtonState.Pressed)
             {
@@ -27,12 +28,8 @@ namespace item_eyez
                 if (Math.Abs(pos.X - _startPoint.X) > SystemParameters.MinimumHorizontalDragDistance ||
                     Math.Abs(pos.Y - _startPoint.Y) > SystemParameters.MinimumVerticalDragDistance)
                 {
-                    var treeView = (TreeView)sender;
-                    var tvi = GetContainerFromEvent(treeView, e.OriginalSource as DependencyObject);
-                    if (tvi != null)
-                    {
-                        DragDrop.DoDragDrop(tvi, tvi.DataContext, DragDropEffects.Move);
-                    }
+                    var element = (FrameworkElement)sender;
+                    DragDrop.DoDragDrop(element, element.DataContext, DragDropEffects.Move);
                 }
             }
         }
@@ -64,6 +61,26 @@ namespace item_eyez
             }
 
             ((OrganizeViewModel)DataContext).Load();
+
+            if (_highlighted != null)
+            {
+                _highlighted.Background = Brushes.Transparent;
+                _highlighted = null;
+            }
+        }
+
+        private void Tree_DragOver(object sender, DragEventArgs e)
+        {
+            var treeView = (TreeView)sender;
+            var item = GetContainerFromEvent(treeView, e.OriginalSource as DependencyObject);
+            if (_highlighted != item)
+            {
+                if (_highlighted != null)
+                    _highlighted.Background = Brushes.Transparent;
+                _highlighted = item;
+                if (_highlighted != null)
+                    _highlighted.Background = Brushes.LightGoldenrodYellow;
+            }
         }
 
         private TreeViewItem? GetContainerFromEvent(ItemsControl container, DependencyObject? source)
