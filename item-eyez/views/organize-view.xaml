@@ -69,7 +69,7 @@
                 </Style>
             </TreeView.Resources>
         </TreeView>
-        <TreeView Name="treeRight" Grid.Row="1" Grid.Column="1" ItemsSource="{Binding Roots}" AllowDrop="True"
+        <TreeView Name="treeRight" Grid.Row="1" Grid.Column="1" ItemsSource="{Binding RightRoots}" AllowDrop="True"
                   Background="{StaticResource TreeBackgroundBrush}"
                   Drop="Tree_Drop" DragOver="Tree_DragOver" PreviewMouseRightButtonDown="Tree_LeftClick"
                   ScrollViewer.VerticalScrollBarVisibility="Auto"

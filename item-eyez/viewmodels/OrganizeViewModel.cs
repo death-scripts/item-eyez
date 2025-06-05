@@ -10,6 +10,7 @@ namespace item_eyez
         private readonly ItemEyezDatabase _db = ItemEyezDatabase.Instance();
 
         public ObservableCollection<HierarchyNode> Roots { get; } = new();
+        public ObservableCollection<HierarchyNode> RightRoots { get; } = new();
 
         private readonly Dictionary<Guid, bool> _expansionState = new();
 

@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Collections.ObjectModel;
 
 namespace item_eyez
 {
@@ -42,7 +43,18 @@ namespace item_eyez
 
             var treeView = (TreeView)sender;
             var targetItem = GetContainerFromEvent(treeView, e.OriginalSource as DependencyObject);
-            if (targetItem == null) return;
+            var vm = (OrganizeViewModel)DataContext;
+            if (targetItem == null)
+            {
+                // move to tree root
+                if (RemoveNode(vm.Roots, source) || RemoveNode(vm.RightRoots, source))
+                {
+                    var list = treeView == tree ? vm.Roots : vm.RightRoots;
+                    list.Add(source);
+                    e.Handled = true;
+                }
+                return;
+            }
             var target = targetItem.DataContext as HierarchyNode;
             if (target == null || target == source) return;
 
@@ -93,6 +105,18 @@ namespace item_eyez
                 source = VisualTreeHelper.GetParent(source);
             }
             return null;
+        }
+
+        private bool RemoveNode(ObservableCollection<HierarchyNode> list, HierarchyNode node)
+        {
+            if (list.Remove(node))
+                return true;
+            foreach (var child in list)
+            {
+                if (RemoveNode(child.Children, node))
+                    return true;
+            }
+            return false;
         }
 
         private void TreeViewItem_LeftClick(object sender, MouseButtonEventArgs e)
