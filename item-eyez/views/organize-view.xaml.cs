@@ -120,7 +120,8 @@ namespace item_eyez
 
         private void Tree_LeftClick(object sender, MouseButtonEventArgs e)
         {
-            if (GetContainerFromEvent(tree, e.OriginalSource as DependencyObject) == null)
+            var treeView = (TreeView)sender;
+            if (GetContainerFromEvent(treeView, e.OriginalSource as DependencyObject) == null)
             {
                 ContextMenu menu = new ContextMenu();
                 menu.Items.Add(new MenuItem { Header = "Add Item" });
