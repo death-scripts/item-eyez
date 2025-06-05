@@ -37,7 +37,7 @@
         </Grid>
 
         <Grid Grid.Row="1" Margin="0,0,0,5">
-            <Button Width="120" Height="35" Command="{Binding AddRoomCommand}" Content="Add Room" FontSize="25" />
+            <Button Width="145" Height="100" Command="{Binding AddRoomCommand}" Content="Add Room" FontSize="25" />
         </Grid>
 
         <DataGrid Grid.Row="2"

@@ -60,7 +60,7 @@
             <GroupBox Grid.Column="2" Header="catagories" Margin="0,0,5,0">
                 <TextBox Text="{Binding Catagories, UpdateSourceTrigger=LostFocus}" TextWrapping="Wrap" />
             </GroupBox>
-            <Button Grid.Column="3" Width="120" Height="35" Command="{Binding AddItemCommand}" Content="Add Item" FontSize="25" />
+            <Button Grid.Column="3" Width="120" Height="100" Command="{Binding AddItemCommand}" Content="Add Item" FontSize="25" />
         </Grid>
 
         <DataGrid Grid.Row="2" Name="datagrid"
