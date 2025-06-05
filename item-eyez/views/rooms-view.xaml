@@ -17,19 +17,7 @@
         </Grid.RowDefinitions>
 
         <!-- search box on its own row -->
-                  SelectedItem="{Binding SelectedRoomRow}">
-            <DataGrid.RowStyle>
-                <Style TargetType="DataGridRow">
-                    <EventSetter Event="PreviewMouseLeftButtonDown" Handler="DataGridRow_LeftClick" />
-                    <Setter Property="ContextMenu">
-                        <Setter.Value>
-                            <ContextMenu>
-                                <MenuItem Header="Delete" Click="DeleteRow_Click" />
-                            </ContextMenu>
-                        </Setter.Value>
-                    </Setter>
-                </Style>
-            </DataGrid.RowStyle>
+        <GroupBox>
             <TextBox Text="{Binding SearchFilter, UpdateSourceTrigger=PropertyChanged}" />
         </GroupBox>
 
@@ -65,7 +53,19 @@
                 CanUserDeleteRows="True"
                 CanUserResizeColumns="True"
                 ItemsSource="{Binding Rooms}"
-                SelectedItem="{Binding SelectedRoom}">
+                  SelectedItem="{Binding SelectedRoomRow}">
+            <!--<DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                    <EventSetter Event="PreviewMouseLeftButtonDown" Handler="DataGridRow_LeftClick" />
+                    <Setter Property="ContextMenu">
+                        <Setter.Value>
+                            <ContextMenu>
+                                <MenuItem Header="Delete" Click="DeleteRow_Click" />
+                            </ContextMenu>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </DataGrid.RowStyle>-->
             <DataGrid.Columns>
                 <DataGridTextColumn Binding="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Header="Name" />
                 <DataGridTemplateColumn Header="Description">

@@ -29,7 +29,7 @@
         </GroupBox>
         <TreeView Name="tree" Grid.Row="1" ItemsSource="{Binding Roots}" AllowDrop="True"
                   Background="{StaticResource TreeBackgroundBrush}"
-                  Drop="Tree_Drop" DragOver="Tree_DragOver" PreviewMouseLeftButtonDown="Tree_LeftClick"
+                  Drop="Tree_Drop" DragOver="Tree_DragOver" PreviewMouseRightButtonDown="Tree_LeftClick"
                   ScrollViewer.VerticalScrollBarVisibility="Auto"
                   ScrollViewer.HorizontalScrollBarVisibility="Auto">
             <TreeView.ContextMenu>
@@ -61,7 +61,7 @@
                 </HierarchicalDataTemplate>
                 <Style TargetType="TreeViewItem">
                     <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
-                    <EventSetter Event="PreviewMouseLeftButtonDown" Handler="TreeViewItem_LeftClick" />
+                    <EventSetter Event="PreviewMouseRightButtonDown" Handler="TreeViewItem_LeftClick" />
                 </Style>
             </TreeView.Resources>
         </TreeView>
