@@ -14,8 +14,10 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <TextBox Grid.Row="0" Margin="5" Width="250" Tag="Search"
-                 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
+        <GroupBox Grid.Row="0" Margin="5" Header="search filter">
+            <TextBox Width="250" Tag="Search"
+                     Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
+        </GroupBox>
         <TreeView Name="tree" Grid.Row="1" ItemsSource="{Binding Roots}" AllowDrop="True"
                   Drop="Tree_Drop" DragOver="Tree_DragOver">
             <TreeView.Resources>
@@ -31,6 +33,9 @@
                     <HierarchicalDataTemplate.Triggers>
                         <DataTrigger Binding="{Binding IsMatch}" Value="True">
                             <Setter TargetName="nodeBorder" Property="Background" Value="LightGoldenrodYellow" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType=TreeViewItem}}" Value="True">
+                            <Setter TargetName="nodeBorder" Property="Background" Value="LightSkyBlue" />
                         </DataTrigger>
                     </HierarchicalDataTemplate.Triggers>
                 </HierarchicalDataTemplate>

@@ -1,4 +1,6 @@
+using System;
 using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace item_eyez
@@ -8,6 +10,8 @@ namespace item_eyez
         private readonly ItemEyezDatabase _db = ItemEyezDatabase.Instance();
 
         public ObservableCollection<HierarchyNode> Roots { get; } = new();
+
+        private readonly Dictionary<Guid, bool> _expansionState = new();
 
         private string _searchText = string.Empty;
         public string SearchText
@@ -44,12 +48,32 @@ namespace item_eyez
             foreach (var child in node.Children)
                 childMatch |= MarkMatches(child);
             node.IsMatch = selfMatch;
-            node.IsExpanded = childMatch || selfMatch && node.Children.Count > 0;
+            if (!string.IsNullOrWhiteSpace(SearchText))
+                node.IsExpanded = node.IsExpanded || childMatch || (selfMatch && node.Children.Count > 0);
             return selfMatch || childMatch;
+        }
+
+        private void SaveExpansion(HierarchyNode node)
+        {
+            _expansionState[node.Id] = node.IsExpanded;
+            foreach (var child in node.Children)
+                SaveExpansion(child);
+        }
+
+        private void RestoreExpansion(HierarchyNode node)
+        {
+            if (_expansionState.TryGetValue(node.Id, out bool expanded))
+                node.IsExpanded = expanded;
+            foreach (var child in node.Children)
+                RestoreExpansion(child);
         }
 
         public void Load()
         {
+            _expansionState.Clear();
+            foreach (var root in Roots)
+                SaveExpansion(root);
+
             Roots.Clear();
             var rooms = _db.GetRoomsList();
             var containers = _db.GetContainersWithRelationships();
@@ -103,6 +127,9 @@ namespace item_eyez
             {
                 Roots.Add(rn);
             }
+
+            foreach (var root in Roots)
+                RestoreExpansion(root);
 
             OnPropertyChanged(nameof(Roots));
             ApplySearch();
