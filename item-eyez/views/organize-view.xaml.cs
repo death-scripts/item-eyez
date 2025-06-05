@@ -82,6 +82,8 @@ namespace item_eyez
                 vm.RemoveRightFromRoots();
             }
 
+            vm.RefreshSearch();
+
             if (_highlighted != null)
             {
                 _highlighted.Background = Brushes.Transparent;

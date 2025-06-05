@@ -40,6 +40,8 @@ namespace item_eyez
             };
         }
 
+        public void RefreshSearch() => ApplySearch();
+
         private void ApplySearch()
         {
             foreach (var node in Roots)
@@ -47,11 +49,10 @@ namespace item_eyez
             foreach (var node in RightRoots)
                 MarkMatches(node);
 
-            if (!string.IsNullOrWhiteSpace(SearchText))
-            {
-                SortCollection(Roots);
-                SortCollection(RightRoots);
-            }
+            foreach (var node in Roots)
+                UpdateVisibility(node);
+            foreach (var node in RightRoots)
+                UpdateVisibility(node);
         }
 
         private bool MarkMatches(HierarchyNode node)
@@ -173,38 +174,15 @@ namespace item_eyez
             return false;
         }
 
-        private bool NodeHasMatch(HierarchyNode node)
+        private bool UpdateVisibility(HierarchyNode node)
         {
-            if (node.IsMatch)
-                return true;
+            bool childVisible = false;
             foreach (var child in node.Children)
-                if (NodeHasMatch(child))
-                    return true;
-            return false;
-        }
+                childVisible |= UpdateVisibility(child);
 
-        private void SortChildren(HierarchyNode node)
-        {
-            foreach (var child in node.Children)
-                SortChildren(child);
-
-            var hits = node.Children.Where(NodeHasMatch).OrderBy(c => c.Children.Count).ToList();
-            var others = node.Children.Where(c => !NodeHasMatch(c)).ToList();
-            node.Children.Clear();
-            foreach (var c in hits.Concat(others))
-                node.Children.Add(c);
-        }
-
-        private void SortCollection(ObservableCollection<HierarchyNode> list)
-        {
-            foreach (var node in list)
-                SortChildren(node);
-
-            var hits = list.Where(NodeHasMatch).OrderBy(n => n.Children.Count).ToList();
-            var others = list.Where(n => !NodeHasMatch(n)).ToList();
-            list.Clear();
-            foreach (var n in hits.Concat(others))
-                list.Add(n);
+            bool visible = string.IsNullOrWhiteSpace(SearchText) || node.IsMatch || childVisible;
+            node.IsVisible = visible;
+            return node.IsMatch || childVisible;
         }
     }
 }
