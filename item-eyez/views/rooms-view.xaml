@@ -32,7 +32,9 @@
                 <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" />
             </GroupBox>
             <Button Grid.Column="2" Width="120" Height="35" FontSize="25" Content="Add Room" Command="{Binding AddRoomCommand}" />
-        <DataGrid Grid.Row="2" AutoGenerateColumns="False"
+        <DataGrid x:Name="roomsGrid"
+                  Grid.Row="2"
+                  AutoGenerateColumns="False"
                   CanUserDeleteRows="True"
                   CanUserResizeColumns="True"
                   ScrollViewer.VerticalScrollBarVisibility="Auto"
