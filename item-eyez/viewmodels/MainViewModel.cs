@@ -103,7 +103,17 @@ namespace item_eyez
                 adapter.Fill(data);
 
                 var db = ItemEyezDatabase.Instance();
+                var containers = db.GetContainersWithRelationships().ToDictionary(c => c.Name, StringComparer.OrdinalIgnoreCase);
+                var rooms = db.GetRoomsList().ToDictionary(r => r.Name, StringComparer.OrdinalIgnoreCase);
 
+                var progress = new ProgressWindow
+                {
+                    Owner = Application.Current.MainWindow
+                };
+                progress.Bar.Maximum = data.Rows.Count;
+                progress.Show();
+
+                int processed = 0;
                 foreach (DataRow row in data.Rows)
                 {
                     string itemName = row.Table.Columns.Contains("item") ? row["item"].ToString() ?? string.Empty : string.Empty;
@@ -129,27 +139,82 @@ namespace item_eyez
 
                     if (isContainerLocation)
                     {
-                        var containers = db.GetContainersWithRelationships();
-                        var container = containers.FirstOrDefault(c => c.Name.Equals(location, StringComparison.OrdinalIgnoreCase));
-                        Guid containerId = container != null ? container.Id : db.AddContainer(location, string.Empty);
-                        db.AssociateItemWithContainer(itemId, containerId);
+                        if (!containers.TryGetValue(location, out var container))
+                        {
+                            var id = db.AddContainer(location, string.Empty);
+                            container = new Container(id, location, string.Empty);
+                            containers[location] = container;
+                        }
+
+                        db.AssociateItemWithContainer(itemId, container.Id);
+
+                        if (isRoomLocation)
+                        {
+                            string roomKey = ExtractKeyword(location, new[] { "room", "kitchen", "closet", "garage", "pantry" });
+                            if (roomKey != null)
+                            {
+                                if (!rooms.TryGetValue(roomKey, out var room))
+                                {
+                                    db.AddRoom(roomKey, string.Empty);
+                                    room = db.GetRoomsList().First(r => r.Name.Equals(roomKey, StringComparison.OrdinalIgnoreCase));
+                                    rooms[roomKey] = room;
+                                }
+                                db.SetItemsRoom(container.Id, room.Id);
+                            }
+                        }
+
+                        var parts = location.Split(new[] { " in ", " on " }, StringSplitOptions.RemoveEmptyEntries);
+                        if (parts.Length == 2)
+                        {
+                            var parentName = parts[1].Trim();
+                            if (!string.IsNullOrEmpty(parentName) && ContainsKeyword(parentName, new[] { "lid", "box", "locker", "desk", "cabinet", "shelf", "drawer", "bin", "tub" }))
+                            {
+                                if (!containers.TryGetValue(parentName, out var parent))
+                                {
+                                    var pid = db.AddContainer(parentName, string.Empty);
+                                    parent = new Container(pid, parentName, string.Empty);
+                                    containers[parentName] = parent;
+                                }
+                                db.SetItemsContainer(container.Id, parent.Id);
+
+                                if (isRoomLocation)
+                                {
+                                    string roomKey = ExtractKeyword(parentName, new[] { "room", "kitchen", "closet", "garage", "pantry" });
+                                    if (roomKey != null)
+                                    {
+                                        if (!rooms.TryGetValue(roomKey, out var pr))
+                                        {
+                                            db.AddRoom(roomKey, string.Empty);
+                                            pr = db.GetRoomsList().First(r => r.Name.Equals(roomKey, StringComparison.OrdinalIgnoreCase));
+                                            rooms[roomKey] = pr;
+                                        }
+                                        db.SetItemsRoom(parent.Id, pr.Id);
+                                    }
+                                }
+                            }
+                        }
                     }
                     else
                     {
                         if (!isRoomLocation)
                             isRoomLocation = true; // default to room if uncertain
 
-                        var rooms = db.GetRoomsList();
-                        var room = rooms.FirstOrDefault(r => r.Name.Equals(location, StringComparison.OrdinalIgnoreCase));
-                        if (room == null)
+                        var roomKey = ExtractKeyword(location, new[] { "room", "kitchen", "closet", "garage", "pantry" }) ?? location;
+                        if (!rooms.TryGetValue(roomKey, out var room))
                         {
-                            db.AddRoom(location, string.Empty);
-                            room = db.GetRoomsList().First(r => r.Name.Equals(location, StringComparison.OrdinalIgnoreCase));
+                            db.AddRoom(roomKey, string.Empty);
+                            room = db.GetRoomsList().First(r => r.Name.Equals(roomKey, StringComparison.OrdinalIgnoreCase));
+                            rooms[roomKey] = room;
                         }
                         db.AssociateItemWithRoom(itemId, room.Id);
                     }
+
+                    processed++;
+                    progress.Bar.Value = processed;
+                    progress.Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Background, new Action(() => { }));
                 }
 
+                progress.Close();
                 MessageBox.Show("Import complete", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
@@ -166,6 +231,16 @@ namespace item_eyez
                     return true;
             }
             return false;
+        }
+
+        private static string? ExtractKeyword(string text, string[] keywords)
+        {
+            foreach (var word in keywords)
+            {
+                if (text != null && text.ToLower().Contains(word))
+                    return word;
+            }
+            return null;
         }
     }
 }

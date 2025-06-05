@@ -60,6 +60,9 @@
             <GroupBox Grid.Column="1" Header="description" Margin="0,0,5,0">
                 <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" />
             </GroupBox>
+                ScrollViewer.VerticalScrollBarVisibility="Auto"
+                ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                ColumnWidth="*"
             <Button Grid.Column="3" Width="170" Height="100" Command="{Binding AddContainerCommand}" Content="Add Container" FontSize="23" />
         </Grid>
 

@@ -29,7 +29,9 @@
         </GroupBox>
         <TreeView Name="tree" Grid.Row="1" ItemsSource="{Binding Roots}" AllowDrop="True"
                   Background="{StaticResource TreeBackgroundBrush}"
-                  Drop="Tree_Drop" DragOver="Tree_DragOver">
+                  Drop="Tree_Drop" DragOver="Tree_DragOver"
+                  ScrollViewer.VerticalScrollBarVisibility="Auto"
+                  ScrollViewer.HorizontalScrollBarVisibility="Auto">
             <TreeView.Resources>
                 <HierarchicalDataTemplate DataType="{x:Type local:HierarchyNode}" ItemsSource="{Binding Children}">
                     <Border BorderBrush="Blue" BorderThickness="2" CornerRadius="2"
