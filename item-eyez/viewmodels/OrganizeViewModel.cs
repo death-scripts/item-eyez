@@ -32,7 +32,12 @@ namespace item_eyez
         public OrganizeViewModel()
         {
             Load();
-            _db.DataChanged += (_, __) => Load();
+            RemoveRightFromRoots();
+            _db.DataChanged += (_, __) =>
+            {
+                Load();
+                RemoveRightFromRoots();
+            };
         }
 
         private void ApplySearch()
@@ -134,6 +139,30 @@ namespace item_eyez
 
             OnPropertyChanged(nameof(Roots));
             ApplySearch();
+        }
+
+        public void RemoveRightFromRoots()
+        {
+            foreach (var node in RightRoots.ToList())
+            {
+                RemoveNodeById(Roots, node.Id);
+            }
+        }
+
+        private bool RemoveNodeById(ObservableCollection<HierarchyNode> list, Guid id)
+        {
+            var existing = list.FirstOrDefault(n => n.Id == id);
+            if (existing != null)
+            {
+                list.Remove(existing);
+                return true;
+            }
+            foreach (var child in list)
+            {
+                if (RemoveNodeById(child.Children, id))
+                    return true;
+            }
+            return false;
         }
     }
 }

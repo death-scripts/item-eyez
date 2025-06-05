@@ -44,36 +44,43 @@ namespace item_eyez
             var treeView = (TreeView)sender;
             var targetItem = GetContainerFromEvent(treeView, e.OriginalSource as DependencyObject);
             var vm = (OrganizeViewModel)DataContext;
+
+            // remove from whichever tree currently holds the node
+            RemoveNode(vm.Roots, source);
+            RemoveNode(vm.RightRoots, source);
+
             if (targetItem == null)
             {
-                // move to tree root
-                if (RemoveNode(vm.Roots, source) || RemoveNode(vm.RightRoots, source))
+                // dropping on empty space adds to root
+                var list = treeView == tree ? vm.Roots : vm.RightRoots;
+                list.Add(source);
+                e.Handled = true;
+            }
+            else
+            {
+                var target = targetItem.DataContext as HierarchyNode;
+                if (target == null || target == source) return;
+
+                target.Children.Add(source);
+                target.IsExpanded = true;
+
+                if (source.Entity is Item item)
                 {
-                    var list = treeView == tree ? vm.Roots : vm.RightRoots;
-                    list.Add(source);
-                    e.Handled = true;
+                    if (target.Entity is Container tc)
+                        item.ContainedIn = tc;
+                    else if (target.Entity is Room tr)
+                        item.StoredIn = tr;
                 }
-                return;
-            }
-            var target = targetItem.DataContext as HierarchyNode;
-            if (target == null || target == source) return;
+                else if (source.Entity is Container sc)
+                {
+                    if (target.Entity is Container tc)
+                        sc.ContainedIn = tc;
+                    else if (target.Entity is Room tr)
+                        sc.StoredIn = tr;
+                }
 
-            if (source.Entity is Item item)
-            {
-                if (target.Entity is Container tc)
-                    item.ContainedIn = tc;
-                else if (target.Entity is Room tr)
-                    item.StoredIn = tr;
+                vm.RemoveRightFromRoots();
             }
-            else if (source.Entity is Container sc)
-            {
-                if (target.Entity is Container tc)
-                    sc.ContainedIn = tc;
-                else if (target.Entity is Room tr)
-                    sc.StoredIn = tr;
-            }
-
-            ((OrganizeViewModel)DataContext).Load();
 
             if (_highlighted != null)
             {
