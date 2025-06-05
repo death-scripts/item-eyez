@@ -100,7 +100,7 @@
             </DataGrid>
         </Border>
         <GroupBox Margin="0,0,715,452" Header="search filter">
-            <TextBox Text="{Binding SearchFilter, UpdateSourceTrigger=LostFocus}" />
+            <TextBox Text="{Binding SearchFilter, UpdateSourceTrigger=PropertyChanged}" />
         </GroupBox>
         <GroupBox Margin="485,0,378,452" Header="put in container">
             <ComboBox
