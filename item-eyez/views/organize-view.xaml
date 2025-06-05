@@ -5,7 +5,18 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
-             Width="800" Height="550">
+             Width="800" Height="550"
+             Background="{DynamicResource OrganizeBackgroundBrush}">
+    <UserControl.Resources>
+        <LinearGradientBrush x:Key="OrganizeBackgroundBrush" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="Red" Offset="0" />
+            <GradientStop Color="LemonChiffon" Offset="1" />
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="NodeBackgroundBrush" StartPoint="0,0" EndPoint="1,0">
+            <GradientStop Color="Pink" Offset="0" />
+            <GradientStop Color="Teal" Offset="1" />
+        </LinearGradientBrush>
+    </UserControl.Resources>
     <UserControl.DataContext>
         <local:OrganizeViewModel />
     </UserControl.DataContext>
@@ -15,14 +26,15 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <GroupBox Grid.Row="0" Margin="5" Header="search filter">
-            <TextBox Width="250" Tag="Search"
+            <TextBox HorizontalAlignment="Stretch" Tag="Search"
                      Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
         </GroupBox>
         <TreeView Name="tree" Grid.Row="1" ItemsSource="{Binding Roots}" AllowDrop="True"
                   Drop="Tree_Drop" DragOver="Tree_DragOver">
             <TreeView.Resources>
                 <HierarchicalDataTemplate DataType="{x:Type local:HierarchyNode}" ItemsSource="{Binding Children}">
-                    <Border BorderBrush="Gray" BorderThickness="1" Margin="1" Padding="2" x:Name="nodeBorder">
+                    <Border BorderBrush="Blue" BorderThickness="2" CornerRadius="2"
+                            Margin="1" Padding="2" Background="{StaticResource NodeBackgroundBrush}" x:Name="nodeBorder">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="☰" Margin="0,0,4,0"
                                        PreviewMouseLeftButtonDown="DragHandle_PreviewMouseLeftButtonDown"
@@ -35,7 +47,7 @@
                             <Setter TargetName="nodeBorder" Property="Background" Value="LightGoldenrodYellow" />
                         </DataTrigger>
                         <DataTrigger Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType=TreeViewItem}}" Value="True">
-                            <Setter TargetName="nodeBorder" Property="Background" Value="LightSkyBlue" />
+                            <Setter TargetName="nodeBorder" Property="Background" Value="AliceBlue" />
                         </DataTrigger>
                     </HierarchicalDataTemplate.Triggers>
                 </HierarchicalDataTemplate>
