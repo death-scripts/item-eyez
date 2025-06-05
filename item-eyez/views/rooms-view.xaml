@@ -37,7 +37,7 @@
             <GroupBox Grid.Column="1" Header="description" Margin="0,0,5,0">
                 <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" />
             </GroupBox>
-            <Button Grid.Column="2" Width="120" Height="35" Command="{Binding AddRoomCommand}" Content="Add Room" FontSize="25" />
+            <Button Grid.Column="2" Width="140" Height="100" Command="{Binding AddRoomCommand}" Content="Add Room" FontSize="25" />
         </Grid>
 
         <DataGrid Grid.Row="2"
