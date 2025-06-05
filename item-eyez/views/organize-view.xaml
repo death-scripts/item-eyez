@@ -1,0 +1,69 @@
+<UserControl x:Class="item_eyez.organize_view"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:item_eyez"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d">
+    <UserControl.Resources>
+        <LinearGradientBrush x:Key="NodeBackgroundBrush" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#FF69B4" Offset="0" />
+            <GradientStop Color="#40E0D0" Offset="1" />
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="TreeBackgroundBrush" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#20B2AA" Offset="0" />
+            <GradientStop Color="#FFDAB9" Offset="1" />
+        </LinearGradientBrush>
+    </UserControl.Resources>
+    <UserControl.DataContext>
+        <local:OrganizeViewModel />
+    </UserControl.DataContext>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <GroupBox Grid.Row="0" Margin="5" Header="search filter">
+            <TextBox HorizontalAlignment="Stretch" Tag="Search"
+                     Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
+        </GroupBox>
+        <TreeView Name="tree" Grid.Row="1" ItemsSource="{Binding Roots}" AllowDrop="True"
+                  Background="{StaticResource TreeBackgroundBrush}"
+                  Drop="Tree_Drop" DragOver="Tree_DragOver" PreviewMouseRightButtonDown="Tree_LeftClick"
+                  ScrollViewer.VerticalScrollBarVisibility="Auto"
+                  ScrollViewer.HorizontalScrollBarVisibility="Auto">
+            <TreeView.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Add Item" Click="AddItemRoot_Click" />
+                    <MenuItem Header="Add Container" Click="AddContainerRoot_Click" />
+                    <MenuItem Header="Add Room" Click="AddRoomRoot_Click" />
+                </ContextMenu>
+            </TreeView.ContextMenu>
+            <TreeView.Resources>
+                <HierarchicalDataTemplate DataType="{x:Type local:HierarchyNode}" ItemsSource="{Binding Children}">
+                    <Border BorderBrush="Blue" BorderThickness="2" CornerRadius="2"
+                            Margin="1" Padding="2" Background="{StaticResource NodeBackgroundBrush}" x:Name="nodeBorder">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="☰" Margin="0,0,4,0"
+                                       PreviewMouseLeftButtonDown="DragHandle_PreviewMouseLeftButtonDown"
+                                       MouseMove="DragHandle_MouseMove"/>
+                            <TextBox Text="{Binding Name, UpdateSourceTrigger=LostFocus}" BorderThickness="0" Background="Transparent" />
+                        </StackPanel>
+                    </Border>
+                    <HierarchicalDataTemplate.Triggers>
+                        <DataTrigger Binding="{Binding IsMatch}" Value="True">
+                            <Setter TargetName="nodeBorder" Property="Background" Value="LightGoldenrodYellow" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType=TreeViewItem}}" Value="True">
+                            <Setter TargetName="nodeBorder" Property="Background" Value="AliceBlue" />
+                        </DataTrigger>
+                    </HierarchicalDataTemplate.Triggers>
+                </HierarchicalDataTemplate>
+                <Style TargetType="TreeViewItem">
+                    <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+                    <EventSetter Event="PreviewMouseRightButtonDown" Handler="TreeViewItem_LeftClick" />
+                </Style>
+            </TreeView.Resources>
+        </TreeView>
+    </Grid>
+</UserControl>

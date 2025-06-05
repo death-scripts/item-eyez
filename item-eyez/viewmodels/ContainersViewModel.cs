@@ -70,6 +70,15 @@ namespace item_eyez
                 OnPropertyChanged(nameof(SelectedRoom));
             }
         }
+
+        private Container _selectedContainerRow;
+        public Container SelectedContainerRow
+        {
+            get => _selectedContainerRow;
+            set { _selectedContainerRow = value; OnPropertyChanged(nameof(SelectedContainerRow)); }
+        }
+
+        public ICommand DeleteContainerCommand => new RelayCommand(DeleteSelectedContainer);
         public bool PreserveDescription { get; set; }
         public bool NameFocused { get; set; }
         public string SearchFilter
@@ -168,6 +177,14 @@ namespace item_eyez
 
                 this.NameFocused = true;
                 this.OnPropertyChanged(nameof(NameFocused));
+            }
+        }
+
+        private void DeleteSelectedContainer()
+        {
+            if (SelectedContainerRow != null)
+            {
+                Containers.Remove(SelectedContainerRow);
             }
         }
 

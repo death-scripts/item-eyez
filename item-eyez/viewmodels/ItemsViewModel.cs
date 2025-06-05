@@ -55,6 +55,19 @@ namespace item_eyez
         }
         public List<Room> Rooms { get; private set; }
         public ObservableCollection<Item> Items { get; set; }
+
+        private Item _selectedItem;
+        public Item SelectedItem
+        {
+            get => _selectedItem;
+            set
+            {
+                _selectedItem = value;
+                OnPropertyChanged(nameof(SelectedItem));
+            }
+        }
+
+        public ICommand DeleteItemCommand => new RelayCommand(DeleteSelectedItem);
         private Container _selectedContainer;
         public Container SelectedContainer
         {
@@ -187,6 +200,14 @@ namespace item_eyez
             }
 
 
+        }
+
+        private void DeleteSelectedItem()
+        {
+            if (SelectedItem != null)
+            {
+                Items.Remove(SelectedItem);
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

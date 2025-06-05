@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2" />
+    <PackageReference Include="System.Data.OleDb" Version="8.0.1" />
   </ItemGroup>
 
   <ItemGroup>

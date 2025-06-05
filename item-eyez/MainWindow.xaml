@@ -5,18 +5,26 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:item_eyez"
         mc:Ignorable="d"
-        SizeToContent="WidthAndHeight"
-        Background="Lavender"
+        MinHeight="500"
+        MinWidth="800"
+        Background="{StaticResource WindowBackgroundBrush}"
         Title="MainWindow">
     <Window.DataContext>
         <local:MainViewModel />
     </Window.DataContext>
-    <StackPanel>
-        <Menu Style="{DynamicResource MenuStyle1}">
+    <DockPanel>
+        <Menu DockPanel.Dock="Top" Style="{DynamicResource MenuStyle1}">
             <MenuItem Header="File">
-                <MenuItem Header="Reset Database" Command="{Binding ResetDatabaseCommand}" />
+                <MenuItem Header="Reset Database"
+                          Command="{Binding ResetDatabaseCommand}"/>
+                <MenuItem Header="Populate Sample Data"
+                          Command="{Binding PopulateSampleDataCommand}"/>
+                <MenuItem Header="Import Legacy .accdb"
+                          Command="{Binding ImportAccessCommand}"/>
             </MenuItem>
         </Menu>
-        <local:main_view />
-    </StackPanel>
+
+        <!-- last child in DockPanel fills the rest by default -->
+        <local:main_view/>
+    </DockPanel>
 </Window>

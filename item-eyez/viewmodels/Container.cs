@@ -29,6 +29,7 @@
             {
                 this.name = value;
                 ItemEyezDatabase.Instance().UpdateContainer(this.Id, this.Name, this.Description);
+                OnPropertyChanged(nameof(Name));
             }
         }
         public string Description
@@ -38,6 +39,7 @@
             {
                 this.description = value;
                 ItemEyezDatabase.Instance().UpdateContainer(this.Id, this.Name, this.Description);
+                OnPropertyChanged(nameof(Description));
             }
         }
         public Container ContainedIn
@@ -48,10 +50,17 @@
             }
             set
             {
-
                 Guid? id = value == null ? null : value.Id;
                 ItemEyezDatabase.Instance().SetItemsContainer(this.Id, id);
+
+                if (value != null)
+                {
+                    Guid? roomId = ItemEyezDatabase.Instance().GetRoomIdForEntity(value.Id);
+                    ItemEyezDatabase.Instance().SetItemsRoom(this.Id, roomId);
+                }
+
                 OnPropertyChanged(nameof(ContainedIn));
+                OnPropertyChanged(nameof(StoredIn));
             }
         }
         public Room StoredIn

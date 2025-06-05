@@ -5,18 +5,68 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:item_eyez"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    Width="1200"
-    Height="550"
-    HorizontalAlignment="Left"
-    VerticalAlignment="Top"
     mc:Ignorable="d">
     <UserControl.DataContext>
         <local:ItemsViewModel />
     </UserControl.DataContext>
-    <Grid>
-        <Border Margin="0,276,10,-89">
-            <DataGrid
-                Name="datagrid"
+    <Grid Margin="5">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Margin="0,0,0,5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <GroupBox Header="search filter" Margin="0,0,5,0">
+                <TextBox Text="{Binding SearchFilter, UpdateSourceTrigger=PropertyChanged}" />
+            </GroupBox>
+            <GroupBox Grid.Column="1" Header="put in container" Margin="0,0,5,0">
+                <ComboBox
+                    local:ComboBoxBehavior.DropDownOpenedCommand="{Binding ContainersDroppedDownCommand}"
+                    DisplayMemberPath="Name"
+                    ItemsSource="{Binding Containers}"
+                    SelectedItem="{Binding SelectedContainer}" />
+            </GroupBox>
+            <GroupBox Grid.Column="2" Header="store in room">
+                <ComboBox
+                    local:ComboBoxBehavior.DropDownOpenedCommand="{Binding RoomsDroppedDownCommand}"
+                    DisplayMemberPath="Name"
+                    ItemsSource="{Binding Rooms}"
+                    SelectedItem="{Binding SelectedRoom}" />
+            </GroupBox>
+        </Grid>
+
+        <Grid Grid.Row="1" Margin="0,0,0,5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="3*" />
+                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <GroupBox Header="name" Margin="0,0,5,0">
+                <TextBox
+                    local:EnterKeyBehavior.Command="{Binding AddItemCommand}"
+                    local:FocusBehavior.IsFocused="{Binding NameFocused, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
+            </GroupBox>
+            <GroupBox Grid.Column="1" Header="description" Margin="0,0,5,0">
+                <TextBox Text="{Binding Description, UpdateSourceTrigger=LostFocus}" TextWrapping="Wrap" />
+            </GroupBox>
+            <GroupBox Grid.Column="2" Header="catagories" Margin="0,0,5,0">
+                <TextBox Text="{Binding Catagories, UpdateSourceTrigger=LostFocus}" TextWrapping="Wrap" />
+            </GroupBox>
+            <Button Grid.Column="3" Width="120" Height="100" Command="{Binding AddItemCommand}" Content="Add Item" FontSize="25" />
+        </Grid>
+
+        <DataGrid Grid.Row="2" Name="datagrid"
+                ScrollViewer.VerticalScrollBarVisibility="Auto"
+                ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                ColumnWidth="*"
                 RowBackground="SkyBlue"
                 AlternatingRowBackground="LightBlue"
                 AlternationCount="1"
@@ -26,7 +76,40 @@
                 CanUserResizeColumns="True"
                 ItemsSource="{Binding Items}"
                 SelectedItem="{Binding SelectedItem}">
-                <DataGrid.Columns>
+
+
+            <!--<DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                    <EventSetter Event="PreviewMouseLeftButtonDown"
+                         Handler="DataGridRow_LeftClick"/>
+
+                    <Setter Property="ContextMenu">
+                        <Setter.Value>
+                            <ContextMenu>
+                                <MenuItem Header="Delete"
+                                  Click="DeleteRow_Click"
+                                  CommandParameter="{Binding}"/>
+                            </ContextMenu>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </DataGrid.RowStyle>--><!--<DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                    <EventSetter Event="PreviewMouseLeftButtonDown"
+                         Handler="DataGridRow_LeftClick"/>
+
+                    <Setter Property="ContextMenu">
+                        <Setter.Value>
+                            <ContextMenu>
+                                <MenuItem Header="Delete"
+                                  Click="DeleteRow_Click"
+                                  CommandParameter="{Binding}"/>
+                            </ContextMenu>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </DataGrid.RowStyle>-->
+            <DataGrid.Columns>
                     <DataGridTextColumn Binding="{Binding Name, UpdateSourceTrigger=LostFocus}" Header="Name" />
                     <DataGridTemplateColumn Header="Description">
                         <DataGridTemplateColumn.CellTemplate>
@@ -98,40 +181,5 @@
                     </DataGridTemplateColumn>
                 </DataGrid.Columns>
             </DataGrid>
-        </Border>
-        <GroupBox Margin="0,0,715,452" Header="search filter">
-            <TextBox Text="{Binding SearchFilter, UpdateSourceTrigger=PropertyChanged}" />
-        </GroupBox>
-        <GroupBox Margin="485,0,378,452" Header="put in container">
-            <ComboBox
-                local:ComboBoxBehavior.DropDownOpenedCommand="{Binding ContainersDroppedDownCommand}"
-                DisplayMemberPath="Name"
-                ItemsSource="{Binding Containers}"
-                SelectedItem="{Binding SelectedContainer}" />
-        </GroupBox>
-        <GroupBox Margin="827,0,10,452" Header="store in room">
-            <ComboBox
-                local:ComboBoxBehavior.DropDownOpenedCommand="{Binding RoomsDroppedDownCommand}"
-                DisplayMemberPath="Name"
-                ItemsSource="{Binding Rooms}"
-                SelectedItem="{Binding SelectedRoom}" />
-        </GroupBox>
-        <GroupBox Margin="0,103,968,356" Header="name">
-            <TextBox
-                local:EnterKeyBehavior.Command="{Binding AddItemCommand}"
-                local:FocusBehavior.IsFocused="{Binding NameFocused, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
-        </GroupBox>
-        <GroupBox Margin="237,103,651,280" Header="description">
-            <TextBox Text="{Binding Description, UpdateSourceTrigger=LostFocus}" TextWrapping="Wrap" />
-        </GroupBox>
-        <GroupBox Margin="554,103,317,280" Header="catagories">
-            <TextBox Text="{Binding Catagories, UpdateSourceTrigger=LostFocus}" TextWrapping="Wrap" />
-        </GroupBox>
-        <Button
-            Margin="888,129,10,280"
-            Command="{Binding AddItemCommand}"
-            Content="Add Item"
-            FontSize="25" />
     </Grid>
 </UserControl>
