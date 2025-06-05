@@ -19,6 +19,9 @@
             <TabItem Header="ITEMS">
                 <local:items_view />
             </TabItem>
+            <TabItem Header="ORGANIZE">
+                <local:organize_view />
+            </TabItem>
         </TabControl>
     </Grid>
 </UserControl>
