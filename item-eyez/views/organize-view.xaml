@@ -4,13 +4,8 @@
              xmlns:local="clr-namespace:item_eyez"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d"
-             Background="{DynamicResource OrganizeBackgroundBrush}">
+             mc:Ignorable="d">
     <UserControl.Resources>
-        <LinearGradientBrush x:Key="OrganizeBackgroundBrush" StartPoint="0,0" EndPoint="0,1">
-            <GradientStop Color="Red" Offset="0" />
-            <GradientStop Color="LemonChiffon" Offset="1" />
-        </LinearGradientBrush>
         <LinearGradientBrush x:Key="NodeBackgroundBrush" StartPoint="0,0" EndPoint="1,1">
             <GradientStop Color="#FF69B4" Offset="0" />
             <GradientStop Color="#40E0D0" Offset="1" />
