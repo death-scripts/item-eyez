@@ -16,6 +16,7 @@
             <MenuItem Header="File">
                 <MenuItem Header="Reset Database" Command="{Binding ResetDatabaseCommand}" />
                 <MenuItem Header="Populate Sample Data" Command="{Binding PopulateSampleDataCommand}" />
+                <MenuItem Header="Import Legacy .accdb" Command="{Binding ImportAccessCommand}" />
             </MenuItem>
         </Menu>
         <local:main_view />

@@ -2,6 +2,9 @@ using System;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using System.Data;
+using System.Data.OleDb;
+using Microsoft.Win32;
 
 namespace item_eyez
 {
@@ -9,6 +12,7 @@ namespace item_eyez
     {
         public ICommand ResetDatabaseCommand => new RelayCommand(ResetDatabase);
         public ICommand PopulateSampleDataCommand => new RelayCommand(PopulateSampleData);
+        public ICommand ImportAccessCommand => new RelayCommand(ImportAccessDatabase);
 
         public MainViewModel()
         {
@@ -65,6 +69,103 @@ namespace item_eyez
             db.AssociateItemWithRoom(chair, kitchen.Id);
 
             MessageBox.Show("Sample data populated.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private void ImportAccessDatabase()
+        {
+            var dialog = new OpenFileDialog
+            {
+                Filter = "Access Database (*.accdb)|*.accdb",
+                Title = "Select Access Database"
+            };
+
+            if (dialog.ShowDialog() != true)
+                return;
+
+            ImportFile(dialog.FileName);
+        }
+
+        private void ImportFile(string filePath)
+        {
+            try
+            {
+                string connectionString = $"Provider=Microsoft.ACE.OLEDB.12.0;Data Source={filePath};";
+                using var connection = new OleDbConnection(connectionString);
+                connection.Open();
+
+                DataTable tables = connection.GetSchema("Tables");
+                if (tables.Rows.Count == 0)
+                    throw new Exception("No tables found in database");
+
+                string tableName = tables.Rows[0]["TABLE_NAME"].ToString();
+                using var adapter = new OleDbDataAdapter($"SELECT * FROM [{tableName}]", connection);
+                var data = new DataTable();
+                adapter.Fill(data);
+
+                var db = ItemEyezDatabase.Instance();
+
+                foreach (DataRow row in data.Rows)
+                {
+                    string itemName = row.Table.Columns.Contains("item") ? row["item"].ToString() ?? string.Empty : string.Empty;
+                    if (string.IsNullOrWhiteSpace(itemName))
+                        continue;
+
+                    string description = row.Table.Columns.Contains("description") ? row["description"].ToString() ?? string.Empty : string.Empty;
+                    string location = row.Table.Columns.Contains("location") ? row["location"].ToString() ?? string.Empty : string.Empty;
+                    string categories = string.Empty;
+                    if (row.Table.Columns.Contains("categories"))
+                        categories = row["categories"].ToString() ?? string.Empty;
+                    else if (row.Table.Columns.Contains("catagories"))
+                        categories = row["catagories"].ToString() ?? string.Empty;
+
+                    decimal value = 0m;
+                    if (row.Table.Columns.Contains("cashvalue"))
+                        decimal.TryParse(row["cashvalue"].ToString(), out value);
+
+                    bool isContainerLocation = ContainsKeyword(location, new[] { "lid", "box", "locker", "desk", "cabinet", "shelf", "drawer", "bin", "tub" });
+                    bool isRoomLocation = ContainsKeyword(location, new[] { "room", "kitchen", "closet", "garage", "pantry" });
+
+                    Guid itemId = db.AddItem(itemName, description, value, categories);
+
+                    if (isContainerLocation)
+                    {
+                        var containers = db.GetContainersWithRelationships();
+                        var container = containers.FirstOrDefault(c => c.Name.Equals(location, StringComparison.OrdinalIgnoreCase));
+                        Guid containerId = container != null ? container.Id : db.AddContainer(location, string.Empty);
+                        db.AssociateItemWithContainer(itemId, containerId);
+                    }
+                    else
+                    {
+                        if (!isRoomLocation)
+                            isRoomLocation = true; // default to room if uncertain
+
+                        var rooms = db.GetRoomsList();
+                        var room = rooms.FirstOrDefault(r => r.Name.Equals(location, StringComparison.OrdinalIgnoreCase));
+                        if (room == null)
+                        {
+                            db.AddRoom(location, string.Empty);
+                            room = db.GetRoomsList().First(r => r.Name.Equals(location, StringComparison.OrdinalIgnoreCase));
+                        }
+                        db.AssociateItemWithRoom(itemId, room.Id);
+                    }
+                }
+
+                MessageBox.Show("Import complete", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to import: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private static bool ContainsKeyword(string text, string[] keywords)
+        {
+            foreach (var word in keywords)
+            {
+                if (text != null && text.ToLower().Contains(word))
+                    return true;
+            }
+            return false;
         }
     }
 }
