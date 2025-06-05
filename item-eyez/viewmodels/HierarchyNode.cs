@@ -7,6 +7,20 @@ namespace item_eyez
         public object Entity { get; }
         public ObservableCollection<HierarchyNode> Children { get; } = new();
 
+        private bool _isExpanded;
+        public bool IsExpanded
+        {
+            get => _isExpanded;
+            set { _isExpanded = value; OnPropertyChanged(nameof(IsExpanded)); }
+        }
+
+        private bool _isMatch;
+        public bool IsMatch
+        {
+            get => _isMatch;
+            set { _isMatch = value; OnPropertyChanged(nameof(IsMatch)); }
+        }
+
         public HierarchyNode(object entity)
         {
             Entity = entity;

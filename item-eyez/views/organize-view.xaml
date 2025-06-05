@@ -10,17 +10,33 @@
         <local:OrganizeViewModel />
     </UserControl.DataContext>
     <Grid>
-        <TreeView Name="tree" ItemsSource="{Binding Roots}" AllowDrop="True"
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <TextBox Grid.Row="0" Margin="5" Width="250" Tag="Search"
+                 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
+        <TreeView Name="tree" Grid.Row="1" ItemsSource="{Binding Roots}" AllowDrop="True"
                   Drop="Tree_Drop" DragOver="Tree_DragOver">
             <TreeView.Resources>
                 <HierarchicalDataTemplate DataType="{x:Type local:HierarchyNode}" ItemsSource="{Binding Children}">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="☰" Margin="0,0,4,0"
-                                   PreviewMouseLeftButtonDown="DragHandle_PreviewMouseLeftButtonDown"
-                                   MouseMove="DragHandle_MouseMove"/>
-                        <TextBox Text="{Binding Name, UpdateSourceTrigger=LostFocus}" BorderThickness="0" Background="Transparent" />
-                    </StackPanel>
+                    <Border BorderBrush="Gray" BorderThickness="1" Margin="1" Padding="2" x:Name="nodeBorder">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="☰" Margin="0,0,4,0"
+                                       PreviewMouseLeftButtonDown="DragHandle_PreviewMouseLeftButtonDown"
+                                       MouseMove="DragHandle_MouseMove"/>
+                            <TextBox Text="{Binding Name, UpdateSourceTrigger=LostFocus}" BorderThickness="0" Background="Transparent" />
+                        </StackPanel>
+                    </Border>
+                    <HierarchicalDataTemplate.Triggers>
+                        <DataTrigger Binding="{Binding IsMatch}" Value="True">
+                            <Setter TargetName="nodeBorder" Property="Background" Value="LightGoldenrodYellow" />
+                        </DataTrigger>
+                    </HierarchicalDataTemplate.Triggers>
                 </HierarchicalDataTemplate>
+                <Style TargetType="TreeViewItem">
+                    <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+                </Style>
             </TreeView.Resources>
         </TreeView>
     </Grid>

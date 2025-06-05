@@ -79,7 +79,7 @@ namespace item_eyez
                     _highlighted.Background = Brushes.Transparent;
                 _highlighted = item;
                 if (_highlighted != null)
-                    _highlighted.Background = Brushes.LightGoldenrodYellow;
+                    _highlighted.Background = Brushes.LightSkyBlue;
             }
         }
 

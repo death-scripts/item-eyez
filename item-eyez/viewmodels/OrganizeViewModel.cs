@@ -9,10 +9,43 @@ namespace item_eyez
 
         public ObservableCollection<HierarchyNode> Roots { get; } = new();
 
+        private string _searchText = string.Empty;
+        public string SearchText
+        {
+            get => _searchText;
+            set
+            {
+                if (_searchText != value)
+                {
+                    _searchText = value;
+                    OnPropertyChanged(nameof(SearchText));
+                    ApplySearch();
+                }
+            }
+        }
+
         public OrganizeViewModel()
         {
             Load();
             _db.DataChanged += (_, __) => Load();
+        }
+
+        private void ApplySearch()
+        {
+            foreach (var node in Roots)
+                MarkMatches(node);
+        }
+
+        private bool MarkMatches(HierarchyNode node)
+        {
+            bool selfMatch = !string.IsNullOrWhiteSpace(SearchText) &&
+                             node.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase);
+            bool childMatch = false;
+            foreach (var child in node.Children)
+                childMatch |= MarkMatches(child);
+            node.IsMatch = selfMatch;
+            node.IsExpanded = childMatch || selfMatch && node.Children.Count > 0;
+            return selfMatch || childMatch;
         }
 
         public void Load()
@@ -72,6 +105,7 @@ namespace item_eyez
             }
 
             OnPropertyChanged(nameof(Roots));
+            ApplySearch();
         }
     }
 }
