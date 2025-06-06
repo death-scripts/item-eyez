@@ -152,10 +152,30 @@ namespace item_eyez
 
         public void RemoveRightFromRoots()
         {
-            foreach (var node in RightRoots.ToList())
+            var ids = RightRoots.Select(n => n.Id).ToList();
+            RightRoots.Clear();
+            foreach (var id in ids)
             {
-                RemoveNodeById(Roots, node.Id);
+                var node = FindNodeById(Roots, id);
+                if (node != null)
+                {
+                    RemoveNodeById(Roots, id);
+                    RightRoots.Add(node);
+                }
             }
+        }
+
+        private HierarchyNode? FindNodeById(ObservableCollection<HierarchyNode> list, Guid id)
+        {
+            foreach (var n in list)
+            {
+                if (n.Id == id)
+                    return n;
+                var found = FindNodeById(n.Children, id);
+                if (found != null)
+                    return found;
+            }
+            return null;
         }
 
         private bool RemoveNodeById(ObservableCollection<HierarchyNode> list, Guid id)
