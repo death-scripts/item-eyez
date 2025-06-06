@@ -61,20 +61,21 @@ namespace item_eyez
             return _instance;
         }
 
-        public void AddRoom(string name, string description)
+        public Guid AddRoom(string name, string description)
         {
+            var id = Guid.NewGuid();
             using (var connection = new SqlConnection(_connectionString))
-            using (var command = new SqlCommand("AddRoom", connection))
+            using (var command = new SqlCommand("INSERT INTO room (id, name, description) VALUES (@id, @name, @desc)", connection))
             {
-                command.CommandType = CommandType.StoredProcedure;
-
-                command.Parameters.AddWithValue("@roomName", name);
-                command.Parameters.AddWithValue("@roomDescription", description);
+                command.Parameters.AddWithValue("@id", id);
+                command.Parameters.AddWithValue("@name", name);
+                command.Parameters.AddWithValue("@desc", description);
 
                 connection.Open();
                 command.ExecuteNonQuery();
             }
             OnDataChanged();
+            return id;
         }
 
         public Guid AddContainer(string name, string description)
