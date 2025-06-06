@@ -9,10 +9,19 @@ namespace item_eyez
         public delegate void DataChangedEventHandler(object sender, EventArgs e);
         public event DataChangedEventHandler? DataChanged;
 
+        private bool _suppressNotifications;
 
         public virtual void OnDataChanged()
         {
-            DataChanged?.Invoke(this, EventArgs.Empty);
+            if (!_suppressNotifications)
+                DataChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        public void BeginBatch() => _suppressNotifications = true;
+        public void EndBatch()
+        {
+            _suppressNotifications = false;
+            OnDataChanged();
         }
         private static ItemEyezDatabase _instance;
         private static readonly object _lock = new object();

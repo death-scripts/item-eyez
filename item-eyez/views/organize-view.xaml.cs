@@ -61,48 +61,65 @@ namespace item_eyez
             var targetItem = GetContainerFromEvent(treeView, e.OriginalSource as DependencyObject);
             var vm = (OrganizeViewModel)DataContext;
 
+            _db.BeginBatch();
+            try
+            {
+
             foreach (var node in nodes)
             {
                 RemoveNode(vm.Roots, node);
                 RemoveNode(vm.RightRoots, node);
             }
 
-            if (targetItem == null)
-            {
-                // dropping on empty space adds to root
-                var list = treeView == tree ? vm.Roots : vm.RightRoots;
-                foreach (var node in nodes)
-                    list.Add(node);
-                e.Handled = true;
-            }
-            else
-            {
-                var target = targetItem.DataContext as HierarchyNode;
-                if (target == null) return;
-
-                foreach (var node in nodes)
+                if (targetItem == null)
                 {
-                    if (node == target) continue;
-                    target.Children.Add(node);
-                    target.IsExpanded = true;
-
-                    if (node.Entity is Item item)
-                    {
-                        if (target.Entity is Container tc)
-                            item.ContainedIn = tc;
-                        else if (target.Entity is Room tr)
-                            item.StoredIn = tr;
-                    }
-                    else if (node.Entity is Container sc)
-                    {
-                        if (target.Entity is Container tc)
-                            sc.ContainedIn = tc;
-                        else if (target.Entity is Room tr)
-                            sc.StoredIn = tr;
-                    }
+                    // dropping on empty space adds to root
+                    var list = treeView == tree ? vm.Roots : vm.RightRoots;
+                    foreach (var node in nodes)
+                        list.Add(node);
+                    e.Handled = true;
                 }
+                else
+                {
+                    var target = targetItem.DataContext as HierarchyNode;
+                    if (target == null) return;
 
-                vm.RemoveRightFromRoots();
+                    foreach (var node in nodes)
+                    {
+                        if (node == target) continue;
+
+                        if (node.Entity is Room && target.Entity is Container)
+                            continue; // containers cannot hold rooms
+
+                        target.Children.Add(node);
+                        target.IsExpanded = true;
+
+                        if (node.Entity is Item item)
+                        {
+                            if (target.Entity is Container tc)
+                                item.ContainedIn = tc;
+                            else if (target.Entity is Room tr)
+                                item.StoredIn = tr;
+                        }
+                        else if (node.Entity is Container sc)
+                        {
+                            if (target.Entity is Container tc)
+                                sc.ContainedIn = tc;
+                            else if (target.Entity is Room tr)
+                                sc.StoredIn = tr;
+                        }
+                        else if (node.Entity is Room sr && target.Entity is Room tr2)
+                        {
+                            // rooms nested inside rooms are allowed; nothing to do in DB
+                        }
+                    }
+
+                    vm.RemoveRightFromRoots();
+                }
+            }
+            finally
+            {
+                _db.EndBatch();
             }
 
             ClearSelection();
