@@ -17,7 +17,7 @@
         </Grid.RowDefinitions>
 
         <!-- search box on its own row -->
-        <GroupBox>
+        <GroupBox Header="search filter">
             <TextBox Text="{Binding SearchFilter, UpdateSourceTrigger=PropertyChanged}" />
         </GroupBox>
 
