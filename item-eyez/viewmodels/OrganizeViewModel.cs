@@ -10,6 +10,7 @@ namespace item_eyez
         private readonly ItemEyezDatabase _db = ItemEyezDatabase.Instance();
 
         public ObservableCollection<HierarchyNode> Roots { get; } = new();
+        public ObservableCollection<HierarchyNode> RightRoots { get; } = new();
 
         private readonly Dictionary<Guid, bool> _expansionState = new();
 
@@ -31,13 +32,27 @@ namespace item_eyez
         public OrganizeViewModel()
         {
             Load();
-            _db.DataChanged += (_, __) => Load();
+            RemoveRightFromRoots();
+            _db.DataChanged += (_, __) =>
+            {
+                Load();
+                RemoveRightFromRoots();
+            };
         }
+
+        public void RefreshSearch() => ApplySearch();
 
         private void ApplySearch()
         {
             foreach (var node in Roots)
                 MarkMatches(node);
+            foreach (var node in RightRoots)
+                MarkMatches(node);
+
+            foreach (var node in Roots)
+                UpdateVisibility(node);
+            foreach (var node in RightRoots)
+                UpdateVisibility(node);
         }
 
         private bool MarkMatches(HierarchyNode node)
@@ -133,6 +148,61 @@ namespace item_eyez
 
             OnPropertyChanged(nameof(Roots));
             ApplySearch();
+        }
+
+        public void RemoveRightFromRoots()
+        {
+            var ids = RightRoots.Select(n => n.Id).ToList();
+            RightRoots.Clear();
+            foreach (var id in ids)
+            {
+                var node = FindNodeById(Roots, id);
+                if (node != null)
+                {
+                    RemoveNodeById(Roots, id);
+                    RightRoots.Add(node);
+                }
+            }
+        }
+
+        private HierarchyNode? FindNodeById(ObservableCollection<HierarchyNode> list, Guid id)
+        {
+            foreach (var n in list)
+            {
+                if (n.Id == id)
+                    return n;
+                var found = FindNodeById(n.Children, id);
+                if (found != null)
+                    return found;
+            }
+            return null;
+        }
+
+        private bool RemoveNodeById(ObservableCollection<HierarchyNode> list, Guid id)
+        {
+            var existing = list.FirstOrDefault(n => n.Id == id);
+            if (existing != null)
+            {
+                list.Remove(existing);
+                return true;
+            }
+            foreach (var child in list)
+            {
+                if (RemoveNodeById(child.Children, id))
+                    return true;
+            }
+            return false;
+        }
+
+        private bool UpdateVisibility(HierarchyNode node)
+        {
+            bool childVisible = false;
+            foreach (var child in node.Children)
+                childVisible |= UpdateVisibility(child);
+
+            bool visible = string.IsNullOrWhiteSpace(SearchText) || node.IsMatch || childVisible;
+            node.IsVisible = visible;
+            return node.IsMatch || childVisible;
         }
     }
 }

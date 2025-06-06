@@ -21,6 +21,20 @@ namespace item_eyez
             set { _isMatch = value; OnPropertyChanged(nameof(IsMatch)); }
         }
 
+        private bool _isVisible = true;
+        public bool IsVisible
+        {
+            get => _isVisible;
+            set { _isVisible = value; OnPropertyChanged(nameof(IsVisible)); }
+        }
+
+        private bool _isSelected;
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set { _isSelected = value; OnPropertyChanged(nameof(IsSelected)); }
+        }
+
         public HierarchyNode(object entity)
         {
             Entity = entity;

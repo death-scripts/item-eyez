@@ -14,6 +14,7 @@
             <GradientStop Color="#20B2AA" Offset="0" />
             <GradientStop Color="#FFDAB9" Offset="1" />
         </LinearGradientBrush>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
     </UserControl.Resources>
     <UserControl.DataContext>
         <local:OrganizeViewModel />
@@ -23,13 +24,17 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <GroupBox Grid.Row="0" Margin="5" Header="search filter">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <GroupBox Grid.Row="0" Grid.ColumnSpan="2" Margin="5" Header="search filter">
             <TextBox HorizontalAlignment="Stretch" Tag="Search"
                      Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
         </GroupBox>
-        <TreeView Name="tree" Grid.Row="1" ItemsSource="{Binding Roots}" AllowDrop="True"
+        <TreeView Name="tree" Grid.Row="1" Grid.Column="0" ItemsSource="{Binding Roots}" AllowDrop="True"
                   Background="{StaticResource TreeBackgroundBrush}"
-                  Drop="Tree_Drop" DragOver="Tree_DragOver" PreviewMouseRightButtonDown="Tree_LeftClick"
+                  Drop="Tree_Drop" DragOver="Tree_DragOver" PreviewMouseRightButtonDown="Tree_LeftClick" PreviewMouseLeftButtonDown="Tree_PreviewMouseLeftButtonDown"
                   ScrollViewer.VerticalScrollBarVisibility="Auto"
                   ScrollViewer.HorizontalScrollBarVisibility="Auto">
             <TreeView.ContextMenu>
@@ -54,13 +59,57 @@
                         <DataTrigger Binding="{Binding IsMatch}" Value="True">
                             <Setter TargetName="nodeBorder" Property="Background" Value="LightGoldenrodYellow" />
                         </DataTrigger>
-                        <DataTrigger Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType=TreeViewItem}}" Value="True">
+                        <DataTrigger Binding="{Binding IsSelected}" Value="True">
                             <Setter TargetName="nodeBorder" Property="Background" Value="AliceBlue" />
                         </DataTrigger>
                     </HierarchicalDataTemplate.Triggers>
                 </HierarchicalDataTemplate>
                 <Style TargetType="TreeViewItem">
                     <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+                    <Setter Property="Visibility" Value="{Binding IsVisible, Converter={StaticResource BoolToVis}}" />
+                    <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                    <EventSetter Event="PreviewMouseLeftButtonDown" Handler="TreeViewItem_PreviewMouseLeftButtonDown" />
+                    <EventSetter Event="PreviewMouseRightButtonDown" Handler="TreeViewItem_LeftClick" />
+                </Style>
+            </TreeView.Resources>
+        </TreeView>
+        <TreeView Name="treeRight" Grid.Row="1" Grid.Column="1" ItemsSource="{Binding RightRoots}" AllowDrop="True"
+                  Background="{StaticResource TreeBackgroundBrush}"
+                  Drop="Tree_Drop" DragOver="Tree_DragOver" PreviewMouseRightButtonDown="Tree_LeftClick" PreviewMouseLeftButtonDown="Tree_PreviewMouseLeftButtonDown"
+                  ScrollViewer.VerticalScrollBarVisibility="Auto"
+                  ScrollViewer.HorizontalScrollBarVisibility="Auto">
+            <TreeView.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Add Item" Click="AddItemRoot_Click" />
+                    <MenuItem Header="Add Container" Click="AddContainerRoot_Click" />
+                    <MenuItem Header="Add Room" Click="AddRoomRoot_Click" />
+                </ContextMenu>
+            </TreeView.ContextMenu>
+            <TreeView.Resources>
+                <HierarchicalDataTemplate DataType="{x:Type local:HierarchyNode}" ItemsSource="{Binding Children}">
+                    <Border BorderBrush="Blue" BorderThickness="2" CornerRadius="2"
+                            Margin="1" Padding="2" Background="{StaticResource NodeBackgroundBrush}" x:Name="nodeBorder">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="☰" Margin="0,0,4,0"
+                                       PreviewMouseLeftButtonDown="DragHandle_PreviewMouseLeftButtonDown"
+                                       MouseMove="DragHandle_MouseMove"/>
+                            <TextBox Text="{Binding Name, UpdateSourceTrigger=LostFocus}" BorderThickness="0" Background="Transparent" />
+                        </StackPanel>
+                    </Border>
+                    <HierarchicalDataTemplate.Triggers>
+                        <DataTrigger Binding="{Binding IsMatch}" Value="True">
+                            <Setter TargetName="nodeBorder" Property="Background" Value="LightGoldenrodYellow" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                            <Setter TargetName="nodeBorder" Property="Background" Value="AliceBlue" />
+                        </DataTrigger>
+                    </HierarchicalDataTemplate.Triggers>
+                </HierarchicalDataTemplate>
+                <Style TargetType="TreeViewItem">
+                    <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+                    <Setter Property="Visibility" Value="{Binding IsVisible, Converter={StaticResource BoolToVis}}" />
+                    <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                    <EventSetter Event="PreviewMouseLeftButtonDown" Handler="TreeViewItem_PreviewMouseLeftButtonDown" />
                     <EventSetter Event="PreviewMouseRightButtonDown" Handler="TreeViewItem_LeftClick" />
                 </Style>
             </TreeView.Resources>

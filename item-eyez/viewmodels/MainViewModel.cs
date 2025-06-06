@@ -133,7 +133,7 @@ namespace item_eyez
                         decimal.TryParse(row["cashvalue"].ToString(), out value);
 
                     bool isContainerLocation = ContainsKeyword(location, new[] { "lid", "box", "locker", "desk", "cabinet", "shelf", "drawer", "bin", "tub" });
-                    bool isRoomLocation = ContainsKeyword(location, new[] { "room", "kitchen", "closet", "garage", "pantry" });
+                    bool isRoomLocation = ContainsKeyword(location, new[] { "room", "kitchen", "closet", "garage", "pantry", "shop" });
 
                     Guid itemId = db.AddItem(itemName, description, value, categories);
 
@@ -150,7 +150,9 @@ namespace item_eyez
 
                         if (isRoomLocation)
                         {
-                            string roomKey = ExtractKeyword(location, new[] { "room", "kitchen", "closet", "garage", "pantry" });
+                            string roomKey = ContainsKeyword(location, new[] { "room" })
+                                ? location
+                                : ExtractKeyword(location, new[] { "room", "kitchen", "closet", "garage", "pantry", "shop" });
                             if (roomKey != null)
                             {
                                 if (!rooms.TryGetValue(roomKey, out var room))
@@ -179,7 +181,9 @@ namespace item_eyez
 
                                 if (isRoomLocation)
                                 {
-                                    string roomKey = ExtractKeyword(parentName, new[] { "room", "kitchen", "closet", "garage", "pantry" });
+                                    string roomKey = ContainsKeyword(parentName, new[] { "room" })
+                                        ? parentName
+                                        : ExtractKeyword(parentName, new[] { "room", "kitchen", "closet", "garage", "pantry", "shop" });
                                     if (roomKey != null)
                                     {
                                         if (!rooms.TryGetValue(roomKey, out var pr))
@@ -199,7 +203,9 @@ namespace item_eyez
                         if (!isRoomLocation)
                             isRoomLocation = true; // default to room if uncertain
 
-                        var roomKey = ExtractKeyword(location, new[] { "room", "kitchen", "closet", "garage", "pantry" }) ?? location;
+                        var roomKey = ContainsKeyword(location, new[] { "room" })
+                            ? location
+                            : ExtractKeyword(location, new[] { "room", "kitchen", "closet", "garage", "pantry", "shop" }) ?? location;
                         if (!rooms.TryGetValue(roomKey, out var room))
                         {
                             db.AddRoom(roomKey, string.Empty);

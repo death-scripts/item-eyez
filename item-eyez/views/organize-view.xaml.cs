@@ -3,6 +3,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Collections.ObjectModel;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace item_eyez
 {
@@ -11,6 +14,7 @@ namespace item_eyez
         private Point _startPoint;
         private TreeViewItem? _highlighted;
         private readonly ItemEyezDatabase _db = ItemEyezDatabase.Instance();
+        private readonly HashSet<HierarchyNode> _selectedNodes = new();
         public organize_view()
         {
             InitializeComponent();
@@ -30,38 +34,96 @@ namespace item_eyez
                     Math.Abs(pos.Y - _startPoint.Y) > SystemParameters.MinimumVerticalDragDistance)
                 {
                     var element = (FrameworkElement)sender;
-                    DragDrop.DoDragDrop(element, element.DataContext, DragDropEffects.Move);
+                    var node = element.DataContext as HierarchyNode;
+                    if (node == null) return;
+                    if (!_selectedNodes.Contains(node))
+                    {
+                        ClearSelection();
+                        node.IsSelected = true;
+                        _selectedNodes.Add(node);
+                    }
+                    DragDrop.DoDragDrop(element, _selectedNodes.ToList(), DragDropEffects.Move);
                 }
             }
         }
 
         private void Tree_Drop(object sender, DragEventArgs e)
         {
-            var source = e.Data.GetData(typeof(HierarchyNode)) as HierarchyNode;
-            if (source == null) return;
+            var nodes = e.Data.GetData(typeof(List<HierarchyNode>)) as List<HierarchyNode>;
+            if (nodes == null)
+            {
+                var single = e.Data.GetData(typeof(HierarchyNode)) as HierarchyNode;
+                if (single == null) return;
+                nodes = new List<HierarchyNode> { single };
+            }
 
             var treeView = (TreeView)sender;
             var targetItem = GetContainerFromEvent(treeView, e.OriginalSource as DependencyObject);
-            if (targetItem == null) return;
-            var target = targetItem.DataContext as HierarchyNode;
-            if (target == null || target == source) return;
+            var vm = (OrganizeViewModel)DataContext;
 
-            if (source.Entity is Item item)
+            _db.BeginBatch();
+            try
             {
-                if (target.Entity is Container tc)
-                    item.ContainedIn = tc;
-                else if (target.Entity is Room tr)
-                    item.StoredIn = tr;
-            }
-            else if (source.Entity is Container sc)
+
+            foreach (var node in nodes)
             {
-                if (target.Entity is Container tc)
-                    sc.ContainedIn = tc;
-                else if (target.Entity is Room tr)
-                    sc.StoredIn = tr;
+                RemoveNode(vm.Roots, node);
+                RemoveNode(vm.RightRoots, node);
             }
 
-            ((OrganizeViewModel)DataContext).Load();
+                if (targetItem == null)
+                {
+                    // dropping on empty space adds to root
+                    var list = treeView == tree ? vm.Roots : vm.RightRoots;
+                    foreach (var node in nodes)
+                        list.Add(node);
+                    e.Handled = true;
+                }
+                else
+                {
+                    var target = targetItem.DataContext as HierarchyNode;
+                    if (target == null) return;
+
+                    foreach (var node in nodes)
+                    {
+                        if (node == target) continue;
+
+                        if (node.Entity is Room && target.Entity is Container)
+                            continue; // containers cannot hold rooms
+
+                        target.Children.Add(node);
+                        target.IsExpanded = true;
+
+                        if (node.Entity is Item item)
+                        {
+                            if (target.Entity is Container tc)
+                                item.ContainedIn = tc;
+                            else if (target.Entity is Room tr)
+                                item.StoredIn = tr;
+                        }
+                        else if (node.Entity is Container sc)
+                        {
+                            if (target.Entity is Container tc)
+                                sc.ContainedIn = tc;
+                            else if (target.Entity is Room tr)
+                                sc.StoredIn = tr;
+                        }
+                        else if (node.Entity is Room sr && target.Entity is Room tr2)
+                        {
+                            // rooms nested inside rooms are allowed; nothing to do in DB
+                        }
+                    }
+
+                    vm.RemoveRightFromRoots();
+                }
+            }
+            finally
+            {
+                _db.EndBatch();
+            }
+
+            ClearSelection();
+            vm.RefreshSearch();
 
             if (_highlighted != null)
             {
@@ -95,12 +157,39 @@ namespace item_eyez
             return null;
         }
 
+        private bool RemoveNode(ObservableCollection<HierarchyNode> list, HierarchyNode node)
+        {
+            if (list.Remove(node))
+                return true;
+            foreach (var child in list)
+            {
+                if (RemoveNode(child.Children, node))
+                    return true;
+            }
+            return false;
+        }
+
+        private void ClearSelection()
+        {
+            foreach (var n in _selectedNodes.ToList())
+            {
+                n.IsSelected = false;
+            }
+            _selectedNodes.Clear();
+        }
+
         private void TreeViewItem_LeftClick(object sender, MouseButtonEventArgs e)
         {
             var item = (TreeViewItem)sender;
-            item.IsSelected = true;
             var node = item.DataContext as HierarchyNode;
             if (node == null) return;
+
+            if (!node.IsSelected)
+            {
+                ClearSelection();
+                node.IsSelected = true;
+                _selectedNodes.Add(node);
+            }
 
             ContextMenu menu = new ContextMenu();
             if (node.Entity is Container cont)
@@ -118,9 +207,37 @@ namespace item_eyez
             menu.IsOpen = true;
         }
 
+        private void TreeViewItem_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var item = (TreeViewItem)sender;
+            var node = item.DataContext as HierarchyNode;
+            if (node == null) return;
+
+            if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+            {
+                if (node.IsSelected)
+                {
+                    node.IsSelected = false;
+                    _selectedNodes.Remove(node);
+                }
+                else
+                {
+                    node.IsSelected = true;
+                    _selectedNodes.Add(node);
+                }
+            }
+            else
+            {
+                ClearSelection();
+                node.IsSelected = true;
+                _selectedNodes.Add(node);
+            }
+        }
+
         private void Tree_LeftClick(object sender, MouseButtonEventArgs e)
         {
-            if (GetContainerFromEvent(tree, e.OriginalSource as DependencyObject) == null)
+            var treeView = (TreeView)sender;
+            if (GetContainerFromEvent(treeView, e.OriginalSource as DependencyObject) == null)
             {
                 ContextMenu menu = new ContextMenu();
                 menu.Items.Add(new MenuItem { Header = "Add Item" });
@@ -130,6 +247,15 @@ namespace item_eyez
                 menu.Items.Add(new MenuItem { Header = "Add Room" });
                 ((MenuItem)menu.Items[2]).Click += (s, _) => AddRoomRoot_Click(s, _);
                 menu.IsOpen = true;
+            }
+        }
+
+        private void Tree_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var treeView = (TreeView)sender;
+            if (GetContainerFromEvent(treeView, e.OriginalSource as DependencyObject) == null)
+            {
+                ClearSelection();
             }
         }
 
