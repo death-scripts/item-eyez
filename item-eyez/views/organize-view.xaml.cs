@@ -23,8 +23,6 @@ namespace item_eyez
         private void DragHandle_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             _startPoint = e.GetPosition(null);
-            // avoid the TreeView from changing selection when starting a drag
-            e.Handled = true;
         }
 
         private void DragHandle_MouseMove(object sender, MouseEventArgs e)
@@ -234,10 +232,6 @@ namespace item_eyez
                 node.IsSelected = true;
                 _selectedNodes.Add(node);
             }
-
-            // prevent default TreeView selection logic from overriding our
-            // multi-selection state
-            e.Handled = true;
         }
 
         private void Tree_LeftClick(object sender, MouseButtonEventArgs e)
@@ -262,7 +256,6 @@ namespace item_eyez
             if (GetContainerFromEvent(treeView, e.OriginalSource as DependencyObject) == null)
             {
                 ClearSelection();
-                e.Handled = true;
             }
         }
 
