@@ -34,7 +34,7 @@
         </GroupBox>
         <TreeView Name="tree" Grid.Row="1" Grid.Column="0" ItemsSource="{Binding Roots}" AllowDrop="True"
                   Background="{StaticResource TreeBackgroundBrush}"
-                  Drop="Tree_Drop" DragOver="Tree_DragOver" PreviewMouseRightButtonDown="Tree_LeftClick"
+                  Drop="Tree_Drop" DragOver="Tree_DragOver" PreviewMouseRightButtonDown="Tree_LeftClick" PreviewMouseLeftButtonDown="Tree_PreviewMouseLeftButtonDown"
                   ScrollViewer.VerticalScrollBarVisibility="Auto"
                   ScrollViewer.HorizontalScrollBarVisibility="Auto">
             <TreeView.ContextMenu>
@@ -59,7 +59,7 @@
                         <DataTrigger Binding="{Binding IsMatch}" Value="True">
                             <Setter TargetName="nodeBorder" Property="Background" Value="LightGoldenrodYellow" />
                         </DataTrigger>
-                        <DataTrigger Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType=TreeViewItem}}" Value="True">
+                        <DataTrigger Binding="{Binding IsSelected}" Value="True">
                             <Setter TargetName="nodeBorder" Property="Background" Value="AliceBlue" />
                         </DataTrigger>
                     </HierarchicalDataTemplate.Triggers>
@@ -67,13 +67,15 @@
                 <Style TargetType="TreeViewItem">
                     <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
                     <Setter Property="Visibility" Value="{Binding IsVisible, Converter={StaticResource BoolToVis}}" />
+                    <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                    <EventSetter Event="PreviewMouseLeftButtonDown" Handler="TreeViewItem_PreviewMouseLeftButtonDown" />
                     <EventSetter Event="PreviewMouseRightButtonDown" Handler="TreeViewItem_LeftClick" />
                 </Style>
             </TreeView.Resources>
         </TreeView>
         <TreeView Name="treeRight" Grid.Row="1" Grid.Column="1" ItemsSource="{Binding RightRoots}" AllowDrop="True"
                   Background="{StaticResource TreeBackgroundBrush}"
-                  Drop="Tree_Drop" DragOver="Tree_DragOver" PreviewMouseRightButtonDown="Tree_LeftClick"
+                  Drop="Tree_Drop" DragOver="Tree_DragOver" PreviewMouseRightButtonDown="Tree_LeftClick" PreviewMouseLeftButtonDown="Tree_PreviewMouseLeftButtonDown"
                   ScrollViewer.VerticalScrollBarVisibility="Auto"
                   ScrollViewer.HorizontalScrollBarVisibility="Auto">
             <TreeView.ContextMenu>
@@ -98,7 +100,7 @@
                         <DataTrigger Binding="{Binding IsMatch}" Value="True">
                             <Setter TargetName="nodeBorder" Property="Background" Value="LightGoldenrodYellow" />
                         </DataTrigger>
-                        <DataTrigger Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType=TreeViewItem}}" Value="True">
+                        <DataTrigger Binding="{Binding IsSelected}" Value="True">
                             <Setter TargetName="nodeBorder" Property="Background" Value="AliceBlue" />
                         </DataTrigger>
                     </HierarchicalDataTemplate.Triggers>
@@ -106,6 +108,8 @@
                 <Style TargetType="TreeViewItem">
                     <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
                     <Setter Property="Visibility" Value="{Binding IsVisible, Converter={StaticResource BoolToVis}}" />
+                    <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                    <EventSetter Event="PreviewMouseLeftButtonDown" Handler="TreeViewItem_PreviewMouseLeftButtonDown" />
                     <EventSetter Event="PreviewMouseRightButtonDown" Handler="TreeViewItem_LeftClick" />
                 </Style>
             </TreeView.Resources>
