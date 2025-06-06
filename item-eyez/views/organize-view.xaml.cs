@@ -3,7 +3,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Controls.Primitives;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using System.Linq;
@@ -183,9 +182,6 @@ namespace item_eyez
 
         private void TreeViewItem_LeftClick(object sender, MouseButtonEventArgs e)
         {
-            if (e.OriginalSource is ToggleButton)
-                return;
-
             var item = (TreeViewItem)sender;
             var node = item.DataContext as HierarchyNode;
             if (node == null) return;
@@ -215,9 +211,6 @@ namespace item_eyez
 
         private void TreeViewItem_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.OriginalSource is ToggleButton)
-                return;
-
             var item = (TreeViewItem)sender;
             var node = item.DataContext as HierarchyNode;
             if (node == null) return;

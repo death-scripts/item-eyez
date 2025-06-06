@@ -89,8 +89,6 @@ namespace item_eyez
         {
             try
             {
-                var db = ItemEyezDatabase.Instance();
-                db.BeginBatch();
                 string connectionString = $"Provider=Microsoft.ACE.OLEDB.12.0;Data Source={filePath};";
                 using var connection = new OleDbConnection(connectionString);
                 connection.Open();
@@ -104,6 +102,7 @@ namespace item_eyez
                 var data = new DataTable();
                 adapter.Fill(data);
 
+                var db = ItemEyezDatabase.Instance();
                 var containers = db.GetContainersWithRelationships().ToDictionary(c => c.Name, StringComparer.OrdinalIgnoreCase);
                 var rooms = db.GetRoomsList().ToDictionary(r => r.Name, StringComparer.OrdinalIgnoreCase);
 
@@ -158,8 +157,8 @@ namespace item_eyez
                             {
                                 if (!rooms.TryGetValue(roomKey, out var room))
                                 {
-                                    var rid = db.AddRoom(roomKey, string.Empty);
-                                    room = new Room(rid, roomKey, string.Empty);
+                                    db.AddRoom(roomKey, string.Empty);
+                                    room = db.GetRoomsList().First(r => r.Name.Equals(roomKey, StringComparison.OrdinalIgnoreCase));
                                     rooms[roomKey] = room;
                                 }
                                 db.SetItemsRoom(container.Id, room.Id);
@@ -189,8 +188,8 @@ namespace item_eyez
                                     {
                                         if (!rooms.TryGetValue(roomKey, out var pr))
                                         {
-                                            var rid = db.AddRoom(roomKey, string.Empty);
-                                            pr = new Room(rid, roomKey, string.Empty);
+                                            db.AddRoom(roomKey, string.Empty);
+                                            pr = db.GetRoomsList().First(r => r.Name.Equals(roomKey, StringComparison.OrdinalIgnoreCase));
                                             rooms[roomKey] = pr;
                                         }
                                         db.SetItemsRoom(parent.Id, pr.Id);
@@ -209,8 +208,8 @@ namespace item_eyez
                             : ExtractKeyword(location, new[] { "room", "kitchen", "closet", "garage", "pantry", "shop" }) ?? location;
                         if (!rooms.TryGetValue(roomKey, out var room))
                         {
-                            var rid = db.AddRoom(roomKey, string.Empty);
-                            room = new Room(rid, roomKey, string.Empty);
+                            db.AddRoom(roomKey, string.Empty);
+                            room = db.GetRoomsList().First(r => r.Name.Equals(roomKey, StringComparison.OrdinalIgnoreCase));
                             rooms[roomKey] = room;
                         }
                         db.AssociateItemWithRoom(itemId, room.Id);
@@ -227,10 +226,6 @@ namespace item_eyez
             catch (Exception ex)
             {
                 MessageBox.Show($"Failed to import: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-            finally
-            {
-                db.EndBatch();
             }
         }
 
