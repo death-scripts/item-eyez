@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+  <Product Id="*" Name="ItemEyez" Language="1033" Version="1.0.0" Manufacturer="ItemEyez" UpgradeCode="2E0A4C2E-5F6B-4A2A-A428-AC2F74B00570">
+    <Package InstallerVersion="500" Compressed="yes" InstallScope="perMachine" />
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+    <MediaTemplate />
+
+    <Feature Id="ProductFeature" Title="ItemEyez" Level="1">
+      <ComponentGroupRef Id="Files" />
+    </Feature>
+  </Product>
+
+  <Fragment>
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="INSTALLFOLDER" Name="ItemEyez" />
+      </Directory>
+    </Directory>
+  </Fragment>
+
+  <Fragment>
+    <ComponentGroup Id="Files" Directory="INSTALLFOLDER">
+      <Component Id="MainExecutable" Guid="4BB595B8-7F2E-4A0C-8A71-62E8879B5C52">
+        <File Source="..\item-eyez\bin\Release\net8.0-windows\item-eyez.exe" />
+      </Component>
+      <Component Id="CreateSql" Guid="997CB247-38D9-49E4-A628-83F3C4B0B7B9">
+        <File Source="..\create.sql" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+</Wix>

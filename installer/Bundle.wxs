@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:bal="http://schemas.microsoft.com/wix/BalExtension" xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+  <Bundle Name="ItemEyez Installer" Version="1.0.0.0" Manufacturer="ItemEyez" UpgradeCode="C15D155F-5B79-4905-B0D7-5703DD2B6B6F">
+    <BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.RtfLicense" />
+
+    <Chain>
+      <PackageGroupRef Id="Dependencies" />
+      <MsiPackage SourceFile="ItemEyez.msi" />
+    </Chain>
+  </Bundle>
+
+  <Fragment>
+    <PackageGroup Id="Dependencies">
+      <ExePackage Id="NetDesktop" SourceFile="dotnet-runtime-8.0.0-win-x64.exe"
+                  Compressed="no" PerMachine="yes"
+                  InstallCommand="/install /quiet /norestart"
+                  DetectCondition="NETCORE80_INSTALLED" />
+
+      <ExePackage Id="SQLExpress" SourceFile="SQLEXPR_x64_ENU.exe"
+                  Compressed="no" PerMachine="yes"
+                  InstallCommand="/QS /IACCEPTSQLSERVERLICENSETERMS /ACTION=Install /FEATURES=SQLEngine /INSTANCENAME=SQLEXPRESS"
+                  DetectCondition="SQL_EXPRESS_INSTALLED" />
+    </PackageGroup>
+  </Fragment>
+
+  <Fragment>
+    <util:RegistrySearch Id="NetCore80Search" Root="HKLM" Key="SOFTWARE\dotnet\Setup\InstalledVersions\x64\sharedhost" Name="Version" Variable="NETCORE80_VERSION" />
+    <Condition Id="NETCORE80_INSTALLED">NETCORE80_VERSION &gt;= "8.0"</Condition>
+
+    <util:ServiceSearch Id="SqlExpressService" Name="MSSQL$SQLEXPRESS" Variable="SQL_EXPRESS_INSTALLED" />
+  </Fragment>
+</Wix>
