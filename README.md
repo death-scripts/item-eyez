@@ -19,6 +19,13 @@ ItemEyez is a WPF application for organizing items in rooms and containers. The 
    light Bundle.wixobj -o ItemEyezInstaller.exe
    ```
 
+   These commands are wrapped in `installer/build-installer.sh` which builds the
+   application and creates the installer in one step:
+
+   ```bash
+   ./installer/build-installer.sh
+   ```
+
    The resulting `ItemEyezInstaller.exe` will install .NET Desktop Runtime 8.0 and SQL Server Express if they are not present, and then install or upgrade ItemEyez.
 
 ## Installer Behavior
