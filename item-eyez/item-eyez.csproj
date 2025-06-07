@@ -7,11 +7,26 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon>images\item-eyez.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="images\item-eyez-icon1.webp" />
+    <None Remove="images\item-eyez-icon2.webp" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="images\item-eyez.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2" />
     <PackageReference Include="System.Data.OleDb" Version="8.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="images\item-eyez-icon1.webp" />
+    <Resource Include="images\item-eyez-icon2.webp" />
   </ItemGroup>
 
   <ItemGroup>
