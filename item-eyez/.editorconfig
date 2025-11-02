@@ -18,8 +18,14 @@ insert_final_newline = false
 #### .NET Code Actions ####
 
 dotnet_diagnostic.IDE0290.severity = none
+dotnet_diagnostic.CA1822.severity = none
 dotnet_diagnostic.CA1861.severity = warning
+dotnet_diagnostic.CA1862.severity = warning
+dotnet_diagnostic.CA1854.severity = warning
 dotnet_diagnostic.IDE0300.severity = warning
+dotnet_diagnostic.IDE0305.severity = warning
+dotnet_diagnostic.IDE0060.severity = warning
+dotnet_diagnostic.IDE0260.severity = warning
 
 # Type members
 dotnet_hide_advanced_members = false
@@ -37,10 +43,10 @@ dotnet_sort_system_directives_first = true
 file_header_template = unset
 
 # this. and Me. preferences
-dotnet_style_qualification_for_event = false
-dotnet_style_qualification_for_field = false
-dotnet_style_qualification_for_method = false
-dotnet_style_qualification_for_property = false
+dotnet_style_qualification_for_event = true:warning
+dotnet_style_qualification_for_field = true:warning
+dotnet_style_qualification_for_method = true:warning
+dotnet_style_qualification_for_property = true:warning
 
 # Language keywords vs BCL types preferences
 dotnet_style_predefined_type_for_locals_parameters_members = true
@@ -284,10 +290,10 @@ indent_size = 4
 end_of_line = crlf
 dotnet_style_predefined_type_for_member_access = true:silent
 dotnet_style_require_accessibility_modifiers = for_non_interface_members:silent
-dotnet_style_qualification_for_field = false:silent
-dotnet_style_qualification_for_property = false:silent
-dotnet_style_qualification_for_method = false:silent
-dotnet_style_qualification_for_event = false:silent
+dotnet_style_qualification_for_field = true:warning
+dotnet_style_qualification_for_property = true:warning
+dotnet_style_qualification_for_method = true:warning
+dotnet_style_qualification_for_event = true:warning
 dotnet_style_coalesce_expression = true:suggestion
 dotnet_style_null_propagation = true:suggestion
 dotnet_style_prefer_is_null_check_over_reference_equality_method = true:suggestion

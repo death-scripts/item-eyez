@@ -49,12 +49,10 @@ namespace Item_eyez.Database
         private bool suppressNotifications;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ItemEyezDatabase"/> class.
+        /// Initializes a new instance of the <see cref="ItemEyezDatabase" /> class.
         /// </summary>
-        /// <param name="connectionString">The connection string.</param>
-        public ItemEyezDatabase(string connectionString)
-        {
-        }
+        /// <param name="connString">The connection string.</param>
+        public ItemEyezDatabase(string connString) => connectionString = connString;
 
         /// <summary>
         /// The data changed event handler.

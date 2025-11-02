@@ -115,9 +115,9 @@ namespace Item_eyez.Viewmodels
             foreach (Container container in containers)
             {
                 Guid? parentContainerId = this.db.GetContainerIdForEntity(container.Id);
-                if (parentContainerId.HasValue && containerNodes.ContainsKey(parentContainerId.Value))
+                if (parentContainerId.HasValue && containerNodes.TryGetValue(parentContainerId.Value, out HierarchyNode? value1))
                 {
-                    containerNodes[parentContainerId.Value].Children.Add(containerNodes[container.Id]);
+                    value1.Children.Add(containerNodes[container.Id]);
                 }
             }
 
@@ -132,9 +132,9 @@ namespace Item_eyez.Viewmodels
                 }
 
                 Guid? roomId = this.db.GetRoomIdForEntity(container.Id);
-                if (roomId.HasValue && roomNodes.ContainsKey(roomId.Value))
+                if (roomId.HasValue && roomNodes.TryGetValue(roomId.Value, out HierarchyNode? value))
                 {
-                    roomNodes[roomId.Value].Children.Add(node);
+                    value.Children.Add(node);
                 }
                 else
                 {
@@ -147,16 +147,16 @@ namespace Item_eyez.Viewmodels
             {
                 HierarchyNode itemNode = new(item);
                 Guid? containerId = this.db.GetContainerIdForEntity(item.Id);
-                if (containerId.HasValue && containerNodes.ContainsKey(containerId.Value))
+                if (containerId.HasValue && containerNodes.TryGetValue(containerId.Value, out HierarchyNode? value))
                 {
-                    containerNodes[containerId.Value].Children.Add(itemNode);
+                    value.Children.Add(itemNode);
                     continue;
                 }
 
                 Guid? roomId = this.db.GetRoomIdForEntity(item.Id);
-                if (roomId.HasValue && roomNodes.ContainsKey(roomId.Value))
+                if (roomId.HasValue && roomNodes.TryGetValue(roomId.Value, out HierarchyNode? value1))
                 {
-                    roomNodes[roomId.Value].Children.Add(itemNode);
+                    value1.Children.Add(itemNode);
                 }
                 else
                 {
@@ -188,7 +188,7 @@ namespace Item_eyez.Viewmodels
         /// </summary>
         public void RemoveRightFromRoots()
         {
-            List<Guid> ids = this.RightRoots.Select(n => n.Id).ToList();
+            List<Guid> ids = [.. this.RightRoots.Select(n => n.Id)];
             this.RightRoots.Clear();
             foreach (Guid id in ids)
             {

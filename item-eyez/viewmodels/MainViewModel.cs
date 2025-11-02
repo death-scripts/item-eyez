@@ -31,17 +31,38 @@ namespace Item_eyez.Viewmodels
     /// </summary>
     public class MainViewModel
     {
-        private static readonly string[] Separator = new[] { " in ", " on " };
-        private static readonly string[] StringArrayValue = new[] { "room", "kitchen", "closet", "garage", "pantry", "shop" };
-        private static readonly string[] StringArray = new[] { "lid", "box", "locker", "desk", "cabinet", "shelf", "drawer", "bin", "tub" };
-
-        private static readonly string[] StringArray0Value = new[] { "room" };
-        private static readonly string[] StringArray0 = new[] { "room", "kitchen", "closet", "garage", "pantry", "shop" };
-
-        private static readonly string[] StringArray1 = new[] { "room" };
+        /// <summary>
+        /// The separator.
+        /// </summary>
+        private static readonly string[] Separator = [" in ", " on "];
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MainViewModel"/> class.
+        /// The string array.
+        /// </summary>
+        private static readonly string[] StringArray = ["lid", "box", "locker", "desk", "cabinet", "shelf", "drawer", "bin", "tub"];
+
+        /// <summary>
+        /// The string array0.
+        /// </summary>
+        private static readonly string[] StringArray0 = ["room", "kitchen", "closet", "garage", "pantry", "shop"];
+
+        /// <summary>
+        /// The string array0 value.
+        /// </summary>
+        private static readonly string[] StringArray0Value = ["room"];
+
+        /// <summary>
+        /// The string array1.
+        /// </summary>
+        private static readonly string[] StringArray1 = ["room"];
+
+        /// <summary>
+        /// The string array value.
+        /// </summary>
+        private static readonly string[] StringArrayValue = ["room", "kitchen", "closet", "garage", "pantry", "shop"];
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MainViewModel" /> class.
         /// </summary>
         public MainViewModel()
         {
@@ -83,7 +104,7 @@ namespace Item_eyez.Viewmodels
         {
             foreach (string word in keywords)
             {
-                if (text != null && text.ToLower().Contains(word))
+                if (text != null && text.Contains(word, StringComparison.CurrentCultureIgnoreCase))
                 {
                     return true;
                 }
@@ -104,7 +125,7 @@ namespace Item_eyez.Viewmodels
         {
             foreach (string word in keywords)
             {
-                if (text != null && text.ToLower().Contains(word))
+                if (text != null && text.Contains(word, StringComparison.CurrentCultureIgnoreCase))
                 {
                     return word;
                 }
@@ -136,7 +157,7 @@ namespace Item_eyez.Viewmodels
         /// Imports the file.
         /// </summary>
         /// <param name="filePath">The file path.</param>
-        /// <exception cref="System.Exception">No tables found in database.</exception>
+        /// <exception cref="Exception">No tables found in database.</exception>
         private void ImportFile(string filePath)
         {
             try

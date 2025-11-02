@@ -376,7 +376,7 @@ namespace Item_eyez.Viewmodels
         /// </summary>
         private void RoomsDroppedDown()
         {
-            this.Rooms = this.dbHelper.GetRoomsList().ToList();
+            this.Rooms = [.. this.dbHelper.GetRoomsList()];
             this.OnPropertyChanged(nameof(this.Rooms));
         }
     }

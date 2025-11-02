@@ -116,7 +116,7 @@ namespace Item_eyez.Views
         private void AddContainer_OnClick(object sender, RoutedEventArgs e)
         {
             Guid id = this.db.AddContainer("New Container", string.Empty);
-            if ((sender as MenuItem)?.DataContext is Container parent)
+            if (sender is MenuItem { DataContext: Container parent })
             {
                 this.db.AssociateItemWithContainer(id, parent.Id);
             }
@@ -137,7 +137,7 @@ namespace Item_eyez.Views
         private void AddItem_OnClick(object sender, RoutedEventArgs e)
         {
             Guid id = this.db.AddItem("New Item", string.Empty, 0m, string.Empty);
-            if ((sender as MenuItem)?.DataContext is Container parent)
+            if (sender is MenuItem { DataContext: Container parent })
             {
                 this.db.AssociateItemWithContainer(id, parent.Id);
             }
@@ -178,7 +178,7 @@ namespace Item_eyez.Views
         /// <exception cref="System.Exception">Unexpected Case.</exception>
         private void DeleteNode_OnClick(object sender, RoutedEventArgs e)
         {
-            if ((sender as MenuItem)?.DataContext is HierarchyNode node)
+            if (sender is MenuItem { DataContext: HierarchyNode node })
             {
                 switch (node.Entity)
                 {
