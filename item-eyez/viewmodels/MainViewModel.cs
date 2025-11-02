@@ -31,6 +31,15 @@ namespace Item_eyez.Viewmodels
     /// </summary>
     public class MainViewModel
     {
+        private static readonly string[] Separator = new[] { " in ", " on " };
+        private static readonly string[] StringArrayValue = new[] { "room", "kitchen", "closet", "garage", "pantry", "shop" };
+        private static readonly string[] StringArray = new[] { "lid", "box", "locker", "desk", "cabinet", "shelf", "drawer", "bin", "tub" };
+
+        private static readonly string[] StringArray0Value = new[] { "room" };
+        private static readonly string[] StringArray0 = new[] { "room", "kitchen", "closet", "garage", "pantry", "shop" };
+
+        private static readonly string[] StringArray1 = new[] { "room" };
+
         /// <summary>
         /// Initializes a new instance of the <see cref="MainViewModel"/> class.
         /// </summary>
@@ -187,8 +196,8 @@ namespace Item_eyez.Viewmodels
                         _ = decimal.TryParse(row["cashvalue"].ToString(), out value);
                     }
 
-                    bool isContainerLocation = ContainsKeyword(location, new[] { "lid", "box", "locker", "desk", "cabinet", "shelf", "drawer", "bin", "tub" });
-                    bool isRoomLocation = ContainsKeyword(location, new[] { "room", "kitchen", "closet", "garage", "pantry", "shop" });
+                    bool isContainerLocation = ContainsKeyword(location, StringArray);
+                    bool isRoomLocation = ContainsKeyword(location, StringArray0);
 
                     Guid itemId = db.AddItem(itemName, description, value, categories);
 
@@ -205,9 +214,9 @@ namespace Item_eyez.Viewmodels
 
                         if (isRoomLocation)
                         {
-                            string? roomKey = ContainsKeyword(location, new[] { "room" })
+                            string? roomKey = ContainsKeyword(location, StringArray1)
                                 ? location
-                                : ExtractKeyword(location, new[] { "room", "kitchen", "closet", "garage", "pantry", "shop" });
+                                : ExtractKeyword(location, StringArray0);
                             if (roomKey != null)
                             {
                                 if (!rooms.TryGetValue(roomKey, out Room? room))
@@ -221,11 +230,11 @@ namespace Item_eyez.Viewmodels
                             }
                         }
 
-                        string[] parts = location.Split(new[] { " in ", " on " }, StringSplitOptions.RemoveEmptyEntries);
+                        string[] parts = location.Split(Separator, StringSplitOptions.RemoveEmptyEntries);
                         if (parts.Length == 2)
                         {
                             string parentName = parts[1].Trim();
-                            if (!string.IsNullOrEmpty(parentName) && ContainsKeyword(parentName, new[] { "lid", "box", "locker", "desk", "cabinet", "shelf", "drawer", "bin", "tub" }))
+                            if (!string.IsNullOrEmpty(parentName) && ContainsKeyword(parentName, StringArray))
                             {
                                 if (!containers.TryGetValue(parentName, out Container? parent))
                                 {
@@ -238,9 +247,9 @@ namespace Item_eyez.Viewmodels
 
                                 if (isRoomLocation)
                                 {
-                                    string? roomKey = ContainsKeyword(parentName, new[] { "room" })
+                                    string? roomKey = ContainsKeyword(parentName, StringArray1)
                                         ? parentName
-                                        : ExtractKeyword(parentName, new[] { "room", "kitchen", "closet", "garage", "pantry", "shop" });
+                                        : ExtractKeyword(parentName, StringArrayValue);
                                     if (roomKey != null)
                                     {
                                         if (!rooms.TryGetValue(roomKey, out Room? pr))
@@ -263,9 +272,9 @@ namespace Item_eyez.Viewmodels
                             isRoomLocation = true; // default to room if uncertain
                         }
 
-                        string roomKey = ContainsKeyword(location, new[] { "room" })
+                        string roomKey = ContainsKeyword(location, StringArray0Value)
                             ? location
-                            : ExtractKeyword(location, new[] { "room", "kitchen", "closet", "garage", "pantry", "shop" }) ?? location;
+                            : ExtractKeyword(location, StringArrayValue) ?? location;
                         if (!rooms.TryGetValue(roomKey, out Room? room))
                         {
                             db.AddRoom(roomKey, string.Empty);

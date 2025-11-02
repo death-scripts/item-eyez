@@ -43,7 +43,7 @@ namespace Item_eyez.Viewmodels
         /// <param name="description">The description.</param>
         public Room(Guid id, string name, string description)
         {
-            Id = id;
+            this.Id = id;
             this.name = name;
             this.description = description;
         }
@@ -56,14 +56,14 @@ namespace Item_eyez.Viewmodels
         /// </value>
         public string Description
         {
-            get => description;
+            get => this.description;
             set
             {
-                description = value;
+                this.description = value;
                 ItemEyezDatabase.Instance().UpdateRoom(
-                            Id,
-                            Name,
-                            Description);
+                            this.Id,
+                            this.Name,
+                            this.Description);
             }
         }
 
@@ -83,14 +83,14 @@ namespace Item_eyez.Viewmodels
         /// </value>
         public string Name
         {
-            get => name;
+            get => this.name;
             set
             {
-                name = value;
+                this.name = value;
                 ItemEyezDatabase.Instance().UpdateRoom(
-                            Id,
-                            Name,
-                            Description);
+                            this.Id,
+                            this.Name,
+                            this.Description);
             }
         }
     }

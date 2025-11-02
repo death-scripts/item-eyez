@@ -449,7 +449,7 @@ namespace Item_eyez.Database
         /// </returns>
         public Room GetItemsRoom(Guid itemId)
         {
-            this.ResolveContainerAndRoomForItem(itemId, out _, out Room room);
+            this.ResolveContainerAndRoomForItem(itemId, out _, out Room? room);
 
             return room;
         }

@@ -50,7 +50,7 @@ namespace Item_eyez.Viewmodels
         /// Initializes a new instance of the <see cref="HierarchyNode"/> class.
         /// </summary>
         /// <param name="entity">The entity.</param>
-        public HierarchyNode(object entity) => Entity = entity;
+        public HierarchyNode(object entity) => this.Entity = entity;
 
         /// <summary>
         /// Gets the children.
@@ -74,7 +74,7 @@ namespace Item_eyez.Viewmodels
         /// <value>
         /// The identifier.
         /// </value>
-        public Guid Id => Entity switch
+        public Guid Id => this.Entity switch
         {
             Item i => i.Id,
             Container c => c.Id,
@@ -90,11 +90,11 @@ namespace Item_eyez.Viewmodels
         /// </value>
         public bool IsExpanded
         {
-            get => isExpanded;
+            get => this.isExpanded;
             set
             {
-                isExpanded = value;
-                OnPropertyChanged(nameof(IsExpanded));
+                this.isExpanded = value;
+                this.OnPropertyChanged(nameof(this.IsExpanded));
             }
         }
 
@@ -106,11 +106,11 @@ namespace Item_eyez.Viewmodels
         /// </value>
         public bool IsMatch
         {
-            get => isMatch;
+            get => this.isMatch;
             set
             {
-                isMatch = value;
-                OnPropertyChanged(nameof(IsMatch));
+                this.isMatch = value;
+                this.OnPropertyChanged(nameof(this.IsMatch));
             }
         }
 
@@ -122,11 +122,11 @@ namespace Item_eyez.Viewmodels
         /// </value>
         public bool IsSelected
         {
-            get => isSelected;
+            get => this.isSelected;
             set
             {
-                isSelected = value;
-                OnPropertyChanged(nameof(IsSelected));
+                this.isSelected = value;
+                this.OnPropertyChanged(nameof(this.IsSelected));
             }
         }
 
@@ -138,11 +138,11 @@ namespace Item_eyez.Viewmodels
         /// </value>
         public bool IsVisible
         {
-            get => isVisible;
+            get => this.isVisible;
             set
             {
-                isVisible = value;
-                OnPropertyChanged(nameof(IsVisible));
+                this.isVisible = value;
+                this.OnPropertyChanged(nameof(this.IsVisible));
             }
         }
 
@@ -154,7 +154,7 @@ namespace Item_eyez.Viewmodels
         /// </value>
         public string Name
         {
-            get => Entity switch
+            get => this.Entity switch
             {
                 Item i => i.Name,
                 Container c => c.Name,
@@ -163,7 +163,7 @@ namespace Item_eyez.Viewmodels
             };
             set
             {
-                switch (Entity)
+                switch (this.Entity)
                 {
                     case Item i:
                         i.Name = value;
@@ -178,7 +178,7 @@ namespace Item_eyez.Viewmodels
                         break;
                 }
 
-                OnPropertyChanged(nameof(Name));
+                this.OnPropertyChanged(nameof(this.Name));
             }
         }
 
@@ -188,6 +188,6 @@ namespace Item_eyez.Viewmodels
         /// <returns>
         /// A <see cref="string" /> that represents this instance.
         /// </returns>
-        public override string ToString() => Name;
+        public override string ToString() => this.Name;
     }
 }

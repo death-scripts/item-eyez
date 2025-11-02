@@ -28,6 +28,6 @@ namespace Item_eyez.Views
         /// <summary>
         /// Initializes a new instance of the <see cref="Items_view"/> class.
         /// </summary>
-        public Items_view() => InitializeComponent();
+        public Items_view() => this.InitializeComponent();
     }
 }

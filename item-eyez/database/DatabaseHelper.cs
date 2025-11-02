@@ -27,6 +27,11 @@ namespace Item_eyez.Database
     public class DatabaseHelper
     {
         /// <summary>
+        /// The separator.
+        /// </summary>
+        private static readonly string[] Separator = ["GO"];
+
+        /// <summary>
         /// The database name.
         /// </summary>
         private readonly string databaseName;
@@ -37,7 +42,7 @@ namespace Item_eyez.Database
         private readonly string serverConnectionString;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DatabaseHelper"/> class.
+        /// Initializes a new instance of the <see cref="DatabaseHelper" /> class.
         /// </summary>
         /// <param name="serverConnectionString">The server connection string.</param>
         /// <param name="databaseName">Name of the database.</param>
@@ -75,7 +80,7 @@ namespace Item_eyez.Database
 
             // Run the database schema creation script
             string schemaScript = File.ReadAllText("create.sql"); // Ensure `create.sql` is in the executing directory
-            foreach (string batch in schemaScript.Split(new[] { "GO" }, StringSplitOptions.RemoveEmptyEntries))
+            foreach (string batch in schemaScript.Split(Separator, StringSplitOptions.RemoveEmptyEntries))
             {
                 using SqlCommand command = new(batch, connection);
                 _ = command.ExecuteNonQuery();

@@ -17,13 +17,14 @@ insert_final_newline = false
 
 #### .NET Code Actions ####
 
+dotnet_diagnostic.IDE0290.severity = none
+dotnet_diagnostic.CA1861.severity = warning
+dotnet_diagnostic.IDE0300.severity = warning
+
 # Type members
 dotnet_hide_advanced_members = false
 dotnet_member_insertion_location = with_other_members_of_the_same_kind
 dotnet_property_generation_behavior = prefer_throwing_properties
-
-# code cracker 
-dotnet_diagnostic.CC0001.severity = none
 
 # Symbol search
 dotnet_search_reference_assemblies = true
