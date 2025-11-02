@@ -1,4 +1,4 @@
-﻿// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // <copyright company="death-scripts">
 // Copyright (c) death-scripts. All rights reserved.
 // </copyright>
@@ -32,6 +32,111 @@ namespace Item_eyez.Database
         private static readonly string[] Separator = ["GO"];
 
         /// <summary>
+        /// Gets the instance.
+        /// </summary>
+        /// <value>
+        /// The instance.
+        /// </value>
+        public static DatabaseHelper Instance { get; internal set; }
+
+        /// <summary>
+        /// Creates the database.
+        /// </summary>
+        /// <param name="connectionString">The connection string.</param>
+        public static void CreateDatabase(string connectionString)
+        {
+            var builder = new SqlConnectionStringBuilder(connectionString);
+            var databaseName = builder.InitialCatalog;
+            var serverConnectionString = $"Server={builder.DataSource};Integrated Security=true;TrustServerCertificate=True;";
+
+            // First, try to delete the database if it exists
+            try
+            {
+                DeleteDatabase(connectionString);
+                System.Threading.Thread.Sleep(1000); // Add a small delay
+            }
+            catch (SqlException ex)
+            {
+                // Log the exception or handle it if necessary, but don't rethrow if it's just that the DB didn't exist
+                // For now, we'll just ignore it if the database didn't exist
+                if (!ex.Message.Contains("Cannot drop the database") && !ex.Message.Contains("does not exist"))
+                {
+                    throw;
+                }
+            }
+
+            using SqlConnection connection = new(serverConnectionString);
+            connection.Open();
+
+            // Create the database
+            string createDbQuery = $@"CREATE DATABASE [{databaseName}];";
+            using (SqlCommand command = new(createDbQuery, connection))
+            {
+                _ = command.ExecuteNonQuery();
+            }
+
+            // Switch to the new database
+            connection.ChangeDatabase(databaseName);
+
+            // Run the database schema creation script
+            string schemaScript = File.ReadAllText("create.sql"); // Ensure `create.sql` is in the executing directory
+            foreach (string batch in schemaScript.Split(Separator, System.StringSplitOptions.RemoveEmptyEntries))
+            {
+                using SqlCommand command = new(batch, connection);
+                _ = command.ExecuteNonQuery();
+            }
+        }
+
+        /// <summary>
+        /// Deletes the database.
+        /// </summary>
+        /// <param name="connectionString">The connection string.</param>
+        public static void DeleteDatabase(string connectionString)
+        {
+            var builder = new SqlConnectionStringBuilder(connectionString);
+            var databaseName = builder.InitialCatalog;
+            var serverConnectionString = $"Server={builder.DataSource};Integrated Security=true;TrustServerCertificate=True;";
+
+            for (int i = 0; i < 5; i++) // Retry up to 5 times
+            {
+                try
+                {
+                    using SqlConnection connection = new(serverConnectionString);
+                    connection.Open();
+
+                    // Kill all connections to the database
+                    string killConnectionsQuery = $@"
+                        USE master;
+                        ALTER DATABASE [{databaseName}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+                        ALTER DATABASE [{databaseName}] SET MULTI_USER;
+                        ALTER DATABASE [{databaseName}] SET OFFLINE WITH ROLLBACK IMMEDIATE;
+                        ALTER DATABASE [{databaseName}] SET ONLINE;
+                        DROP DATABASE [{databaseName}];";
+
+                    using (SqlCommand command = new(killConnectionsQuery, connection))
+                    {
+                        _ = command.ExecuteNonQuery();
+                    }
+                    System.Threading.Thread.Sleep(1000); // Add a small delay
+                    return; // Success, exit loop
+                }
+                catch (SqlException ex)
+                {
+                    // If the database doesn't exist, that's fine.
+                    if (ex.Message.Contains("Cannot drop the database") && ex.Message.Contains("does not exist"))
+                    {
+                        return;
+                    }
+
+                    // Log the exception for debugging
+                    System.Diagnostics.Debug.WriteLine($"Attempt {i + 1} to delete database failed: {ex.Message}");
+                    System.Threading.Thread.Sleep(2000); // Wait longer before retrying
+                }
+            }
+            throw new Exception($"Failed to delete database {databaseName} after multiple attempts.");
+        }
+
+        /// <summary>
         /// The database name.
         /// </summary>
         private readonly string databaseName;
@@ -53,38 +158,11 @@ namespace Item_eyez.Database
         }
 
         /// <summary>
-        /// Gets the instance.
-        /// </summary>
-        /// <value>
-        /// The instance.
-        /// </value>
-        public static DatabaseHelper Instance { get; internal set; }
-
-        /// <summary>
         /// Creates the database.
         /// </summary>
         public void CreateDatabase()
         {
-            using SqlConnection connection = new(this.serverConnectionString);
-            connection.Open();
-
-            // Create the database
-            string createDbQuery = $@"CREATE DATABASE [{this.databaseName}];";
-            using (SqlCommand command = new(createDbQuery, connection))
-            {
-                _ = command.ExecuteNonQuery();
-            }
-
-            // Switch to the new database
-            connection.ChangeDatabase(this.databaseName);
-
-            // Run the database schema creation script
-            string schemaScript = File.ReadAllText("create.sql"); // Ensure `create.sql` is in the executing directory
-            foreach (string batch in schemaScript.Split(Separator, StringSplitOptions.RemoveEmptyEntries))
-            {
-                using SqlCommand command = new(batch, connection);
-                _ = command.ExecuteNonQuery();
-            }
+            CreateDatabase($"Server={this.serverConnectionString};Database={this.databaseName};Integrated Security=true;TrustServerCertificate=True;");
         }
 
         /// <summary>
@@ -92,15 +170,7 @@ namespace Item_eyez.Database
         /// </summary>
         public void DeleteDatabase()
         {
-            using SqlConnection connection = new(this.serverConnectionString);
-            connection.Open();
-            string query = $@"IF DB_ID('{this.databaseName}') IS NOT NULL
-                           BEGIN
-                               ALTER DATABASE [{this.databaseName}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
-                               DROP DATABASE [{this.databaseName}];
-                           END";
-            using SqlCommand command = new(query, connection);
-            _ = command.ExecuteNonQuery();
+            DeleteDatabase($"Server={this.serverConnectionString};Database={this.databaseName};Integrated Security=true;TrustServerCertificate=True;");
         }
     }
 }

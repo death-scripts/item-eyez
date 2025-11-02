@@ -21,7 +21,7 @@ $coverageFile = Get-ChildItem -Path . -Recurse -Filter "coverage.cobertura.xml" 
 
 if ($coverageFile) {
     # Generate the HTML report
-    reportgenerator -reports:$coverageFile.FullName -targetdir:"TestResults" -reporttypes:"Html"
+    reportgenerator -reports:$coverageFile.FullName -targetdir:"TestResults" -reporttypes:"Html" -filefilters:"-*.g.cs;-*.g.i.cs;-*Item-eyez.Tests*"
     Write-Host "Test coverage report generated in TestResults folder."
 } else {
     Write-Host "Could not find coverage file. Report generation skipped."

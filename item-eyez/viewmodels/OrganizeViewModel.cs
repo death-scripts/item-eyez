@@ -50,6 +50,10 @@ namespace Item_eyez.Viewmodels
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OrganizeViewModel"/> class.
+        /// </summary>
+        /// <param name="database">The database.</param>
         public OrganizeViewModel(IItemEyezDatabase database)
         {
             this.db = database;

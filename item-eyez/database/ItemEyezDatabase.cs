@@ -36,12 +36,12 @@ namespace Item_eyez.Database
         /// <summary>
         /// The connection string.
         /// </summary>
-        private static string? connectionString;
+        private static string? connectionString = null;
 
         /// <summary>
         /// The instance.
         /// </summary>
-        private static ItemEyezDatabase? instance;
+        private static ItemEyezDatabase? instance = null;
 
         /// <summary>
         /// The suppress notifications.
@@ -72,7 +72,7 @@ namespace Item_eyez.Database
         /// <value>
         /// The containers.
         /// </value>
-        public ObservableCollection<Container> Containers => GetContainersWithRelationships();
+        public ObservableCollection<Container> Containers => this.GetContainersWithRelationships();
 
         /// <summary>
         /// Gets the rooms.
@@ -80,7 +80,7 @@ namespace Item_eyez.Database
         /// <value>
         /// The rooms.
         /// </value>
-        public ObservableCollection<Room> Rooms => GetRoomsList();
+        public ObservableCollection<Room> Rooms => this.GetRoomsList();
 
         /// <summary>
         /// Instances the specified connection string.
