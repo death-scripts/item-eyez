@@ -19,6 +19,8 @@ insert_final_newline = false
 
 dotnet_diagnostic.IDE0290.severity = none
 dotnet_diagnostic.CA1822.severity = none
+dotnet_diagnostic.SA1636.severity = none
+dotnet_diagnostic.SA1637.severity = none
 dotnet_diagnostic.CA1861.severity = warning
 dotnet_diagnostic.CA1862.severity = warning
 dotnet_diagnostic.CA1854.severity = warning
