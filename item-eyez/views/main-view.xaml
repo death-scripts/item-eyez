@@ -12,10 +12,10 @@
     <Grid>
         <TabControl Background="Beige">
             <TabItem Header="ROOMS">
-                <view:rooms_view />
+                <view:Rooms_view />
             </TabItem>
             <TabItem Header="CONTAINERS">
-                <view:containers_view />
+                <view:Containers_view />
             </TabItem>
             <TabItem Header="ITEMS">
                 <view:Items_view />
