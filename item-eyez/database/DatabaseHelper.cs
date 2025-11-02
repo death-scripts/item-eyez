@@ -32,6 +32,27 @@ namespace Item_eyez.Database
         private static readonly string[] Separator = ["GO"];
 
         /// <summary>
+        /// The database name.
+        /// </summary>
+        private readonly string databaseName;
+
+        /// <summary>
+        /// The server connection string.
+        /// </summary>
+        private readonly string serverConnectionString;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DatabaseHelper" /> class.
+        /// </summary>
+        /// <param name="serverConnectionString">The server connection string.</param>
+        /// <param name="databaseName">Name of the database.</param>
+        public DatabaseHelper(string serverConnectionString, string databaseName)
+        {
+            this.serverConnectionString = serverConnectionString;
+            this.databaseName = databaseName;
+        }
+
+        /// <summary>
         /// Gets the instance.
         /// </summary>
         /// <value>
@@ -45,9 +66,9 @@ namespace Item_eyez.Database
         /// <param name="connectionString">The connection string.</param>
         public static void CreateDatabase(string connectionString)
         {
-            var builder = new SqlConnectionStringBuilder(connectionString);
-            var databaseName = builder.InitialCatalog;
-            var serverConnectionString = $"Server={builder.DataSource};Integrated Security=true;TrustServerCertificate=True;";
+            SqlConnectionStringBuilder builder = new(connectionString);
+            string databaseName = builder.InitialCatalog;
+            string serverConnectionString = $"Server={builder.DataSource};Integrated Security=true;TrustServerCertificate=True;";
 
             // First, try to delete the database if it exists
             try
@@ -93,11 +114,12 @@ namespace Item_eyez.Database
         /// <param name="connectionString">The connection string.</param>
         public static void DeleteDatabase(string connectionString)
         {
-            var builder = new SqlConnectionStringBuilder(connectionString);
-            var databaseName = builder.InitialCatalog;
-            var serverConnectionString = $"Server={builder.DataSource};Integrated Security=true;TrustServerCertificate=True;";
+            SqlConnectionStringBuilder builder = new(connectionString);
+            string databaseName = builder.InitialCatalog;
+            string serverConnectionString = $"Server={builder.DataSource};Integrated Security=true;TrustServerCertificate=True;";
 
-            for (int i = 0; i < 5; i++) // Retry up to 5 times
+            // Retry up to 5 times
+            for (int i = 0; i < 5; i++)
             {
                 try
                 {
@@ -117,6 +139,7 @@ namespace Item_eyez.Database
                     {
                         _ = command.ExecuteNonQuery();
                     }
+
                     System.Threading.Thread.Sleep(1000); // Add a small delay
                     return; // Success, exit loop
                 }
@@ -133,44 +156,18 @@ namespace Item_eyez.Database
                     System.Threading.Thread.Sleep(2000); // Wait longer before retrying
                 }
             }
+
             throw new Exception($"Failed to delete database {databaseName} after multiple attempts.");
-        }
-
-        /// <summary>
-        /// The database name.
-        /// </summary>
-        private readonly string databaseName;
-
-        /// <summary>
-        /// The server connection string.
-        /// </summary>
-        private readonly string serverConnectionString;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DatabaseHelper" /> class.
-        /// </summary>
-        /// <param name="serverConnectionString">The server connection string.</param>
-        /// <param name="databaseName">Name of the database.</param>
-        public DatabaseHelper(string serverConnectionString, string databaseName)
-        {
-            this.serverConnectionString = serverConnectionString;
-            this.databaseName = databaseName;
         }
 
         /// <summary>
         /// Creates the database.
         /// </summary>
-        public void CreateDatabase()
-        {
-            CreateDatabase($"Server={this.serverConnectionString};Database={this.databaseName};Integrated Security=true;TrustServerCertificate=True;");
-        }
+        public void CreateDatabase() => CreateDatabase($"Server={this.serverConnectionString};Database={this.databaseName};Integrated Security=true;TrustServerCertificate=True;");
 
         /// <summary>
         /// Deletes the database.
         /// </summary>
-        public void DeleteDatabase()
-        {
-            DeleteDatabase($"Server={this.serverConnectionString};Database={this.databaseName};Integrated Security=true;TrustServerCertificate=True;");
-        }
+        public void DeleteDatabase() => DeleteDatabase($"Server={this.serverConnectionString};Database={this.databaseName};Integrated Security=true;TrustServerCertificate=True;");
     }
 }
