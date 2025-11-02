@@ -6,7 +6,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:views="clr-namespace:Item_eyez.Views"
     xmlns:vm="clr-namespace:Item_eyez.Viewmodels"
-    Title="MainWindow"
+    Title="item-eyez"
     MinWidth="800"
     MinHeight="500"
     Background="{StaticResource WindowBackgroundBrush}"
