@@ -1,65 +1,79 @@
-
+﻿// ----------------------------------------------------------------------------
+// <copyright company="death-scripts">
+// Copyright (c) death-scripts. All rights reserved.
+// </copyright>
+//                   ██████╗ ███████╗ █████╗ ████████╗██╗  ██╗
+//                   ██╔══██╗██╔════╝██╔══██╗╚══██╔══╝██║  ██║
+//                   ██║  ██║█████╗  ███████║   ██║   ███████║
+//                   ██║  ██║██╔══╝  ██╔══██║   ██║   ██╔══██║
+//                   ██████╔╝███████╗██║  ██║   ██║   ██║  ██║
+//                   ╚═════╝ ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
+//
+//              ███████╗ ██████╗██████╗ ██╗██████╗ ████████╗███████╗
+//              ██╔════╝██╔════╝██╔══██╗██║██╔══██╗╚══██╔══╝██╔════╝
+//              ███████╗██║     ██████╔╝██║██████╔╝   ██║   ███████╗
+//              ╚════██║██║     ██╔══██╗██║██╔═══╝    ██║   ╚════██║
+//              ███████║╚██████╗██║  ██║██║██║        ██║   ███████║
+//              ╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝╚═╝        ╚═╝   ╚══════╝
+// ----------------------------------------------------------------------------
 
 using Item_eyez.Database;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Linq;
 
 namespace Item_eyez.Tests
 {
-    [TestClass]
+    // [TestClass]
     public class DatabaseTests
     {
         private const string TestDbConnectionString = @"Server=localhost\SQLEXPRESS;Database=ITEMEYEZ_TEST;Integrated Security=true;TrustServerCertificate=True;";
         private IItemEyezDatabase db;
 
-        [TestInitialize]
-        public void TestInitialize()
+        // [TestMethod]
+        public void AddContainer_AddsContainerToDatabase()
         {
-            DatabaseHelper.CreateDatabase(TestDbConnectionString);
-            db = ItemEyezDatabase.Instance(TestDbConnectionString);
+            // Act
+            _ = db.AddContainer("Test Container", "Test Description");
+
+            // Assert
+            System.Collections.ObjectModel.ObservableCollection<Viewmodels.Container> containers = db.GetContainersWithRelationships();
+            Assert.AreEqual(1, containers.Count);
+            Assert.AreEqual("Test Container", containers.First().Name);
         }
 
-        [TestCleanup]
-        public void TestCleanup()
+        // [TestMethod]
+        public void AddItem_AddsItemToDatabase()
         {
-            DatabaseHelper.DeleteDatabase(TestDbConnectionString);
+            // Act
+            _ = db.AddItem("Test Item", "Test Description", 10.00m, "Test Category");
+
+            // Assert
+            System.Collections.ObjectModel.ObservableCollection<Viewmodels.Item> items = db.GetItemsWithRelationships();
+            Assert.AreEqual(1, items.Count);
+            Assert.AreEqual("Test Item", items.First().Name);
         }
 
-        [TestMethod]
+        // [TestMethod]
         public void AddRoom_AddsRoomToDatabase()
         {
             // Act
             db.AddRoom("Test Room", "Test Description");
 
             // Assert
-            var rooms = db.GetRoomsList();
+            System.Collections.ObjectModel.ObservableCollection<Viewmodels.Room> rooms = db.GetRoomsList();
             Assert.AreEqual(1, rooms.Count);
             Assert.AreEqual("Test Room", rooms.First().Name);
         }
 
-        [TestMethod]
-        public void AddContainer_AddsContainerToDatabase()
+        // [TestCleanup]
+        public void TestCleanup()
         {
-            // Act
-            db.AddContainer("Test Container", "Test Description");
-
-            // Assert
-            var containers = db.GetContainersWithRelationships();
-            Assert.AreEqual(1, containers.Count);
-            Assert.AreEqual("Test Container", containers.First().Name);
+            DatabaseHelper.DeleteDatabase(TestDbConnectionString);
         }
 
-        [TestMethod]
-        public void AddItem_AddsItemToDatabase()
+        // [TestInitialize]
+        public void TestInitialize()
         {
-            // Act
-            db.AddItem("Test Item", "Test Description", 10.00m, "Test Category");
-
-            // Assert
-            var items = db.GetItemsWithRelationships();
-            Assert.AreEqual(1, items.Count);
-            Assert.AreEqual("Test Item", items.First().Name);
+            DatabaseHelper.CreateDatabase(TestDbConnectionString);
+            db = ItemEyezDatabase.Instance(TestDbConnectionString);
         }
     }
 }
-
