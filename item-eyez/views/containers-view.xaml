@@ -120,7 +120,7 @@
                         <DataTemplate>
                             <ComboBox
                                 DisplayMemberPath="Name"
-                                ItemsSource="{x:Static db:ItemEyezDatabase.Containers}"
+                                ItemsSource="{Binding DataContext.Containers, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
                                 SelectedItem="{Binding ContainedIn, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellEditingTemplate>
@@ -136,7 +136,7 @@
                         <DataTemplate>
                             <ComboBox
                                 DisplayMemberPath="Name"
-                                ItemsSource="{x:Static db:ItemEyezDatabase.Rooms}"
+                                ItemsSource="{Binding DataContext.Rooms, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
                                 SelectedItem="{Binding StoredIn, UpdateSourceTrigger=LostFocus, Mode=TwoWay}" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellEditingTemplate>

@@ -26,7 +26,7 @@ namespace Item_eyez.Database
     /// <summary>
     /// The item eyez database.
     /// </summary>
-    public class ItemEyezDatabase
+    public class ItemEyezDatabase : IItemEyezDatabase
     {
         /// <summary>
         /// The lock.
@@ -72,7 +72,7 @@ namespace Item_eyez.Database
         /// <value>
         /// The containers.
         /// </value>
-        public static ObservableCollection<Container> Containers => Instance().GetContainersWithRelationships();
+        public ObservableCollection<Container> Containers => GetContainersWithRelationships();
 
         /// <summary>
         /// Gets the rooms.
@@ -80,7 +80,7 @@ namespace Item_eyez.Database
         /// <value>
         /// The rooms.
         /// </value>
-        public static ObservableCollection<Room> Rooms => Instance().GetRoomsList();
+        public ObservableCollection<Room> Rooms => GetRoomsList();
 
         /// <summary>
         /// Instances the specified connection string.

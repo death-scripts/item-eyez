@@ -34,7 +34,7 @@ namespace Item_eyez.Viewmodels
         /// <summary>
         /// The database helper.
         /// </summary>
-        private readonly ItemEyezDatabase dbHelper;
+        private readonly IItemEyezDatabase dbHelper;
 
         /// <summary>
         /// The description.
@@ -60,8 +60,17 @@ namespace Item_eyez.Viewmodels
         /// Initializes a new instance of the <see cref="RoomViewModel" /> class.
         /// </summary>
         public RoomViewModel()
+            : this(ItemEyezDatabase.Instance())
         {
-            this.dbHelper = ItemEyezDatabase.Instance();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RoomViewModel"/> class.
+        /// </summary>
+        /// <param name="database">The database.</param>
+        public RoomViewModel(IItemEyezDatabase database)
+        {
+            this.dbHelper = database;
             this.Load();
             this.dbHelper.DataChanged += this.DbHelper_DataChanged;
         }

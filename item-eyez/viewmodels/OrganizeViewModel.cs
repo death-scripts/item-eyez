@@ -30,7 +30,7 @@ namespace Item_eyez.Viewmodels
         /// <summary>
         /// The database.
         /// </summary>
-        private readonly ItemEyezDatabase db = ItemEyezDatabase.Instance();
+        private readonly IItemEyezDatabase db;
 
         /// <summary>
         /// The expansion state.
@@ -46,7 +46,13 @@ namespace Item_eyez.Viewmodels
         /// Initializes a new instance of the <see cref="OrganizeViewModel"/> class.
         /// </summary>
         public OrganizeViewModel()
+            : this(ItemEyezDatabase.Instance())
         {
+        }
+
+        public OrganizeViewModel(IItemEyezDatabase database)
+        {
+            this.db = database;
             this.Load();
             this.RemoveRightFromRoots();
             this.db.DataChanged += (_, __) =>
