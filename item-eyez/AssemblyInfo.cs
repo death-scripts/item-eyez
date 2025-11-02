@@ -1,4 +1,4 @@
-﻿// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // <copyright company="death-scripts">
 // Copyright (c) death-scripts. All rights reserved.
 // </copyright>
@@ -16,9 +16,10 @@
 //              ███████║╚██████╗██║  ██║██║██║        ██║   ███████║
 //              ╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝╚═╝        ╚═╝   ╚══════╝
 // ----------------------------------------------------------------------------
+using System.Runtime.CompilerServices;
 using System.Windows;
 
 [assembly: ThemeInfo(
     ResourceDictionaryLocation.None,
-    ResourceDictionaryLocation.SourceAssembly)
-]
+    ResourceDictionaryLocation.SourceAssembly)]
+[assembly: InternalsVisibleTo("Item-eyez.Tests")]

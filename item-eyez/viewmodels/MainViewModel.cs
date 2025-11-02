@@ -100,7 +100,7 @@ namespace Item_eyez.Viewmodels
         /// <returns>
         ///   <c>true</c> if the specified text contains keyword; otherwise, <c>false</c>.
         /// </returns>
-        private static bool ContainsKeyword(string text, string[] keywords)
+        internal static bool ContainsKeyword(string text, string[] keywords)
         {
             foreach (string word in keywords)
             {
@@ -121,7 +121,7 @@ namespace Item_eyez.Viewmodels
         /// <returns>
         /// The nullable.
         /// </returns>
-        private static string? ExtractKeyword(string text, string[] keywords)
+        internal static string? ExtractKeyword(string text, string[] keywords)
         {
             foreach (string word in keywords)
             {
