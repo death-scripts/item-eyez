@@ -1524,7 +1524,7 @@
                 <Track
                     Grid.Row="1"
                     IsDirectionReversed="true"
-                    ViewportSize="0">
+                    ViewportSize="{TemplateBinding ViewportSize}">
                     <Track.DecreaseRepeatButton>
                         <RepeatButton Command="ScrollBar.PageUpCommand" Style="{StaticResource ScrollBarPageButton}" />
                     </Track.DecreaseRepeatButton>
@@ -1561,7 +1561,7 @@
                     Style="{StaticResource ScrollBarPageButton}">
                     <Path Data="M 4 0 L 0 3.5 L 4 7 Z" Fill="{StaticResource Menu.Static.Foreground}" />
                 </RepeatButton>
-                <Track Grid.Column="1" ViewportSize="0">
+                <Track Grid.Column="1" ViewportSize="{TemplateBinding ViewportSize}">
                     <Track.DecreaseRepeatButton>
                         <RepeatButton Command="ScrollBar.PageLeftCommand" Style="{StaticResource ScrollBarPageButton}" />
                     </Track.DecreaseRepeatButton>
