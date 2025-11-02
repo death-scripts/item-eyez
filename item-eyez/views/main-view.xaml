@@ -1,26 +1,27 @@
 ﻿<UserControl
-    x:Class="item_eyez.main_view"
+    x:Class="Item_eyez.Views.Main_view"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:local="clr-namespace:item_eyez"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:view="clr-namespace:Item_eyez.Views"
+    xmlns:vm="clr-namespace:Item_eyez.Viewmodels"
     d:DesignHeight="550"
     d:DesignWidth="800"
     mc:Ignorable="d">
     <Grid>
         <TabControl Background="Beige">
             <TabItem Header="ROOMS">
-                <local:rooms_view />
+                <view:rooms_view />
             </TabItem>
             <TabItem Header="CONTAINERS">
-                <local:containers_view />
+                <view:containers_view />
             </TabItem>
             <TabItem Header="ITEMS">
-                <local:items_view />
+                <view:Items_view />
             </TabItem>
             <TabItem Header="ORGANIZE">
-                <local:organize_view />
+                <view:Organize_view />
             </TabItem>
         </TabControl>
     </Grid>

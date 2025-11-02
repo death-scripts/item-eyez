@@ -1,34 +1,217 @@
+﻿// ----------------------------------------------------------------------------
+// <copyright company="death-scripts">
+// Copyright (c) death-scripts. All rights reserved.
+// </copyright>
+//                   ██████╗ ███████╗ █████╗ ████████╗██╗  ██╗
+//                   ██╔══██╗██╔════╝██╔══██╗╚══██╔══╝██║  ██║
+//                   ██║  ██║█████╗  ███████║   ██║   ███████║
+//                   ██║  ██║██╔══╝  ██╔══██║   ██║   ██╔══██║
+//                   ██████╔╝███████╗██║  ██║   ██║   ██║  ██║
+//                   ╚═════╝ ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
+//
+//              ███████╗ ██████╗██████╗ ██╗██████╗ ████████╗███████╗
+//              ██╔════╝██╔════╝██╔══██╗██║██╔══██╗╚══██╔══╝██╔════╝
+//              ███████╗██║     ██████╔╝██║██████╔╝   ██║   ███████╗
+//              ╚════██║██║     ██╔══██╗██║██╔═══╝    ██║   ╚════██║
+//              ███████║╚██████╗██║  ██║██║██║        ██║   ███████║
+//              ╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝╚═╝        ╚═╝   ╚══════╝
+// ----------------------------------------------------------------------------
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using Item_eyez.Database;
+using Item_eyez.Viewmodels;
 
-namespace item_eyez
+namespace Item_eyez.Views
 {
-    public partial class organize_view : UserControl
+    /// <summary>
+    /// The organize view.
+    /// </summary>
+    /// <seealso cref="System.Windows.Controls.UserControl" />
+    /// <seealso cref="System.Windows.Markup.IComponentConnector" />
+    /// <seealso cref="System.Windows.Markup.IStyleConnector" />
+    public partial class Organize_view : UserControl
     {
-        private Point _startPoint;
-        private TreeViewItem? _highlighted;
-        private readonly ItemEyezDatabase _db = ItemEyezDatabase.Instance();
-        private readonly HashSet<HierarchyNode> _selectedNodes = [];
-        public organize_view()
+        /// <summary>
+        /// The database.
+        /// </summary>
+        private readonly ItemEyezDatabase db = ItemEyezDatabase.Instance();
+
+        /// <summary>
+        /// The selected nodes.
+        /// </summary>
+        private readonly HashSet<HierarchyNode> selectedNodes = [];
+
+        /// <summary>
+        /// The highlighted.
+        /// </summary>
+        private TreeViewItem? highlighted;
+
+        /// <summary>
+        /// The start point.
+        /// </summary>
+        private Point startPoint;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Organize_view"/> class.
+        /// </summary>
+        public Organize_view() => this.InitializeComponent();
+
+        /// <summary>
+        /// Gets the container from event.
+        /// </summary>
+        /// <param name="container">The container.</param>
+        /// <param name="source">The source.</param>
+        /// <returns>
+        /// The nullable.
+        /// </returns>
+        private static TreeViewItem? GetContainerFromEvent(ItemsControl container, DependencyObject? source)
         {
-            InitializeComponent();
+            while (source != null && source != container)
+            {
+                if (source is TreeViewItem item)
+                {
+                    return item;
+                }
+
+                source = VisualTreeHelper.GetParent(source);
+            }
+
+            return null;
         }
 
-        private void DragHandle_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        /// <summary>
+        /// Removes the node.
+        /// </summary>
+        /// <param name="list">The list.</param>
+        /// <param name="node">The node.</param>
+        /// <returns>
+        /// The boolean.
+        /// </returns>
+        private static bool RemoveNode(ObservableCollection<HierarchyNode> list, HierarchyNode node)
         {
-            _startPoint = e.GetPosition(null);
+            if (list.Remove(node))
+            {
+                return true;
+            }
+
+            foreach (HierarchyNode child in list)
+            {
+                if (RemoveNode(child.Children, node))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
+        /// <summary>
+        /// Handles the OnClick event of the AddContainer control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
+        private void AddContainer_OnClick(object sender, RoutedEventArgs e)
+        {
+            Guid id = this.db.AddContainer("New Container", string.Empty);
+            if ((sender as MenuItem)?.DataContext is Container parent)
+            {
+                this.db.AssociateItemWithContainer(id, parent.Id);
+            }
+        }
+
+        /// <summary>
+        /// Handles the Click event of the AddContainerRoot control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
+        private void AddContainerRoot_Click(object sender, RoutedEventArgs e) => this.AddContainer_OnClick(sender, e);
+
+        /// <summary>
+        /// Handles the OnClick event of the AddItem control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
+        private void AddItem_OnClick(object sender, RoutedEventArgs e)
+        {
+            Guid id = this.db.AddItem("New Item", string.Empty, 0m, string.Empty);
+            if ((sender as MenuItem)?.DataContext is Container parent)
+            {
+                this.db.AssociateItemWithContainer(id, parent.Id);
+            }
+        }
+
+        /// <summary>
+        /// Handles the Click event of the AddItemRoot control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
+        private void AddItemRoot_Click(object sender, RoutedEventArgs e) => this.AddItem_OnClick(sender, e);
+
+        /// <summary>
+        /// Handles the Click event of the AddRoomRoot control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
+        private void AddRoomRoot_Click(object sender, RoutedEventArgs e) => this.db.AddRoom("New Room", string.Empty);
+
+        /// <summary>
+        /// Clears the selection.
+        /// </summary>
+        private void ClearSelection()
+        {
+            foreach (HierarchyNode? n in this.selectedNodes.ToList())
+            {
+                n.IsSelected = false;
+            }
+
+            this.selectedNodes.Clear();
+        }
+
+        /// <summary>
+        /// Handles the OnClick event of the DeleteNode control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
+        /// <exception cref="System.Exception">Unexpected Case.</exception>
+        private void DeleteNode_OnClick(object sender, RoutedEventArgs e)
+        {
+            if ((sender as MenuItem)?.DataContext is HierarchyNode node)
+            {
+                switch (node.Entity)
+                {
+                    case Item item:
+                        this.db.DeleteItem(item.Id);
+                        break;
+
+                    case Container cont:
+                        this.db.DeleteContainer(cont.Id);
+                        break;
+
+                    case Room room:
+                        this.db.DeleteRoom(room.Id);
+                        break;
+
+                    default:
+                        throw new Exception("Unexpected Case");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Handles the MouseMove event of the DragHandle control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="MouseEventArgs"/> instance containing the event data.</param>
         private void DragHandle_MouseMove(object sender, MouseEventArgs e)
         {
             if (e.LeftButton == MouseButtonState.Pressed)
             {
                 Point pos = e.GetPosition(null);
-                if (Math.Abs(pos.X - _startPoint.X) > SystemParameters.MinimumHorizontalDragDistance ||
-                    Math.Abs(pos.Y - _startPoint.Y) > SystemParameters.MinimumVerticalDragDistance)
+                if (Math.Abs(pos.X - this.startPoint.X) > SystemParameters.MinimumHorizontalDragDistance ||
+                    Math.Abs(pos.Y - this.startPoint.Y) > SystemParameters.MinimumVerticalDragDistance)
                 {
                     FrameworkElement element = (FrameworkElement)sender;
                     if (element.DataContext is not HierarchyNode node)
@@ -36,17 +219,54 @@ namespace item_eyez
                         return;
                     }
 
-                    if (!_selectedNodes.Contains(node))
+                    if (!this.selectedNodes.Contains(node))
                     {
-                        ClearSelection();
+                        this.ClearSelection();
                         node.IsSelected = true;
-                        _ = _selectedNodes.Add(node);
+                        _ = this.selectedNodes.Add(node);
                     }
-                    _ = DragDrop.DoDragDrop(element, _selectedNodes.ToList(), DragDropEffects.Move);
+
+                    _ = DragDrop.DoDragDrop(element, this.selectedNodes.ToList(), DragDropEffects.Move);
                 }
             }
         }
 
+        /// <summary>
+        /// Handles the PreviewMouseLeftButtonDown event of the DragHandle control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="MouseButtonEventArgs"/> instance containing the event data.</param>
+        private void DragHandle_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e) => this.startPoint = e.GetPosition(null);
+
+        /// <summary>
+        /// Handles the DragOver event of the Tree control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="DragEventArgs"/> instance containing the event data.</param>
+        private void Tree_DragOver(object sender, DragEventArgs e)
+        {
+            TreeView treeView = (TreeView)sender;
+            TreeViewItem? item = GetContainerFromEvent(treeView, e.OriginalSource as DependencyObject);
+            if (this.highlighted != item)
+            {
+                if (this.highlighted != null)
+                {
+                    this.highlighted.Background = Brushes.Transparent;
+                }
+
+                this.highlighted = item;
+                if (this.highlighted != null)
+                {
+                    this.highlighted.Background = Brushes.AliceBlue;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Handles the Drop event of the Tree control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="DragEventArgs"/> instance containing the event data.</param>
         private void Tree_Drop(object sender, DragEventArgs e)
         {
             List<HierarchyNode>? nodes = e.Data.GetData(typeof(List<HierarchyNode>)) as List<HierarchyNode>;
@@ -62,12 +282,11 @@ namespace item_eyez
 
             TreeView treeView = (TreeView)sender;
             TreeViewItem? targetItem = GetContainerFromEvent(treeView, e.OriginalSource as DependencyObject);
-            OrganizeViewModel vm = (OrganizeViewModel)DataContext;
+            OrganizeViewModel vm = (OrganizeViewModel)this.DataContext;
 
-            _db.BeginBatch();
+            this.db.BeginBatch();
             try
             {
-
                 foreach (HierarchyNode node in nodes)
                 {
                     _ = RemoveNode(vm.Roots, node);
@@ -77,7 +296,7 @@ namespace item_eyez
                 if (targetItem == null)
                 {
                     // dropping on empty space adds to root
-                    ObservableCollection<HierarchyNode> list = treeView == tree ? vm.Roots : vm.RightRoots;
+                    ObservableCollection<HierarchyNode> list = treeView == this.tree ? vm.Roots : vm.RightRoots;
                     foreach (HierarchyNode node in nodes)
                     {
                         list.Add(node);
@@ -139,78 +358,59 @@ namespace item_eyez
             }
             finally
             {
-                _db.EndBatch();
+                this.db.EndBatch();
             }
 
-            ClearSelection();
+            this.ClearSelection();
             vm.RefreshSearch();
 
-            if (_highlighted != null)
+            if (this.highlighted != null)
             {
-                _highlighted.Background = Brushes.Transparent;
-                _highlighted = null;
+                this.highlighted.Background = Brushes.Transparent;
+                this.highlighted = null;
             }
         }
 
-        private void Tree_DragOver(object sender, DragEventArgs e)
+        /// <summary>
+        /// Handles the LeftClick event of the Tree control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="MouseButtonEventArgs"/> instance containing the event data.</param>
+        private void Tree_LeftClick(object sender, MouseButtonEventArgs e)
         {
             TreeView treeView = (TreeView)sender;
-            TreeViewItem? item = GetContainerFromEvent(treeView, e.OriginalSource as DependencyObject);
-            if (_highlighted != item)
+            if (GetContainerFromEvent(treeView, e.OriginalSource as DependencyObject) == null)
             {
-                if (_highlighted != null)
-                {
-                    _highlighted.Background = Brushes.Transparent;
-                }
-
-                _highlighted = item;
-                if (_highlighted != null)
-                {
-                    _highlighted.Background = Brushes.AliceBlue;
-                }
+                ContextMenu menu = new();
+                _ = menu.Items.Add(new MenuItem { Header = "Add Item" });
+                ((MenuItem)menu.Items[0]).Click += this.AddItem_OnClick;
+                _ = menu.Items.Add(new MenuItem { Header = "Add Container" });
+                ((MenuItem)menu.Items[1]).Click += this.AddContainer_OnClick;
+                _ = menu.Items.Add(new MenuItem { Header = "Add Room" });
+                ((MenuItem)menu.Items[2]).Click += this.AddRoomRoot_Click;
+                menu.IsOpen = true;
             }
         }
 
-        private static TreeViewItem? GetContainerFromEvent(ItemsControl container, DependencyObject? source)
+        /// <summary>
+        /// Handles the PreviewMouseLeftButtonDown event of the Tree control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="MouseButtonEventArgs"/> instance containing the event data.</param>
+        private void Tree_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            while (source != null && source != container)
+            TreeView treeView = (TreeView)sender;
+            if (GetContainerFromEvent(treeView, e.OriginalSource as DependencyObject) == null)
             {
-                if (source is TreeViewItem item)
-                {
-                    return item;
-                }
-
-                source = VisualTreeHelper.GetParent(source);
+                this.ClearSelection();
             }
-            return null;
         }
 
-        private static bool RemoveNode(ObservableCollection<HierarchyNode> list, HierarchyNode node)
-        {
-            if (list.Remove(node))
-            {
-                return true;
-            }
-
-            foreach (HierarchyNode child in list)
-            {
-                if (RemoveNode(child.Children, node))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        private void ClearSelection()
-        {
-            foreach (HierarchyNode? n in _selectedNodes.ToList())
-            {
-                n.IsSelected = false;
-            }
-            _selectedNodes.Clear();
-        }
-
+        /// <summary>
+        /// Handles the LeftClick event of the TreeViewItem control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="MouseButtonEventArgs"/> instance containing the event data.</param>
         private void TreeViewItem_LeftClick(object sender, MouseButtonEventArgs e)
         {
             TreeViewItem item = (TreeViewItem)sender;
@@ -221,27 +421,33 @@ namespace item_eyez
 
             if (!node.IsSelected)
             {
-                ClearSelection();
+                this.ClearSelection();
                 node.IsSelected = true;
-                _ = _selectedNodes.Add(node);
+                _ = this.selectedNodes.Add(node);
             }
 
             ContextMenu menu = new();
             if (node.Entity is Container cont)
             {
                 MenuItem addItem = new() { Header = "Add Item", DataContext = cont };
-                addItem.Click += AddItem_OnClick;
+                addItem.Click += this.AddItem_OnClick;
                 _ = menu.Items.Add(addItem);
 
                 MenuItem addContainer = new() { Header = "Add Container", DataContext = cont };
-                addContainer.Click += AddContainer_OnClick;
+                addContainer.Click += this.AddContainer_OnClick;
                 _ = menu.Items.Add(addContainer);
             }
+
             _ = menu.Items.Add(new MenuItem { Header = "Delete", DataContext = node, Command = null });
-            ((MenuItem)menu.Items[^1]).Click += DeleteNode_OnClick;
+            ((MenuItem)menu.Items[^1]).Click += this.DeleteNode_OnClick;
             menu.IsOpen = true;
         }
 
+        /// <summary>
+        /// Handles the PreviewMouseLeftButtonDown event of the TreeViewItem control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="MouseButtonEventArgs"/> instance containing the event data.</param>
         private void TreeViewItem_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             TreeViewItem item = (TreeViewItem)sender;
@@ -255,98 +461,19 @@ namespace item_eyez
                 if (node.IsSelected)
                 {
                     node.IsSelected = false;
-                    _ = _selectedNodes.Remove(node);
+                    _ = this.selectedNodes.Remove(node);
                 }
                 else
                 {
                     node.IsSelected = true;
-                    _ = _selectedNodes.Add(node);
+                    _ = this.selectedNodes.Add(node);
                 }
             }
             else
             {
-                ClearSelection();
+                this.ClearSelection();
                 node.IsSelected = true;
-                _ = _selectedNodes.Add(node);
-            }
-        }
-
-        private void Tree_LeftClick(object sender, MouseButtonEventArgs e)
-        {
-            TreeView treeView = (TreeView)sender;
-            if (GetContainerFromEvent(treeView, e.OriginalSource as DependencyObject) == null)
-            {
-                ContextMenu menu = new();
-                _ = menu.Items.Add(new MenuItem { Header = "Add Item" });
-                ((MenuItem)menu.Items[0]).Click += AddItem_OnClick;
-                _ = menu.Items.Add(new MenuItem { Header = "Add Container" });
-                ((MenuItem)menu.Items[1]).Click += AddContainer_OnClick;
-                _ = menu.Items.Add(new MenuItem { Header = "Add Room" });
-                ((MenuItem)menu.Items[2]).Click += AddRoomRoot_Click;
-                menu.IsOpen = true;
-            }
-        }
-
-        private void Tree_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            TreeView treeView = (TreeView)sender;
-            if (GetContainerFromEvent(treeView, e.OriginalSource as DependencyObject) == null)
-            {
-                ClearSelection();
-            }
-        }
-
-        private void AddItem_OnClick(object sender, RoutedEventArgs e)
-        {
-            Guid id = _db.AddItem("New Item", string.Empty, 0m, string.Empty);
-            if ((sender as MenuItem)?.DataContext is Container parent)
-            {
-                _db.AssociateItemWithContainer(id, parent.Id);
-            }
-        }
-
-        private void AddItemRoot_Click(object sender, RoutedEventArgs e)
-        {
-            AddItem_OnClick(sender, e);
-        }
-
-        private void AddContainer_OnClick(object sender, RoutedEventArgs e)
-        {
-            Guid id = _db.AddContainer("New Container", string.Empty);
-            if ((sender as MenuItem)?.DataContext is Container parent)
-            {
-                _db.AssociateItemWithContainer(id, parent.Id);
-            }
-        }
-
-        private void AddContainerRoot_Click(object sender, RoutedEventArgs e)
-        {
-            AddContainer_OnClick(sender, e);
-        }
-
-        private void AddRoomRoot_Click(object sender, RoutedEventArgs e)
-        {
-            _db.AddRoom("New Room", string.Empty);
-        }
-
-        private void DeleteNode_OnClick(object sender, RoutedEventArgs e)
-        {
-            if ((sender as MenuItem)?.DataContext is HierarchyNode node)
-            {
-                switch (node.Entity)
-                {
-                    case Item item:
-                        _db.DeleteItem(item.Id);
-                        break;
-                    case Container cont:
-                        _db.DeleteContainer(cont.Id);
-                        break;
-                    case Room room:
-                        _db.DeleteRoom(room.Id);
-                        break;
-                    default:
-                        throw new Exception("Unexpected Case");
-                }
+                _ = this.selectedNodes.Add(node);
             }
         }
     }

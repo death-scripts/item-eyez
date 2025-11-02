@@ -1,23 +1,24 @@
-<UserControl x:Class="item_eyez.organize_view"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:item_eyez"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d">
+<UserControl
+    x:Class="Item_eyez.Views.Organize_view"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="clr-namespace:Item_eyez.Viewmodels"
+    mc:Ignorable="d">
     <UserControl.Resources>
         <LinearGradientBrush x:Key="NodeBackgroundBrush" StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="#FF69B4" Offset="0" />
-            <GradientStop Color="#40E0D0" Offset="1" />
+            <GradientStop Offset="0" Color="#FF69B4" />
+            <GradientStop Offset="1" Color="#40E0D0" />
         </LinearGradientBrush>
         <LinearGradientBrush x:Key="TreeBackgroundBrush" StartPoint="0,0" EndPoint="0,1">
-            <GradientStop Color="#20B2AA" Offset="0" />
-            <GradientStop Color="#FFDAB9" Offset="1" />
+            <GradientStop Offset="0" Color="#20B2AA" />
+            <GradientStop Offset="1" Color="#FFDAB9" />
         </LinearGradientBrush>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
     </UserControl.Resources>
     <UserControl.DataContext>
-        <local:OrganizeViewModel />
+        <vm:OrganizeViewModel />
     </UserControl.DataContext>
     <Grid>
         <Grid.RowDefinitions>
@@ -28,31 +29,56 @@
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <GroupBox Grid.Row="0" Grid.ColumnSpan="2" Margin="5" Header="search filter">
-            <TextBox HorizontalAlignment="Stretch" Tag="Search"
-                     Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
+        <GroupBox
+            Grid.Row="0"
+            Grid.ColumnSpan="2"
+            Margin="5"
+            Header="search filter">
+            <TextBox
+                HorizontalAlignment="Stretch"
+                Tag="Search"
+                Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
         </GroupBox>
-        <TreeView Name="tree" Grid.Row="1" Grid.Column="0" ItemsSource="{Binding Roots}" AllowDrop="True"
-                  Background="{StaticResource TreeBackgroundBrush}"
-                  Drop="Tree_Drop" DragOver="Tree_DragOver" PreviewMouseRightButtonDown="Tree_LeftClick" PreviewMouseLeftButtonDown="Tree_PreviewMouseLeftButtonDown"
-                  ScrollViewer.VerticalScrollBarVisibility="Auto"
-                  ScrollViewer.HorizontalScrollBarVisibility="Auto">
+        <TreeView
+            Name="tree"
+            Grid.Row="1"
+            Grid.Column="0"
+            AllowDrop="True"
+            Background="{StaticResource TreeBackgroundBrush}"
+            DragOver="Tree_DragOver"
+            Drop="Tree_Drop"
+            ItemsSource="{Binding Roots}"
+            PreviewMouseLeftButtonDown="Tree_PreviewMouseLeftButtonDown"
+            PreviewMouseRightButtonDown="Tree_LeftClick"
+            ScrollViewer.HorizontalScrollBarVisibility="Auto"
+            ScrollViewer.VerticalScrollBarVisibility="Auto">
             <TreeView.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="Add Item" Click="AddItemRoot_Click" />
-                    <MenuItem Header="Add Container" Click="AddContainerRoot_Click" />
-                    <MenuItem Header="Add Room" Click="AddRoomRoot_Click" />
+                    <MenuItem Click="AddItemRoot_Click" Header="Add Item" />
+                    <MenuItem Click="AddContainerRoot_Click" Header="Add Container" />
+                    <MenuItem Click="AddRoomRoot_Click" Header="Add Room" />
                 </ContextMenu>
             </TreeView.ContextMenu>
             <TreeView.Resources>
-                <HierarchicalDataTemplate DataType="{x:Type local:HierarchyNode}" ItemsSource="{Binding Children}">
-                    <Border BorderBrush="Blue" BorderThickness="2" CornerRadius="2"
-                            Margin="1" Padding="2" Background="{StaticResource NodeBackgroundBrush}" x:Name="nodeBorder">
+                <HierarchicalDataTemplate DataType="{x:Type vm:HierarchyNode}" ItemsSource="{Binding Children}">
+                    <Border
+                        x:Name="nodeBorder"
+                        Margin="1"
+                        Padding="2"
+                        Background="{StaticResource NodeBackgroundBrush}"
+                        BorderBrush="Blue"
+                        BorderThickness="2"
+                        CornerRadius="2">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="☰" Margin="0,0,4,0"
-                                       PreviewMouseLeftButtonDown="DragHandle_PreviewMouseLeftButtonDown"
-                                       MouseMove="DragHandle_MouseMove"/>
-                            <TextBox Text="{Binding Name, UpdateSourceTrigger=LostFocus}" BorderThickness="0" Background="Transparent" />
+                            <TextBlock
+                                Margin="0,0,4,0"
+                                MouseMove="DragHandle_MouseMove"
+                                PreviewMouseLeftButtonDown="DragHandle_PreviewMouseLeftButtonDown"
+                                Text="☰" />
+                            <TextBox
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Text="{Binding Name, UpdateSourceTrigger=LostFocus}" />
                         </StackPanel>
                     </Border>
                     <HierarchicalDataTemplate.Triggers>
@@ -73,27 +99,46 @@
                 </Style>
             </TreeView.Resources>
         </TreeView>
-        <TreeView Name="treeRight" Grid.Row="1" Grid.Column="1" ItemsSource="{Binding RightRoots}" AllowDrop="True"
-                  Background="{StaticResource TreeBackgroundBrush}"
-                  Drop="Tree_Drop" DragOver="Tree_DragOver" PreviewMouseRightButtonDown="Tree_LeftClick" PreviewMouseLeftButtonDown="Tree_PreviewMouseLeftButtonDown"
-                  ScrollViewer.VerticalScrollBarVisibility="Auto"
-                  ScrollViewer.HorizontalScrollBarVisibility="Auto">
+        <TreeView
+            Name="treeRight"
+            Grid.Row="1"
+            Grid.Column="1"
+            AllowDrop="True"
+            Background="{StaticResource TreeBackgroundBrush}"
+            DragOver="Tree_DragOver"
+            Drop="Tree_Drop"
+            ItemsSource="{Binding RightRoots}"
+            PreviewMouseLeftButtonDown="Tree_PreviewMouseLeftButtonDown"
+            PreviewMouseRightButtonDown="Tree_LeftClick"
+            ScrollViewer.HorizontalScrollBarVisibility="Auto"
+            ScrollViewer.VerticalScrollBarVisibility="Auto">
             <TreeView.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="Add Item" Click="AddItemRoot_Click" />
-                    <MenuItem Header="Add Container" Click="AddContainerRoot_Click" />
-                    <MenuItem Header="Add Room" Click="AddRoomRoot_Click" />
+                    <MenuItem Click="AddItemRoot_Click" Header="Add Item" />
+                    <MenuItem Click="AddContainerRoot_Click" Header="Add Container" />
+                    <MenuItem Click="AddRoomRoot_Click" Header="Add Room" />
                 </ContextMenu>
             </TreeView.ContextMenu>
             <TreeView.Resources>
-                <HierarchicalDataTemplate DataType="{x:Type local:HierarchyNode}" ItemsSource="{Binding Children}">
-                    <Border BorderBrush="Blue" BorderThickness="2" CornerRadius="2"
-                            Margin="1" Padding="2" Background="{StaticResource NodeBackgroundBrush}" x:Name="nodeBorder">
+                <HierarchicalDataTemplate DataType="{x:Type vm:HierarchyNode}" ItemsSource="{Binding Children}">
+                    <Border
+                        x:Name="nodeBorder"
+                        Margin="1"
+                        Padding="2"
+                        Background="{StaticResource NodeBackgroundBrush}"
+                        BorderBrush="Blue"
+                        BorderThickness="2"
+                        CornerRadius="2">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="☰" Margin="0,0,4,0"
-                                       PreviewMouseLeftButtonDown="DragHandle_PreviewMouseLeftButtonDown"
-                                       MouseMove="DragHandle_MouseMove"/>
-                            <TextBox Text="{Binding Name, UpdateSourceTrigger=LostFocus}" BorderThickness="0" Background="Transparent" />
+                            <TextBlock
+                                Margin="0,0,4,0"
+                                MouseMove="DragHandle_MouseMove"
+                                PreviewMouseLeftButtonDown="DragHandle_PreviewMouseLeftButtonDown"
+                                Text="☰" />
+                            <TextBox
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Text="{Binding Name, UpdateSourceTrigger=LostFocus}" />
                         </StackPanel>
                     </Border>
                     <HierarchicalDataTemplate.Triggers>

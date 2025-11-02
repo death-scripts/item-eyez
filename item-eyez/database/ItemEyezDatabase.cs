@@ -1,339 +1,436 @@
-﻿using Microsoft.Data.SqlClient;
+﻿// ----------------------------------------------------------------------------
+// <copyright company="death-scripts">
+// Copyright (c) death-scripts. All rights reserved.
+// </copyright>
+//                   ██████╗ ███████╗ █████╗ ████████╗██╗  ██╗
+//                   ██╔══██╗██╔════╝██╔══██╗╚══██╔══╝██║  ██║
+//                   ██║  ██║█████╗  ███████║   ██║   ███████║
+//                   ██║  ██║██╔══╝  ██╔══██║   ██║   ██╔══██║
+//                   ██████╔╝███████╗██║  ██║   ██║   ██║  ██║
+//                   ╚═════╝ ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
+//
+//              ███████╗ ██████╗██████╗ ██╗██████╗ ████████╗███████╗
+//              ██╔════╝██╔════╝██╔══██╗██║██╔══██╗╚══██╔══╝██╔════╝
+//              ███████╗██║     ██████╔╝██║██████╔╝   ██║   ███████╗
+//              ╚════██║██║     ██╔══██╗██║██╔═══╝    ██║   ╚════██║
+//              ███████║╚██████╗██║  ██║██║██║        ██║   ███████║
+//              ╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝╚═╝        ╚═╝   ╚══════╝
+// ----------------------------------------------------------------------------
 using System.Collections.ObjectModel;
 using System.Data;
+using Item_eyez.Viewmodels;
+using Microsoft.Data.SqlClient;
 
-namespace item_eyez
+namespace Item_eyez.Database
 {
+    /// <summary>
+    /// The item eyez database.
+    /// </summary>
     public class ItemEyezDatabase
     {
-        public delegate void DataChangedEventHandler(object sender, EventArgs e);
-        public event DataChangedEventHandler? DataChanged;
+        /// <summary>
+        /// The lock.
+        /// </summary>
+        private static readonly object Lock = new();
 
-        private bool _suppressNotifications;
+        /// <summary>
+        /// The connection string.
+        /// </summary>
+        private static string? connectionString;
 
-        public virtual void OnDataChanged()
-        {
-            if (!_suppressNotifications)
-                DataChanged?.Invoke(this, EventArgs.Empty);
-        }
+        /// <summary>
+        /// The instance.
+        /// </summary>
+        private static ItemEyezDatabase? instance;
 
-        public void BeginBatch() => _suppressNotifications = true;
-        public void EndBatch()
-        {
-            _suppressNotifications = false;
-            OnDataChanged();
-        }
-        private static ItemEyezDatabase _instance;
-        private static readonly object _lock = new object();
-        private static string _connectionString;
+        /// <summary>
+        /// The suppress notifications.
+        /// </summary>
+        private bool suppressNotifications;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ItemEyezDatabase"/> class.
+        /// </summary>
+        /// <param name="connectionString">The connection string.</param>
         public ItemEyezDatabase(string connectionString)
         {
         }
-        public static ObservableCollection<Room> Rooms
-        {
-            get
-            {
-                return Instance().GetRoomsList();
-            }
-        }
 
-        public static ObservableCollection<Container> Containers
-        {
-            get
-            {
-                return Instance().GetContainersWithRelationships();
-            }
-        }
+        /// <summary>
+        /// The data changed event handler.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        public delegate void DataChangedEventHandler(object sender, EventArgs e);
+
+        /// <summary>
+        /// Occurs when [data changed].
+        /// </summary>
+        public event DataChangedEventHandler? DataChanged;
+
+        /// <summary>
+        /// Gets the containers.
+        /// </summary>
+        /// <value>
+        /// The containers.
+        /// </value>
+        public static ObservableCollection<Container> Containers => Instance().GetContainersWithRelationships();
+
+        /// <summary>
+        /// Gets the rooms.
+        /// </summary>
+        /// <value>
+        /// The rooms.
+        /// </value>
+        public static ObservableCollection<Room> Rooms => Instance().GetRoomsList();
+
+        /// <summary>
+        /// Instances the specified connection string.
+        /// </summary>
+        /// <param name="connectionString">The connection string.</param>
+        /// <returns>
+        /// The item eyez database.
+        /// </returns>
         public static ItemEyezDatabase Instance(string connectionString = "Server=localhost\\SQLEXPRESS;Database=ITEMEYEZ;Integrated Security=true;TrustServerCertificate=True;")
         {
-            _connectionString = connectionString;
-            if (_instance == null)
+            ItemEyezDatabase.connectionString = connectionString;
+            if (instance == null)
             {
-                lock (_lock)
+                lock (Lock)
                 {
-                    if (_instance == null && connectionString != null)
+                    if (instance == null && connectionString != null)
                     {
-                        _instance = new ItemEyezDatabase(connectionString);
+                        instance = new ItemEyezDatabase(connectionString);
                     }
                 }
             }
 
-            return _instance;
+            return instance ?? throw new Exception("database is null");
         }
 
-        public void AddRoom(string name, string description)
-        {
-            using (var connection = new SqlConnection(_connectionString))
-            using (var command = new SqlCommand("AddRoom", connection))
-            {
-                command.CommandType = CommandType.StoredProcedure;
-
-                command.Parameters.AddWithValue("@roomName", name);
-                command.Parameters.AddWithValue("@roomDescription", description);
-
-                connection.Open();
-                command.ExecuteNonQuery();
-            }
-            OnDataChanged();
-        }
-
+        /// <summary>
+        /// Adds the container.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="description">The description.</param>
+        /// <returns>
+        /// The unique identifier.
+        /// </returns>
         public Guid AddContainer(string name, string description)
         {
-            using (var connection = new SqlConnection(_connectionString))
-            using (var command = new SqlCommand("AddContainer", connection))
+            using SqlConnection connection = new(connectionString);
+            using SqlCommand command = new("AddContainer", connection);
+            command.CommandType = CommandType.StoredProcedure;
+
+            // Input parameters
+            _ = command.Parameters.AddWithValue("@containerName", name);
+            _ = command.Parameters.AddWithValue("@containerDescription", description);
+
+            // Output parameter for the ID
+            SqlParameter idParam = new("@containerId", SqlDbType.UniqueIdentifier)
             {
-                command.CommandType = CommandType.StoredProcedure;
+                Direction = ParameterDirection.Output,
+            };
+            _ = command.Parameters.Add(idParam);
 
-                // Input parameters
-                command.Parameters.AddWithValue("@containerName", name);
-                command.Parameters.AddWithValue("@containerDescription", description);
+            connection.Open();
+            _ = command.ExecuteNonQuery();
 
-                // Output parameter for the ID
-                var idParam = new SqlParameter("@containerId", SqlDbType.UniqueIdentifier)
-                {
-                    Direction = ParameterDirection.Output
-                };
-                command.Parameters.Add(idParam);
+            this.OnDataChanged();
 
-                connection.Open();
-                command.ExecuteNonQuery();
-
-                OnDataChanged();
-                // Return the generated ID
-                return (Guid)idParam.Value;
-            }
+            // Return the generated ID
+            return (Guid)idParam.Value;
         }
 
-
+        /// <summary>
+        /// Adds the item.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="description">The description.</param>
+        /// <param name="value">The value.</param>
+        /// <param name="categories">The categories.</param>
+        /// <returns>
+        /// The unique identifier.
+        /// </returns>
         public Guid AddItem(string name, string description, decimal value, string categories)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using SqlConnection connection = new(connectionString);
+            connection.Open();
+            using SqlCommand command = new("AddItem", connection);
+            command.CommandType = CommandType.StoredProcedure;
+
+            // Input parameters
+            _ = command.Parameters.AddWithValue("@itemName", name);
+            _ = command.Parameters.AddWithValue("@itemDescription", description);
+            _ = command.Parameters.AddWithValue("@itemValue", value);
+            _ = command.Parameters.AddWithValue("@itemCategories", categories);
+
+            // Output parameter for the ID
+            SqlParameter idParam = new("@itemId", SqlDbType.UniqueIdentifier)
             {
-                connection.Open();
-                using (var command = new SqlCommand("AddItem", connection))
-                {
-                    command.CommandType = CommandType.StoredProcedure;
+                Direction = ParameterDirection.Output,
+            };
 
-                    // Input parameters
-                    command.Parameters.AddWithValue("@itemName", name);
-                    command.Parameters.AddWithValue("@itemDescription", description);
-                    command.Parameters.AddWithValue("@itemValue", value);
-                    command.Parameters.AddWithValue("@itemCategories", categories);
+            _ = command.Parameters.Add(idParam);
 
-                    // Output parameter for the ID
-                    var idParam = new SqlParameter("@itemId", SqlDbType.UniqueIdentifier)
-                    {
-                        Direction = ParameterDirection.Output
-                    };
+            _ = command.ExecuteNonQuery();
 
-                    command.Parameters.Add(idParam);
+            this.OnDataChanged();
 
-                    command.ExecuteNonQuery();
-
-                    OnDataChanged();
-                    // Return the generated ID
-                    return (Guid)idParam.Value;
-                }
-            }
+            // Return the generated ID
+            return (Guid)idParam.Value;
         }
 
-        public void UpdateContainer(Guid containerId, string newName, string newDescription)
+        /// <summary>
+        /// Adds the room.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="description">The description.</param>
+        public void AddRoom(string name, string description)
         {
-            using (var connection = new SqlConnection(_connectionString))
-            using (var command = new SqlCommand("UpdateContainer", connection))
+            using (SqlConnection connection = new(connectionString))
+            using (SqlCommand command = new("AddRoom", connection))
             {
                 command.CommandType = CommandType.StoredProcedure;
 
-                command.Parameters.AddWithValue("@containerId", containerId);
-                command.Parameters.AddWithValue("@newName", newName);
-                command.Parameters.AddWithValue("@newDescription", newDescription);
+                _ = command.Parameters.AddWithValue("@roomName", name);
+                _ = command.Parameters.AddWithValue("@roomDescription", description);
 
                 connection.Open();
-                command.ExecuteNonQuery();
+                _ = command.ExecuteNonQuery();
             }
-            OnDataChanged();
+
+            this.OnDataChanged();
         }
 
-        public void UpdateRoom(Guid roomId, string newName, string newDescription)
-        {
-            using (var connection = new SqlConnection(_connectionString))
-            using (var command = new SqlCommand("UpdateRoom", connection))
-            {
-                command.CommandType = CommandType.StoredProcedure;
-
-                command.Parameters.AddWithValue("@roomId", roomId);
-                command.Parameters.AddWithValue("@newName", newName);
-                command.Parameters.AddWithValue("@newDescription", newDescription);
-
-                connection.Open();
-                command.ExecuteNonQuery();
-            }
-            OnDataChanged();
-        }
-
-        public void UpdateItem(Guid itemId, string newName, string newDescription, decimal newValue, string newCategories)
-        {
-            using (var connection = new SqlConnection(_connectionString))
-            using (var command = new SqlCommand("UpdateItem", connection))
-            {
-                command.CommandType = CommandType.StoredProcedure;
-
-                command.Parameters.AddWithValue("@itemId", itemId);
-                command.Parameters.AddWithValue("@newName", newName);
-                command.Parameters.AddWithValue("@newDescription", newDescription);
-                command.Parameters.AddWithValue("@newValue", newValue);
-                command.Parameters.AddWithValue("@newCategories", newCategories);
-
-                connection.Open();
-                command.ExecuteNonQuery();
-            }
-            OnDataChanged();
-        }
-
-        public void DeleteContainer(Guid roomId)
-        {
-            using (var connection = new SqlConnection(_connectionString))
-            using (var command = new SqlCommand("DeleteContainer", connection))
-            {
-                command.CommandType = CommandType.StoredProcedure;
-
-                command.Parameters.AddWithValue("@containerId", roomId);
-
-                connection.Open();
-                command.ExecuteNonQuery();
-            }
-            OnDataChanged();
-        }
-
-        public void DeleteRoom(Guid roomId)
-        {
-            using (var connection = new SqlConnection(_connectionString))
-            using (var command = new SqlCommand("DeleteRoom", connection))
-            {
-                command.CommandType = CommandType.StoredProcedure;
-
-                command.Parameters.AddWithValue("@roomId", roomId);
-
-                connection.Open();
-                command.ExecuteNonQuery();
-            }
-            OnDataChanged();
-        }
-
-        public void DeleteItem(Guid itemId)
-        {
-            using (var connection = new SqlConnection(_connectionString))
-            using (var command = new SqlCommand("DeleteItem", connection))
-            {
-                command.CommandType = CommandType.StoredProcedure;
-
-                command.Parameters.AddWithValue("@itemId", itemId);
-
-                connection.Open();
-                command.ExecuteNonQuery();
-            }
-            OnDataChanged();
-        }
-
-        public DataTable GetRooms()
-        {
-            using (SqlConnection connection = new SqlConnection(_connectionString))
-            {
-                string query = "SELECT * FROM room";
-                SqlDataAdapter adapter = new SqlDataAdapter(query, connection);
-                DataTable table = new DataTable();
-                adapter.Fill(table);
-                return table;
-            }
-            OnDataChanged();
-        }
-
-        public DataTable GetContainers()
-        {
-            using (SqlConnection connection = new SqlConnection(_connectionString))
-            {
-                string query = "SELECT * FROM container";
-                SqlDataAdapter adapter = new SqlDataAdapter(query, connection);
-                DataTable table = new DataTable();
-                adapter.Fill(table);
-                return table;
-            }
-            OnDataChanged();
-        }
-
-        public DataTable GetItems()
-        {
-            using (SqlConnection connection = new SqlConnection(_connectionString))
-            {
-                string query = "SELECT * FROM item";
-                SqlDataAdapter adapter = new SqlDataAdapter(query, connection);
-                DataTable table = new DataTable();
-                adapter.Fill(table);
-                return table;
-            }
-        }
-
+        /// <summary>
+        /// Associates the item with container.
+        /// </summary>
+        /// <param name="itemId">The item identifier.</param>
+        /// <param name="containerId">The container identifier.</param>
         public void AssociateItemWithContainer(Guid itemId, Guid containerId)
         {
-            using (var connection = new SqlConnection(_connectionString))
-            using (var command = new SqlCommand("AssociateItemWithContainer", connection))
+            using (SqlConnection connection = new(connectionString))
+            using (SqlCommand command = new("AssociateItemWithContainer", connection))
             {
                 command.CommandType = CommandType.StoredProcedure;
 
-                command.Parameters.AddWithValue("@itemId", itemId);
-                command.Parameters.AddWithValue("@containerId", containerId);
+                _ = command.Parameters.AddWithValue("@itemId", itemId);
+                _ = command.Parameters.AddWithValue("@containerId", containerId);
 
                 connection.Open();
-                command.ExecuteNonQuery();
+                _ = command.ExecuteNonQuery();
             }
-            OnDataChanged();
+
+            this.OnDataChanged();
         }
 
+        /// <summary>
+        /// Associates the item with room.
+        /// </summary>
+        /// <param name="itemId">The item identifier.</param>
+        /// <param name="roomId">The room identifier.</param>
         public void AssociateItemWithRoom(Guid itemId, Guid roomId)
         {
-            using (var connection = new SqlConnection(_connectionString))
-            using (var command = new SqlCommand("AssociateItemWithRoom", connection))
+            using (SqlConnection connection = new(connectionString))
+            using (SqlCommand command = new("AssociateItemWithRoom", connection))
             {
                 command.CommandType = CommandType.StoredProcedure;
 
-                command.Parameters.AddWithValue("@itemId", itemId);
-                command.Parameters.AddWithValue("@roomId", roomId);
+                _ = command.Parameters.AddWithValue("@itemId", itemId);
+                _ = command.Parameters.AddWithValue("@roomId", roomId);
 
                 connection.Open();
-                command.ExecuteNonQuery();
+                _ = command.ExecuteNonQuery();
             }
-            OnDataChanged();
+
+            this.OnDataChanged();
         }
 
-        public Room GetItemsRoom(Guid itemId)
+        /// <summary>
+        /// Begins the batch.
+        /// </summary>
+        public void BeginBatch() => this.suppressNotifications = true;
+
+        /// <summary>
+        /// Deletes the container.
+        /// </summary>
+        /// <param name="roomId">The room identifier.</param>
+        public void DeleteContainer(Guid roomId)
         {
-            Container topContainer;
-            Room room;
+            using (SqlConnection connection = new(connectionString))
+            using (SqlCommand command = new("DeleteContainer", connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
 
-            ResolveContainerAndRoomForItem(itemId, out topContainer, out room);
+                _ = command.Parameters.AddWithValue("@containerId", roomId);
 
-            return room;
+                connection.Open();
+                _ = command.ExecuteNonQuery();
+            }
+
+            this.OnDataChanged();
         }
 
+        /// <summary>
+        /// Deletes the item.
+        /// </summary>
+        /// <param name="itemId">The item identifier.</param>
+        public void DeleteItem(Guid itemId)
+        {
+            using (SqlConnection connection = new(connectionString))
+            using (SqlCommand command = new("DeleteItem", connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+
+                _ = command.Parameters.AddWithValue("@itemId", itemId);
+
+                connection.Open();
+                _ = command.ExecuteNonQuery();
+            }
+
+            this.OnDataChanged();
+        }
+
+        /// <summary>
+        /// Deletes the room.
+        /// </summary>
+        /// <param name="roomId">The room identifier.</param>
+        public void DeleteRoom(Guid roomId)
+        {
+            using (SqlConnection connection = new(connectionString))
+            using (SqlCommand command = new("DeleteRoom", connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+
+                _ = command.Parameters.AddWithValue("@roomId", roomId);
+
+                connection.Open();
+                _ = command.ExecuteNonQuery();
+            }
+
+            this.OnDataChanged();
+        }
+
+        /// <summary>
+        /// Ends the batch.
+        /// </summary>
+        public void EndBatch()
+        {
+            this.suppressNotifications = false;
+            this.OnDataChanged();
+        }
+
+        /// <summary>
+        /// Gets the container identifier for entity.
+        /// </summary>
+        /// <param name="entityId">The entity identifier.</param>
+        /// <returns>
+        /// The nullable.
+        /// </returns>
+        public Guid? GetContainerIdForEntity(Guid entityId)
+        {
+            using SqlConnection connection = new(connectionString);
+            using SqlCommand command = new("GetContainerIdForItem", connection);
+            command.CommandType = CommandType.StoredProcedure;
+
+            _ = command.Parameters.AddWithValue("@itemId", entityId);
+
+            SqlParameter containerIdParam = new("@containerId", SqlDbType.UniqueIdentifier)
+            {
+                Direction = ParameterDirection.Output,
+            };
+            _ = command.Parameters.Add(containerIdParam);
+
+            connection.Open();
+            _ = command.ExecuteNonQuery();
+
+            return containerIdParam.Value != DBNull.Value ? (Guid?)containerIdParam.Value : null;
+        }
+
+        /// <summary>
+        /// Gets the containers.
+        /// </summary>
+        /// <returns>
+        /// The data table.
+        /// </returns>
+        public DataTable GetContainers()
+        {
+            using SqlConnection connection = new(connectionString);
+            string query = "SELECT * FROM container";
+            SqlDataAdapter adapter = new(query, connection);
+            DataTable table = new();
+            _ = adapter.Fill(table);
+            return table;
+        }
+
+        /// <summary>
+        /// Gets the containers with relationships.
+        /// </summary>
+        /// <returns>
+        /// The observable collection.
+        /// </returns>
+        public ObservableCollection<Container> GetContainersWithRelationships()
+        {
+            ObservableCollection<Container> containers = [];
+            DataTable containersTable = this.GetContainers();
+
+            foreach (DataRow row in containersTable.Rows)
+            {
+                Container container = new(
+                    row.Field<Guid>("id"),
+                    row.Field<string>("name")!,
+                    row.Field<string>("description")!);
+
+                // Use stored procedure to determine the room the container is stored in
+                _ = container.Id;
+
+                containers.Add(container);
+            }
+
+            return containers;
+        }
+
+        /// <summary>
+        /// Gets the items.
+        /// </summary>
+        /// <returns>
+        /// The data table.
+        /// </returns>
+        public DataTable GetItems()
+        {
+            using SqlConnection connection = new(connectionString);
+            string query = "SELECT * FROM item";
+            SqlDataAdapter adapter = new(query, connection);
+            DataTable table = new();
+            _ = adapter.Fill(table);
+            return table;
+        }
+
+        /// <summary>
+        /// Gets the items container.
+        /// </summary>
+        /// <param name="itemId">The item identifier.</param>
+        /// <returns>
+        /// The container.
+        /// </returns>
         public Container GetItemsContainer(Guid itemId)
         {
-            var containerId = Instance().GetContainerIdForEntity(itemId);
+            Guid? containerId = Instance().GetContainerIdForEntity(itemId);
 
             if (containerId.HasValue)
             {
                 // Fetch the container details from the database
-                var containerRow = ItemEyezDatabase.Instance().GetContainers()
+                DataRow? containerRow = Instance().GetContainers()
                     .AsEnumerable()
                     .FirstOrDefault(row => row.Field<Guid>("id") == containerId.Value);
 
                 if (containerRow != null)
                 {
-                    var container = new Container
-                    (
+                    Container container = new(
                         containerRow.Field<Guid>("id"),
-                        containerRow.Field<string>("name"),
-                        containerRow.Field<string>("description")
-                    );
+                        containerRow.Field<string>("name")!,
+                        containerRow.Field<string>("description")!);
 
                     return container;
                 }
@@ -342,92 +439,301 @@ namespace item_eyez
             // Return null if no container is found
             return null;
         }
-        public void SetItemsRoom(Guid itemId, Guid? roomId)
+
+        /// <summary>
+        /// Gets the items room.
+        /// </summary>
+        /// <param name="itemId">The item identifier.</param>
+        /// <returns>
+        /// The room.
+        /// </returns>
+        public Room GetItemsRoom(Guid itemId)
         {
-            ItemEyezDatabase.Instance().UnassociateItemFromRoom(itemId);
-            if (roomId != null)
-            {
-                ItemEyezDatabase.Instance().AssociateItemWithRoom(itemId, (Guid)roomId);
-            }
-            OnDataChanged();
-        }
-        public void SetItemsContainer(Guid itemId, Guid? containerId)
-        {
-            ItemEyezDatabase.Instance().UnassociateItemFromContainer(itemId);
-            // Update the database to reflect the new container association
-            if (containerId != null)
-            {
-                ItemEyezDatabase.Instance().AssociateItemWithContainer(itemId, (Guid)containerId);
-            }
-            OnDataChanged();
+            this.ResolveContainerAndRoomForItem(itemId, out _, out Room room);
+
+            return room;
         }
 
+        /// <summary>
+        /// Gets the items with relationships.
+        /// </summary>
+        /// <returns>
+        /// The observable collection.
+        /// </returns>
         public ObservableCollection<Item> GetItemsWithRelationships()
         {
-            var items = new ObservableCollection<Item>();
-            var itemsTable = GetItems();
+            ObservableCollection<Item> items = [];
+            DataTable itemsTable = this.GetItems();
 
             foreach (DataRow row in itemsTable.Rows)
             {
-                var item = new Item
-                (
+                Item item = new(
                     row.Field<Guid>("id"),
-                    row.Field<string>("name"),
-                    row.Field<string>("description"),
-                    row.Field<decimal>("value"),
-                    row.Field<string>("categories")
-                );
+                    row.Field<string>("name")!,
+                    row.Field<string>("description")!,
+                    row.Field<decimal>("value")!,
+                    row.Field<string>("categories")!);
 
                 // Use stored procedures to determine relationships
-                Guid itemId = item.Id;
+                _ = item.Id;
                 items.Add(item);
             }
 
             return items;
         }
 
-        public ObservableCollection<Container> GetContainersWithRelationships()
+        /// <summary>
+        /// Gets the room identifier for entity.
+        /// </summary>
+        /// <param name="entityId">The entity identifier.</param>
+        /// <returns>
+        /// The nullable.
+        /// </returns>
+        public Guid? GetRoomIdForEntity(Guid entityId)
         {
-            var containers = new ObservableCollection<Container>();
-            var containersTable = GetContainers();
+            using SqlConnection connection = new(connectionString);
+            using SqlCommand command = new("GetRoomIdForItem", connection);
+            command.CommandType = CommandType.StoredProcedure;
 
-            foreach (DataRow row in containersTable.Rows)
+            _ = command.Parameters.AddWithValue("@itemId", entityId);
+
+            SqlParameter roomIdParam = new("@roomId", SqlDbType.UniqueIdentifier)
             {
-                var container = new Container
-                (
+                Direction = ParameterDirection.Output,
+            };
+            _ = command.Parameters.Add(roomIdParam);
+
+            connection.Open();
+            _ = command.ExecuteNonQuery();
+
+            return roomIdParam.Value != DBNull.Value ? (Guid?)roomIdParam.Value : null;
+        }
+
+        /// <summary>
+        /// Gets the rooms.
+        /// </summary>
+        /// <returns>
+        /// The data table.
+        /// </returns>
+        public DataTable GetRooms()
+        {
+            using SqlConnection connection = new(connectionString);
+            string query = "SELECT * FROM room";
+            SqlDataAdapter adapter = new(query, connection);
+            DataTable table = new();
+            _ = adapter.Fill(table);
+            return table;
+        }
+
+        /// <summary>
+        /// Gets the rooms list.
+        /// </summary>
+        /// <returns>
+        /// The observable collection.
+        /// </returns>
+        public ObservableCollection<Room> GetRoomsList()
+        {
+            ObservableCollection<Room> rooms = [];
+            DataTable roomsTable = this.GetRooms();
+
+            foreach (DataRow row in roomsTable.Rows)
+            {
+                rooms.Add(new Room(
                     row.Field<Guid>("id"),
-                    row.Field<string>("name"),
-                    row.Field<string>("description")
-                );
-
-                // Use stored procedure to determine the room the container is stored in
-                Guid containerId = container.Id;
-
-                containers.Add(container);
+                    row.Field<string>("name")!,
+                    row.Field<string>("description")!));
             }
 
-            return containers;
+            return rooms;
         }
-        private void ResolveContainerAndRoomForItem(Guid itemId, out Container topContainer, out Room room)
+
+        /// <summary>
+        /// Called when [data changed].
+        /// </summary>
+        public virtual void OnDataChanged()
+        {
+            if (!this.suppressNotifications)
+            {
+                this.DataChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+
+        /// <summary>
+        /// Sets the items container.
+        /// </summary>
+        /// <param name="itemId">The item identifier.</param>
+        /// <param name="containerId">The container identifier.</param>
+        public void SetItemsContainer(Guid itemId, Guid? containerId)
+        {
+            Instance().UnassociateItemFromContainer(itemId);
+
+            // Update the database to reflect the new container association
+            if (containerId != null)
+            {
+                Instance().AssociateItemWithContainer(itemId, (Guid)containerId);
+            }
+
+            this.OnDataChanged();
+        }
+
+        /// <summary>
+        /// Sets the items room.
+        /// </summary>
+        /// <param name="itemId">The item identifier.</param>
+        /// <param name="roomId">The room identifier.</param>
+        public void SetItemsRoom(Guid itemId, Guid? roomId)
+        {
+            Instance().UnassociateItemFromRoom(itemId);
+            if (roomId != null)
+            {
+                Instance().AssociateItemWithRoom(itemId, (Guid)roomId);
+            }
+
+            this.OnDataChanged();
+        }
+
+        /// <summary>
+        /// Unassociates the item from container.
+        /// </summary>
+        /// <param name="itemId">The item identifier.</param>
+        public void UnassociateItemFromContainer(Guid itemId)
+        {
+            using (SqlConnection connection = new(connectionString))
+            using (SqlCommand command = new("UnassociateItemFromContainer", connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+
+                // Add input parameters
+                _ = command.Parameters.AddWithValue("@itemId", itemId);
+
+                connection.Open();
+                _ = command.ExecuteNonQuery();
+            }
+
+            this.OnDataChanged();
+        }
+
+        /// <summary>
+        /// Unassociates the item from room.
+        /// </summary>
+        /// <param name="itemId">The item identifier.</param>
+        public void UnassociateItemFromRoom(Guid itemId)
+        {
+            using (SqlConnection connection = new(connectionString))
+            using (SqlCommand command = new("UnassociateItemFromRoom", connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+
+                // Add input parameters
+                _ = command.Parameters.AddWithValue("@itemId", itemId);
+
+                connection.Open();
+                _ = command.ExecuteNonQuery();
+            }
+
+            this.OnDataChanged();
+        }
+
+        /// <summary>
+        /// Updates the container.
+        /// </summary>
+        /// <param name="containerId">The container identifier.</param>
+        /// <param name="newName">The new name.</param>
+        /// <param name="newDescription">The new description.</param>
+        public void UpdateContainer(Guid containerId, string newName, string newDescription)
+        {
+            using (SqlConnection connection = new(connectionString))
+            using (SqlCommand command = new("UpdateContainer", connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+
+                _ = command.Parameters.AddWithValue("@containerId", containerId);
+                _ = command.Parameters.AddWithValue("@newName", newName);
+                _ = command.Parameters.AddWithValue("@newDescription", newDescription);
+
+                connection.Open();
+                _ = command.ExecuteNonQuery();
+            }
+
+            this.OnDataChanged();
+        }
+
+        /// <summary>
+        /// Updates the item.
+        /// </summary>
+        /// <param name="itemId">The item identifier.</param>
+        /// <param name="newName">The new name.</param>
+        /// <param name="newDescription">The new description.</param>
+        /// <param name="newValue">The new value.</param>
+        /// <param name="newCategories">The new categories.</param>
+        public void UpdateItem(Guid itemId, string newName, string newDescription, decimal newValue, string newCategories)
+        {
+            using (SqlConnection connection = new(connectionString))
+            using (SqlCommand command = new("UpdateItem", connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+
+                _ = command.Parameters.AddWithValue("@itemId", itemId);
+                _ = command.Parameters.AddWithValue("@newName", newName);
+                _ = command.Parameters.AddWithValue("@newDescription", newDescription);
+                _ = command.Parameters.AddWithValue("@newValue", newValue);
+                _ = command.Parameters.AddWithValue("@newCategories", newCategories);
+
+                connection.Open();
+                _ = command.ExecuteNonQuery();
+            }
+
+            this.OnDataChanged();
+        }
+
+        /// <summary>
+        /// Updates the room.
+        /// </summary>
+        /// <param name="roomId">The room identifier.</param>
+        /// <param name="newName">The new name.</param>
+        /// <param name="newDescription">The new description.</param>
+        public void UpdateRoom(Guid roomId, string newName, string newDescription)
+        {
+            using (SqlConnection connection = new(connectionString))
+            using (SqlCommand command = new("UpdateRoom", connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+
+                _ = command.Parameters.AddWithValue("@roomId", roomId);
+                _ = command.Parameters.AddWithValue("@newName", newName);
+                _ = command.Parameters.AddWithValue("@newDescription", newDescription);
+
+                connection.Open();
+                _ = command.ExecuteNonQuery();
+            }
+
+            this.OnDataChanged();
+        }
+
+        /// <summary>
+        /// Resolves the container and room for item.
+        /// </summary>
+        /// <param name="itemId">The item identifier.</param>
+        /// <param name="topContainer">The top container.</param>
+        /// <param name="room">The room.</param>
+        private void ResolveContainerAndRoomForItem(Guid itemId, out Container? topContainer, out Room? room)
         {
             topContainer = null;
             room = null;
 
             // Check if the item is directly in a room
-            var roomId = GetRoomIdForEntity(itemId);
+            Guid? roomId = this.GetRoomIdForEntity(itemId);
             if (roomId.HasValue)
             {
-                var roomRow = GetRooms().AsEnumerable()
+                DataRow? roomRow = this.GetRooms().AsEnumerable()
                     .FirstOrDefault(r => r.Field<Guid>("id") == roomId.Value);
 
                 if (roomRow != null)
                 {
-                    room = new Room
-                    (
+                    room = new Room(
                         roomRow.Field<Guid>("id"),
-                        roomRow.Field<string>("name"),
-                        roomRow.Field<string>("description")
-                    );
+                        roomRow.Field<string>("name")!,
+                        roomRow.Field<string>("description")!);
                 }
 
                 // If the item is directly in a room, no need to resolve containers
@@ -435,7 +741,7 @@ namespace item_eyez
             }
 
             // Check if the item is in a container
-            var containerId = GetContainerIdForEntity(itemId);
+            Guid? containerId = this.GetContainerIdForEntity(itemId);
             if (!containerId.HasValue)
             {
                 // Item is neither in a container nor a room
@@ -443,11 +749,11 @@ namespace item_eyez
             }
 
             // Resolve the container chain
-            var currentContainerId = containerId.Value;
+            Guid currentContainerId = containerId.Value;
             while (true)
             {
                 // Get the container information
-                var containerRow = GetContainers().AsEnumerable()
+                DataRow? containerRow = this.GetContainers().AsEnumerable()
                     .FirstOrDefault(r => r.Field<Guid>("id") == currentContainerId);
 
                 if (containerRow == null)
@@ -456,15 +762,13 @@ namespace item_eyez
                 }
 
                 // Create the container object
-                var currentContainer = new Container
-                (
+                Container currentContainer = new(
                     containerRow.Field<Guid>("id"),
-                    containerRow.Field<string>("name"),
-                    containerRow.Field<string>("description")
-                );
+                    containerRow.Field<string>("name")!,
+                    containerRow.Field<string>("description")!);
 
                 // Check if the container is contained in another container
-                var parentContainerId = GetContainerIdForEntity(currentContainerId);
+                Guid? parentContainerId = this.GetContainerIdForEntity(currentContainerId);
 
                 if (parentContainerId.HasValue)
                 {
@@ -477,116 +781,23 @@ namespace item_eyez
                     topContainer = currentContainer;
 
                     // Check which room this top-level container is stored in
-                    var topContainerRoomId = GetRoomIdForEntity(currentContainerId);
+                    Guid? topContainerRoomId = this.GetRoomIdForEntity(currentContainerId);
                     if (topContainerRoomId.HasValue)
                     {
-                        var topContainerRoomRow = GetRooms().AsEnumerable()
+                        DataRow? topContainerRoomRow = this.GetRooms().AsEnumerable()
                             .FirstOrDefault(r => r.Field<Guid>("id") == topContainerRoomId.Value);
 
                         if (topContainerRoomRow != null)
                         {
-                            room = new Room
-                            (
+                            room = new Room(
                                 topContainerRoomRow.Field<Guid>("id"),
-                                topContainerRoomRow.Field<string>("name"),
-                                topContainerRoomRow.Field<string>("description")
-                            );
+                                topContainerRoomRow.Field<string>("name")!,
+                                topContainerRoomRow.Field<string>("description")!);
                         }
                     }
 
                     break; // Stop recursion
                 }
-            }
-        }
-        public void UnassociateItemFromRoom(Guid itemId)
-        {
-            using (var connection = new SqlConnection(_connectionString))
-            using (var command = new SqlCommand("UnassociateItemFromRoom", connection))
-            {
-                command.CommandType = CommandType.StoredProcedure;
-
-                // Add input parameters
-                command.Parameters.AddWithValue("@itemId", itemId);
-
-                connection.Open();
-                command.ExecuteNonQuery();
-            }
-            OnDataChanged();
-        }
-
-        public void UnassociateItemFromContainer(Guid itemId)
-        {
-            using (var connection = new SqlConnection(_connectionString))
-            using (var command = new SqlCommand("UnassociateItemFromContainer", connection))
-            {
-                command.CommandType = CommandType.StoredProcedure;
-
-                // Add input parameters
-                command.Parameters.AddWithValue("@itemId", itemId);
-
-                connection.Open();
-                command.ExecuteNonQuery();
-            }
-            OnDataChanged();
-        }
-
-        public ObservableCollection<Room> GetRoomsList()
-        {
-            var rooms = new ObservableCollection<Room>();
-            var roomsTable = GetRooms();
-
-            foreach (DataRow row in roomsTable.Rows)
-            {
-                rooms.Add(new Room
-                (
-                    row.Field<Guid>("id"),
-                    row.Field<string>("name"),
-                    row.Field<string>("description")
-                ));
-            }
-
-            return rooms;
-        }
-        public Guid? GetRoomIdForEntity(Guid entityId)
-        {
-            using (var connection = new SqlConnection(_connectionString))
-            using (var command = new SqlCommand("GetRoomIdForItem", connection))
-            {
-                command.CommandType = CommandType.StoredProcedure;
-
-                command.Parameters.AddWithValue("@itemId", entityId);
-
-                var roomIdParam = new SqlParameter("@roomId", SqlDbType.UniqueIdentifier)
-                {
-                    Direction = ParameterDirection.Output
-                };
-                command.Parameters.Add(roomIdParam);
-
-                connection.Open();
-                command.ExecuteNonQuery();
-
-                return roomIdParam.Value != DBNull.Value ? (Guid?)roomIdParam.Value : null;
-            }
-        }
-        public Guid? GetContainerIdForEntity(Guid entityId)
-        {
-            using (var connection = new SqlConnection(_connectionString))
-            using (var command = new SqlCommand("GetContainerIdForItem", connection))
-            {
-                command.CommandType = CommandType.StoredProcedure;
-
-                command.Parameters.AddWithValue("@itemId", entityId);
-
-                var containerIdParam = new SqlParameter("@containerId", SqlDbType.UniqueIdentifier)
-                {
-                    Direction = ParameterDirection.Output
-                };
-                command.Parameters.Add(containerIdParam);
-
-                connection.Open();
-                command.ExecuteNonQuery();
-
-                return containerIdParam.Value != DBNull.Value ? (Guid?)containerIdParam.Value : null;
             }
         }
     }

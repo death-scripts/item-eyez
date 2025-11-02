@@ -1,25 +1,55 @@
-﻿using item_eyez;
+﻿// ----------------------------------------------------------------------------
+// <copyright company="death-scripts">
+// Copyright (c) death-scripts. All rights reserved.
+// </copyright>
+//                   ██████╗ ███████╗ █████╗ ████████╗██╗  ██╗
+//                   ██╔══██╗██╔════╝██╔══██╗╚══██╔══╝██║  ██║
+//                   ██║  ██║█████╗  ███████║   ██║   ███████║
+//                   ██║  ██║██╔══╝  ██╔══██║   ██║   ██╔══██║
+//                   ██████╔╝███████╗██║  ██║   ██║   ██║  ██║
+//                   ╚═════╝ ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
+//
+//              ███████╗ ██████╗██████╗ ██╗██████╗ ████████╗███████╗
+//              ██╔════╝██╔════╝██╔══██╗██║██╔══██╗╚══██╔══╝██╔════╝
+//              ███████╗██║     ██████╔╝██║██████╔╝   ██║   ███████╗
+//              ╚════██║██║     ██╔══██╗██║██╔═══╝    ██║   ╚════██║
+//              ███████║╚██████╗██║  ██║██║██║        ██║   ███████║
+//              ╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝╚═╝        ╚═╝   ╚══════╝
+// ----------------------------------------------------------------------------
 using Microsoft.Data.SqlClient;
 
-public class DatabaseInitializer
+namespace Item_eyez.Database
 {
-    private readonly string _serverConnectionString;
-
-    public DatabaseInitializer(string serverConnectionString)
+    /// <summary>
+    /// The database initializer.
+    /// </summary>
+    public class DatabaseInitializer
     {
-        _serverConnectionString = serverConnectionString;
-    }
+        /// <summary>
+        /// The server connection string.
+        /// </summary>
+        private readonly string serverConnectionString;
 
-    public static void InitializeDatabase(string serverConnectionString, string databaseName)
-    {
-        using (var connection = new SqlConnection(serverConnectionString))
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DatabaseInitializer"/> class.
+        /// </summary>
+        /// <param name="serverConnectionString">The server connection string.</param>
+        public DatabaseInitializer(string serverConnectionString) => this.serverConnectionString = serverConnectionString;
+
+        /// <summary>
+        /// Initializes the database.
+        /// </summary>
+        /// <param name="serverConnectionString">The server connection string.</param>
+        /// <param name="databaseName">Name of the database.</param>
+        public static void InitializeDatabase(string serverConnectionString, string databaseName)
         {
+            using SqlConnection connection = new(serverConnectionString);
             connection.Open();
 
             DatabaseHelper.Instance = new DatabaseHelper(serverConnectionString, databaseName);
 
             // Check if the database exists
-            var checkDbCommand = new SqlCommand($"IF DB_ID('{databaseName}') IS NOT NULL SELECT 1 ELSE SELECT 0;", connection);
+            SqlCommand checkDbCommand = new($"IF DB_ID('{databaseName}') IS NOT NULL SELECT 1 ELSE SELECT 0;", connection);
             bool databaseExists = (int)checkDbCommand.ExecuteScalar() == 1;
 
             if (databaseExists)
@@ -31,5 +61,4 @@ public class DatabaseInitializer
             DatabaseHelper.Instance.CreateDatabase();
         }
     }
-
 }
