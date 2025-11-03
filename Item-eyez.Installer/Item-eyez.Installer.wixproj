@@ -4,7 +4,17 @@
     <OutputType>Package</OutputType>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Item-eyez\Item-eyez.csproj" />
+    <ProjectReference Include="..\item-eyez\item-eyez.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <HarvestDirectory Include="..\item-eyez\bin\$(Configuration)\net8.0-windows">
+      <ComponentGroupName>ApplicationFiles</ComponentGroupName>
+      <DirectoryRefId>INSTALLFOLDER</DirectoryRefId>
+      <HarvestType>directory</HarvestType>
+      <SuppressCom>true</SuppressCom>
+      <SuppressRegistry>true</SuppressRegistry>
+      <SuppressRootDirectory>true</SuppressRootDirectory>
+    </HarvestDirectory>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="WixToolset.Heat" Version="4.0.0" />

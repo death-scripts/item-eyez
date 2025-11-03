@@ -1,75 +1,108 @@
-USE ITEMEYEZ;
-
--- Table for items
-CREATE TABLE item (
-    id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    name VARCHAR(255) NOT NULL,
-    description TEXT,
-    value DECIMAL(10, 2),
-    categories TEXT -- JSON or a comma-separated list to store multiple categories
-);
-GO
-
--- Table for containers
-CREATE TABLE container (
-    id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    name VARCHAR(255) NOT NULL,
-    description TEXT
-);
-GO
-
--- Table for rooms
-CREATE TABLE room (
-    id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    name VARCHAR(255) NOT NULL,
-    description TEXT
-);
-GO
-
--- Relationship: item is contained in a container
-CREATE TABLE isContainedIn (
-    item_id UNIQUEIDENTIFIER,
-    container_id UNIQUEIDENTIFIER,
-    PRIMARY KEY (item_id, container_id),
-    FOREIGN KEY (container_id) REFERENCES container(id) ON DELETE CASCADE
-);
-GO
-
--- Relationship: item is stored in a room
-CREATE TABLE isStoredIn (
-    item_id UNIQUEIDENTIFIER,
-    room_id UNIQUEIDENTIFIER,
-    PRIMARY KEY (item_id, room_id),
-    FOREIGN KEY (room_id) REFERENCES room(id) ON DELETE CASCADE
-);
-GO
-
-CREATE PROCEDURE AddRoom
-    @roomName VARCHAR(255),      -- Room name
-    @roomDescription TEXT        -- Room description
-AS
+IF DB_ID(N'ITEMEYEZ') IS NULL
 BEGIN
-    INSERT INTO room (name, description)
-    VALUES (@roomName, @roomDescription);
-
-    PRINT 'Room added successfully.';
+    CREATE DATABASE ITEMEYEZ;
 END;
 GO
 
-CREATE PROCEDURE AddContainer
-    @containerName VARCHAR(255),    
-    @containerDescription TEXT,
-    @containerId UNIQUEIDENTIFIER OUTPUT       
+USE ITEMEYEZ;
+GO
+
+-- Ensure core tables exist.
+IF OBJECT_ID(N'dbo.item', N'U') IS NULL
+BEGIN
+    EXEC(N'
+        CREATE TABLE dbo.item (
+            id UNIQUEIDENTIFIER NOT NULL PRIMARY KEY DEFAULT NEWID(),
+            name VARCHAR(255) NOT NULL,
+            description TEXT NULL,
+            value DECIMAL(10, 2) NULL,
+            categories TEXT NULL
+        );
+    ');
+END;
+GO
+
+IF OBJECT_ID(N'dbo.container', N'U') IS NULL
+BEGIN
+    EXEC(N'
+        CREATE TABLE dbo.container (
+            id UNIQUEIDENTIFIER NOT NULL PRIMARY KEY DEFAULT NEWID(),
+            name VARCHAR(255) NOT NULL,
+            description TEXT NULL
+        );
+    ');
+END;
+GO
+
+IF OBJECT_ID(N'dbo.room', N'U') IS NULL
+BEGIN
+    EXEC(N'
+        CREATE TABLE dbo.room (
+            id UNIQUEIDENTIFIER NOT NULL PRIMARY KEY DEFAULT NEWID(),
+            name VARCHAR(255) NOT NULL,
+            description TEXT NULL
+        );
+    ');
+END;
+GO
+
+IF OBJECT_ID(N'dbo.isContainedIn', N'U') IS NULL
+BEGIN
+    EXEC(N'
+        CREATE TABLE dbo.isContainedIn (
+            item_id UNIQUEIDENTIFIER NOT NULL,
+            container_id UNIQUEIDENTIFIER NOT NULL,
+            PRIMARY KEY (item_id, container_id),
+            CONSTRAINT FK_isContainedIn_item FOREIGN KEY (item_id) REFERENCES dbo.item(id) ON DELETE CASCADE,
+            CONSTRAINT FK_isContainedIn_container FOREIGN KEY (container_id) REFERENCES dbo.container(id) ON DELETE CASCADE
+        );
+    ');
+END;
+GO
+
+IF OBJECT_ID(N'dbo.isStoredIn', N'U') IS NULL
+BEGIN
+    EXEC(N'
+        CREATE TABLE dbo.isStoredIn (
+            item_id UNIQUEIDENTIFIER NOT NULL,
+            room_id UNIQUEIDENTIFIER NOT NULL,
+            PRIMARY KEY (item_id, room_id),
+            CONSTRAINT FK_isStoredIn_item FOREIGN KEY (item_id) REFERENCES dbo.item(id) ON DELETE CASCADE,
+            CONSTRAINT FK_isStoredIn_room FOREIGN KEY (room_id) REFERENCES dbo.room(id) ON DELETE CASCADE
+        );
+    ');
+END;
+GO
+
+-- Stored procedures.
+CREATE OR ALTER PROCEDURE dbo.AddRoom
+    @roomName VARCHAR(255),
+    @roomDescription TEXT
 AS
 BEGIN
+    SET NOCOUNT ON;
+
+    INSERT INTO dbo.room (name, description)
+    VALUES (@roomName, @roomDescription);
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.AddContainer
+    @containerName VARCHAR(255),
+    @containerDescription TEXT,
+    @containerId UNIQUEIDENTIFIER OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
     SET @containerId = NEWID();
-    INSERT INTO container (id, name, description)
+
+    INSERT INTO dbo.container (id, name, description)
     VALUES (@containerId, @containerName, @containerDescription);
 END;
 GO
 
--- Procedure to add an item
-CREATE PROCEDURE AddItem
+CREATE OR ALTER PROCEDURE dbo.AddItem
     @itemName VARCHAR(255),
     @itemDescription TEXT,
     @itemValue DECIMAL(10, 2),
@@ -77,14 +110,16 @@ CREATE PROCEDURE AddItem
     @itemId UNIQUEIDENTIFIER OUTPUT
 AS
 BEGIN
+    SET NOCOUNT ON;
+
     SET @itemId = NEWID();
-    INSERT INTO item (id, name, description, value, categories)
+
+    INSERT INTO dbo.item (id, name, description, value, categories)
     VALUES (@itemId, @itemName, @itemDescription, @itemValue, @itemCategories);
 END;
 GO
 
--- Procedure to update an item
-CREATE PROCEDURE UpdateItem
+CREATE OR ALTER PROCEDURE dbo.UpdateItem
     @itemId UNIQUEIDENTIFIER,
     @newName VARCHAR(255),
     @newDescription TEXT,
@@ -92,7 +127,9 @@ CREATE PROCEDURE UpdateItem
     @newCategories TEXT
 AS
 BEGIN
-    UPDATE item
+    SET NOCOUNT ON;
+
+    UPDATE dbo.item
     SET name = @newName,
         description = @newDescription,
         value = @newValue,
@@ -101,146 +138,148 @@ BEGIN
 END;
 GO
 
-CREATE PROCEDURE UpdateContainer
+CREATE OR ALTER PROCEDURE dbo.UpdateContainer
     @containerId UNIQUEIDENTIFIER,
     @newName VARCHAR(255),
     @newDescription TEXT
 AS
 BEGIN
-    UPDATE container
+    SET NOCOUNT ON;
+
+    UPDATE dbo.container
     SET name = @newName,
         description = @newDescription
     WHERE id = @containerId;
 END;
 GO
 
-CREATE PROCEDURE UpdateRoom
+CREATE OR ALTER PROCEDURE dbo.UpdateRoom
     @roomId UNIQUEIDENTIFIER,
     @newName VARCHAR(255),
     @newDescription TEXT
 AS
 BEGIN
-    UPDATE room
+    SET NOCOUNT ON;
+
+    UPDATE dbo.room
     SET name = @newName,
         description = @newDescription
     WHERE id = @roomId;
 END;
 GO
 
--- Procedure to delete an item
-CREATE PROCEDURE DeleteItem
+CREATE OR ALTER PROCEDURE dbo.DeleteItem
     @itemId UNIQUEIDENTIFIER
 AS
 BEGIN
-    -- Delete associations in `isContainedIn`
-    DELETE FROM isContainedIn WHERE item_id = @itemId;
-    -- Delete associations in `isStoredIn`
-    DELETE FROM isStoredIn WHERE item_id = @itemId;
-    -- Delete the item itself
-    DELETE FROM item WHERE id = @itemId;
+    SET NOCOUNT ON;
+
+    DELETE FROM dbo.isContainedIn WHERE item_id = @itemId;
+    DELETE FROM dbo.isStoredIn WHERE item_id = @itemId;
+    DELETE FROM dbo.item WHERE id = @itemId;
 END;
 GO
 
-CREATE PROCEDURE DeleteContainer
+CREATE OR ALTER PROCEDURE dbo.DeleteContainer
     @containerId UNIQUEIDENTIFIER
 AS
 BEGIN
-    DELETE FROM isContainedIn WHERE container_id = @containerId;
-    DELETE FROM container WHERE id = @containerId;
+    SET NOCOUNT ON;
+
+    DELETE FROM dbo.isContainedIn WHERE container_id = @containerId;
+    DELETE FROM dbo.container WHERE id = @containerId;
 END;
 GO
 
-CREATE PROCEDURE DeleteRoom
+CREATE OR ALTER PROCEDURE dbo.DeleteRoom
     @roomId UNIQUEIDENTIFIER
 AS
 BEGIN
-    -- Delete associations in `isStoredIn`
-    DELETE FROM isStoredIn WHERE room_id = @roomId;
-    -- Delete the item itself
-    DELETE FROM room WHERE id = @roomId;
+    SET NOCOUNT ON;
+
+    DELETE FROM dbo.isStoredIn WHERE room_id = @roomId;
+    DELETE FROM dbo.room WHERE id = @roomId;
 END;
 GO
 
--- Procedure to associate an item with a container
-CREATE PROCEDURE AssociateItemWithContainer
+CREATE OR ALTER PROCEDURE dbo.AssociateItemWithContainer
     @itemId UNIQUEIDENTIFIER,
     @containerId UNIQUEIDENTIFIER
 AS
 BEGIN
-    INSERT INTO isContainedIn (item_id, container_id)
+    SET NOCOUNT ON;
+
+    INSERT INTO dbo.isContainedIn (item_id, container_id)
     VALUES (@itemId, @containerId);
 END;
 GO
 
-CREATE PROCEDURE UnassociateItemFromContainer
+CREATE OR ALTER PROCEDURE dbo.UnassociateItemFromContainer
     @itemId UNIQUEIDENTIFIER
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    DELETE FROM isContainedIn
+    DELETE FROM dbo.isContainedIn
     WHERE item_id = @itemId;
 END;
 GO
 
--- Procedure to associate an item with a room
-CREATE PROCEDURE AssociateItemWithRoom
+CREATE OR ALTER PROCEDURE dbo.AssociateItemWithRoom
     @itemId UNIQUEIDENTIFIER,
     @roomId UNIQUEIDENTIFIER
 AS
 BEGIN
-    INSERT INTO isStoredIn (item_id, room_id)
+    SET NOCOUNT ON;
+
+    INSERT INTO dbo.isStoredIn (item_id, room_id)
     VALUES (@itemId, @roomId);
 END;
 GO
 
-CREATE PROCEDURE UnassociateItemFromRoom
+CREATE OR ALTER PROCEDURE dbo.UnassociateItemFromRoom
     @itemId UNIQUEIDENTIFIER
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    DELETE FROM isStoredIn
+    DELETE FROM dbo.isStoredIn
     WHERE item_id = @itemId;
 END;
 GO
 
-CREATE PROCEDURE GetContainerIdForItem
-    @itemId UNIQUEIDENTIFIER,       -- Input: The ID of the item
-    @containerId UNIQUEIDENTIFIER OUTPUT -- Output: The container ID
+CREATE OR ALTER PROCEDURE dbo.GetContainerIdForItem
+    @itemId UNIQUEIDENTIFIER,
+    @containerId UNIQUEIDENTIFIER OUTPUT
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    -- Select the container_id where the item_id matches
-    SELECT TOP 1 @containerId = container_id
-    FROM isContainedIn
+    SELECT TOP (1) @containerId = container_id
+    FROM dbo.isContainedIn
     WHERE item_id = @itemId;
 
-    -- If no container is found, set @containerId to NULL
     IF @containerId IS NULL
     BEGIN
         SET @containerId = NULL;
-    END
+    END;
 END;
 GO
 
-CREATE PROCEDURE GetRoomIdForItem
-    @itemId UNIQUEIDENTIFIER,   -- Input: The ID of the item
-    @roomId UNIQUEIDENTIFIER OUTPUT -- Output: The room ID
+CREATE OR ALTER PROCEDURE dbo.GetRoomIdForItem
+    @itemId UNIQUEIDENTIFIER,
+    @roomId UNIQUEIDENTIFIER OUTPUT
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    -- Select the room_id where the item_id matches
-    SELECT TOP 1 @roomId = room_id
-    FROM isStoredIn
+    SELECT TOP (1) @roomId = room_id
+    FROM dbo.isStoredIn
     WHERE item_id = @itemId;
 
-    -- If no room is found, set @roomId to NULL
     IF @roomId IS NULL
     BEGIN
         SET @roomId = NULL;
-    END
+    END;
 END;
 GO
