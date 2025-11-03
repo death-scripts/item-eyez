@@ -1,33 +1,33 @@
-﻿using System.Windows;
+﻿// ----------------------------------------------------------------------------
+// <copyright company="death-scripts">
+// Copyright (c) death-scripts. All rights reserved.
+// </copyright>
+//                   ██████╗ ███████╗ █████╗ ████████╗██╗  ██╗
+//                   ██╔══██╗██╔════╝██╔══██╗╚══██╔══╝██║  ██║
+//                   ██║  ██║█████╗  ███████║   ██║   ███████║
+//                   ██║  ██║██╔══╝  ██╔══██║   ██║   ██╔══██║
+//                   ██████╔╝███████╗██║  ██║   ██║   ██║  ██║
+//                   ╚═════╝ ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
+//
+//              ███████╗ ██████╗██████╗ ██╗██████╗ ████████╗███████╗
+//              ██╔════╝██╔════╝██╔══██╗██║██╔══██╗╚══██╔══╝██╔════╝
+//              ███████╗██║     ██████╔╝██║██████╔╝   ██║   ███████╗
+//              ╚════██║██║     ██╔══██╗██║██╔═══╝    ██║   ╚════██║
+//              ███████║╚██████╗██║  ██║██║██║        ██║   ███████║
+//              ╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝╚═╝        ╚═╝   ╚══════╝
+// ----------------------------------------------------------------------------
 using System.Windows.Controls;
-using System.Windows.Input;
 
-namespace item_eyez
+namespace Item_eyez.Views
 {
     /// <summary>
-    /// Interaction logic for rooms_view.xaml
+    /// Interaction logic for rooms_view.xaml.
     /// </summary>
-    public partial class rooms_view : UserControl
+    public partial class Rooms_view : UserControl
     {
-        public rooms_view()
-        {
-            InitializeComponent();
-        }
-
-        private void DataGridRow_LeftClick(object sender, MouseButtonEventArgs e)
-        {
-            var row = (DataGridRow)sender;
-            row.IsSelected = true;
-            row.ContextMenu.DataContext = row.DataContext;
-            row.ContextMenu.IsOpen = true;
-        }
-
-        private void DeleteRow_Click(object sender, RoutedEventArgs e)
-        {
-            if (DataContext is RoomViewModel vm && ((FrameworkElement)sender).DataContext is Room room)
-            {
-                vm.Rooms.Remove(room);
-            }
-        }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Rooms_view"/> class.
+        /// </summary>
+        public Rooms_view() => this.InitializeComponent();
     }
 }

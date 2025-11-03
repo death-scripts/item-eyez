@@ -1,206 +1,369 @@
-using System;
+﻿// ----------------------------------------------------------------------------
+// <copyright company="death-scripts">
+// Copyright (c) death-scripts. All rights reserved.
+// </copyright>
+//                   ██████╗ ███████╗ █████╗ ████████╗██╗  ██╗
+//                   ██╔══██╗██╔════╝██╔══██╗╚══██╔══╝██║  ██║
+//                   ██║  ██║█████╗  ███████║   ██║   ███████║
+//                   ██║  ██║██╔══╝  ██╔══██║   ██║   ██╔══██║
+//                   ██████╔╝███████╗██║  ██║   ██║   ██║  ██║
+//                   ╚═════╝ ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
+//
+//              ███████╗ ██████╗██████╗ ██╗██████╗ ████████╗███████╗
+//              ██╔════╝██╔════╝██╔══██╗██║██╔══██╗╚══██╔══╝██╔════╝
+//              ███████╗██║     ██████╔╝██║██████╔╝   ██║   ███████╗
+//              ╚════██║██║     ██╔══██╗██║██╔═══╝    ██║   ╚════██║
+//              ███████║╚██████╗██║  ██║██║██║        ██║   ███████║
+//              ╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝╚═╝        ╚═╝   ╚══════╝
+// ----------------------------------------------------------------------------
 using System.Collections.ObjectModel;
-using System.Collections.Generic;
-using System.Linq;
+using Item_eyez.Database;
 
-namespace item_eyez
+namespace Item_eyez.Viewmodels
 {
+    /// <summary>
+    /// The organize view model.
+    /// </summary>
+    /// <seealso cref="Item_eyez.Viewmodels.ViewModelBase" />
     public class OrganizeViewModel : ViewModelBase
     {
-        private readonly ItemEyezDatabase _db = ItemEyezDatabase.Instance();
+        /// <summary>
+        /// The database.
+        /// </summary>
+        private readonly IItemEyezDatabase db;
 
-        public ObservableCollection<HierarchyNode> Roots { get; } = new();
-        public ObservableCollection<HierarchyNode> RightRoots { get; } = new();
+        /// <summary>
+        /// The expansion state.
+        /// </summary>
+        private readonly Dictionary<Guid, bool> expansionState = [];
 
-        private readonly Dictionary<Guid, bool> _expansionState = new();
+        /// <summary>
+        /// The search text.
+        /// </summary>
+        private string searchText = string.Empty;
 
-        private string _searchText = string.Empty;
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OrganizeViewModel"/> class.
+        /// </summary>
+        public OrganizeViewModel()
+            : this(ItemEyezDatabase.Instance())
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OrganizeViewModel"/> class.
+        /// </summary>
+        /// <param name="database">The database.</param>
+        public OrganizeViewModel(IItemEyezDatabase database)
+        {
+            this.db = database;
+            this.Load();
+            this.RemoveRightFromRoots();
+            this.db.DataChanged += (_, __) =>
+            {
+                this.Load();
+                this.RemoveRightFromRoots();
+            };
+        }
+
+        /// <summary>
+        /// Gets the right roots.
+        /// </summary>
+        /// <value>
+        /// The right roots.
+        /// </value>
+        public ObservableCollection<HierarchyNode> RightRoots { get; } = [];
+
+        /// <summary>
+        /// Gets the roots.
+        /// </summary>
+        /// <value>
+        /// The roots.
+        /// </value>
+        public ObservableCollection<HierarchyNode> Roots { get; } = [];
+
+        /// <summary>
+        /// Gets or sets the search text.
+        /// </summary>
+        /// <value>
+        /// The search text.
+        /// </value>
         public string SearchText
         {
-            get => _searchText;
+            get => this.searchText;
             set
             {
-                if (_searchText != value)
+                if (this.searchText != value)
                 {
-                    _searchText = value;
-                    OnPropertyChanged(nameof(SearchText));
-                    ApplySearch();
+                    this.searchText = value;
+                    this.OnPropertyChanged(nameof(this.SearchText));
+                    this.ApplySearch();
                 }
             }
         }
 
-        public OrganizeViewModel()
-        {
-            Load();
-            RemoveRightFromRoots();
-            _db.DataChanged += (_, __) =>
-            {
-                Load();
-                RemoveRightFromRoots();
-            };
-        }
-
-        public void RefreshSearch() => ApplySearch();
-
-        private void ApplySearch()
-        {
-            foreach (var node in Roots)
-                MarkMatches(node);
-            foreach (var node in RightRoots)
-                MarkMatches(node);
-
-            foreach (var node in Roots)
-                UpdateVisibility(node);
-            foreach (var node in RightRoots)
-                UpdateVisibility(node);
-        }
-
-        private bool MarkMatches(HierarchyNode node)
-        {
-            bool selfMatch = !string.IsNullOrWhiteSpace(SearchText) &&
-                             node.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase);
-            bool childMatch = false;
-            foreach (var child in node.Children)
-                childMatch |= MarkMatches(child);
-            node.IsMatch = selfMatch;
-            if (!string.IsNullOrWhiteSpace(SearchText))
-                node.IsExpanded = node.IsExpanded || childMatch || (selfMatch && node.Children.Count > 0);
-            return selfMatch || childMatch;
-        }
-
-        private void SaveExpansion(HierarchyNode node)
-        {
-            _expansionState[node.Id] = node.IsExpanded;
-            foreach (var child in node.Children)
-                SaveExpansion(child);
-        }
-
-        private void RestoreExpansion(HierarchyNode node)
-        {
-            if (_expansionState.TryGetValue(node.Id, out bool expanded))
-                node.IsExpanded = expanded;
-            foreach (var child in node.Children)
-                RestoreExpansion(child);
-        }
-
+        /// <summary>
+        /// Loads this instance.
+        /// </summary>
         public void Load()
         {
-            _expansionState.Clear();
-            foreach (var root in Roots)
-                SaveExpansion(root);
+            this.expansionState.Clear();
+            foreach (HierarchyNode root in this.Roots)
+            {
+                this.SaveExpansion(root);
+            }
 
-            Roots.Clear();
-            var rooms = _db.GetRoomsList();
-            var containers = _db.GetContainersWithRelationships();
-            var items = _db.GetItemsWithRelationships();
+            this.Roots.Clear();
+            ObservableCollection<Room> rooms = this.db.GetRoomsList();
+            ObservableCollection<Container> containers = this.db.GetContainersWithRelationships();
+            ObservableCollection<Item> items = this.db.GetItemsWithRelationships();
 
-            var roomNodes = rooms.ToDictionary(r => r.Id, r => new HierarchyNode(r));
-            var containerNodes = containers.ToDictionary(c => c.Id, c => new HierarchyNode(c));
+            Dictionary<Guid, HierarchyNode> roomNodes = rooms.ToDictionary(r => r.Id, r => new HierarchyNode(r));
+            Dictionary<Guid, HierarchyNode> containerNodes = containers.ToDictionary(c => c.Id, c => new HierarchyNode(c));
 
             // link containers
-            foreach (var container in containers)
+            foreach (Container container in containers)
             {
-                var parentContainerId = _db.GetContainerIdForEntity(container.Id);
-                if (parentContainerId.HasValue && containerNodes.ContainsKey(parentContainerId.Value))
+                Guid? parentContainerId = this.db.GetContainerIdForEntity(container.Id);
+                if (parentContainerId.HasValue && containerNodes.TryGetValue(parentContainerId.Value, out HierarchyNode? value1))
                 {
-                    containerNodes[parentContainerId.Value].Children.Add(containerNodes[container.Id]);
+                    value1.Children.Add(containerNodes[container.Id]);
                 }
             }
 
             // assign containers to rooms or root
-            foreach (var container in containers)
+            foreach (Container container in containers)
             {
-                var node = containerNodes[container.Id];
-                var parentContainerId = _db.GetContainerIdForEntity(container.Id);
+                HierarchyNode node = containerNodes[container.Id];
+                Guid? parentContainerId = this.db.GetContainerIdForEntity(container.Id);
                 if (parentContainerId.HasValue)
+                {
                     continue;
-                var roomId = _db.GetRoomIdForEntity(container.Id);
-                if (roomId.HasValue && roomNodes.ContainsKey(roomId.Value))
-                    roomNodes[roomId.Value].Children.Add(node);
+                }
+
+                Guid? roomId = this.db.GetRoomIdForEntity(container.Id);
+                if (roomId.HasValue && roomNodes.TryGetValue(roomId.Value, out HierarchyNode? value))
+                {
+                    value.Children.Add(node);
+                }
                 else
-                    Roots.Add(node);
+                {
+                    this.Roots.Add(node);
+                }
             }
 
             // assign items
-            foreach (var item in items)
+            foreach (Item item in items)
             {
-                var itemNode = new HierarchyNode(item);
-                var containerId = _db.GetContainerIdForEntity(item.Id);
-                if (containerId.HasValue && containerNodes.ContainsKey(containerId.Value))
+                HierarchyNode itemNode = new(item);
+                Guid? containerId = this.db.GetContainerIdForEntity(item.Id);
+                if (containerId.HasValue && containerNodes.TryGetValue(containerId.Value, out HierarchyNode? value))
                 {
-                    containerNodes[containerId.Value].Children.Add(itemNode);
+                    value.Children.Add(itemNode);
                     continue;
                 }
-                var roomId = _db.GetRoomIdForEntity(item.Id);
-                if (roomId.HasValue && roomNodes.ContainsKey(roomId.Value))
-                    roomNodes[roomId.Value].Children.Add(itemNode);
+
+                Guid? roomId = this.db.GetRoomIdForEntity(item.Id);
+                if (roomId.HasValue && roomNodes.TryGetValue(roomId.Value, out HierarchyNode? value1))
+                {
+                    value1.Children.Add(itemNode);
+                }
                 else
-                    Roots.Add(itemNode);
+                {
+                    this.Roots.Add(itemNode);
+                }
             }
 
-            foreach (var rn in roomNodes.Values)
+            foreach (HierarchyNode? rn in roomNodes.Values)
             {
-                Roots.Add(rn);
+                this.Roots.Add(rn);
             }
 
-            foreach (var root in Roots)
-                RestoreExpansion(root);
+            foreach (HierarchyNode root in this.Roots)
+            {
+                this.RestoreExpansion(root);
+            }
 
-            OnPropertyChanged(nameof(Roots));
-            ApplySearch();
+            this.OnPropertyChanged(nameof(this.Roots));
+            this.ApplySearch();
         }
 
+        /// <summary>
+        /// Refreshes the search.
+        /// </summary>
+        public void RefreshSearch() => this.ApplySearch();
+
+        /// <summary>
+        /// Removes the right from roots.
+        /// </summary>
         public void RemoveRightFromRoots()
         {
-            var ids = RightRoots.Select(n => n.Id).ToList();
-            RightRoots.Clear();
-            foreach (var id in ids)
+            List<Guid> ids = [.. this.RightRoots.Select(n => n.Id)];
+            this.RightRoots.Clear();
+            foreach (Guid id in ids)
             {
-                var node = FindNodeById(Roots, id);
+                HierarchyNode? node = this.FindNodeById(this.Roots, id);
                 if (node != null)
                 {
-                    RemoveNodeById(Roots, id);
-                    RightRoots.Add(node);
+                    _ = this.RemoveNodeById(this.Roots, id);
+                    this.RightRoots.Add(node);
                 }
             }
         }
 
+        /// <summary>
+        /// Applies the search.
+        /// </summary>
+        private void ApplySearch()
+        {
+            foreach (HierarchyNode node in this.Roots)
+            {
+                _ = this.MarkMatches(node);
+            }
+
+            foreach (HierarchyNode node in this.RightRoots)
+            {
+                _ = this.MarkMatches(node);
+            }
+
+            foreach (HierarchyNode node in this.Roots)
+            {
+                _ = this.UpdateVisibility(node);
+            }
+
+            foreach (HierarchyNode node in this.RightRoots)
+            {
+                _ = this.UpdateVisibility(node);
+            }
+        }
+
+        /// <summary>
+        /// Finds the node by identifier.
+        /// </summary>
+        /// <param name="list">The list.</param>
+        /// <param name="id">The identifier.</param>
+        /// <returns>
+        /// The nullable.
+        /// </returns>
         private HierarchyNode? FindNodeById(ObservableCollection<HierarchyNode> list, Guid id)
         {
-            foreach (var n in list)
+            foreach (HierarchyNode n in list)
             {
                 if (n.Id == id)
+                {
                     return n;
-                var found = FindNodeById(n.Children, id);
+                }
+
+                HierarchyNode? found = this.FindNodeById(n.Children, id);
                 if (found != null)
+                {
                     return found;
+                }
             }
+
             return null;
         }
 
+        /// <summary>
+        /// Marks the matches.
+        /// </summary>
+        /// <param name="node">The node.</param>
+        /// <returns>
+        /// The boolean.
+        /// </returns>
+        private bool MarkMatches(HierarchyNode node)
+        {
+            bool selfMatch = !string.IsNullOrWhiteSpace(this.SearchText) &&
+                             node.Name.Contains(this.SearchText, StringComparison.OrdinalIgnoreCase);
+            bool childMatch = false;
+            foreach (HierarchyNode child in node.Children)
+            {
+                childMatch |= this.MarkMatches(child);
+            }
+
+            node.IsMatch = selfMatch;
+            if (!string.IsNullOrWhiteSpace(this.SearchText))
+            {
+                node.IsExpanded = node.IsExpanded || childMatch || (selfMatch && node.Children.Count > 0);
+            }
+
+            return selfMatch || childMatch;
+        }
+
+        /// <summary>
+        /// Removes the node by identifier.
+        /// </summary>
+        /// <param name="list">The list.</param>
+        /// <param name="id">The identifier.</param>
+        /// <returns>
+        /// The boolean.
+        /// </returns>
         private bool RemoveNodeById(ObservableCollection<HierarchyNode> list, Guid id)
         {
-            var existing = list.FirstOrDefault(n => n.Id == id);
+            HierarchyNode? existing = list.FirstOrDefault(n => n.Id == id);
             if (existing != null)
             {
-                list.Remove(existing);
+                _ = list.Remove(existing);
                 return true;
             }
-            foreach (var child in list)
+
+            foreach (HierarchyNode child in list)
             {
-                if (RemoveNodeById(child.Children, id))
+                if (this.RemoveNodeById(child.Children, id))
+                {
                     return true;
+                }
             }
+
             return false;
         }
 
+        /// <summary>
+        /// Restores the expansion.
+        /// </summary>
+        /// <param name="node">The node.</param>
+        private void RestoreExpansion(HierarchyNode node)
+        {
+            if (this.expansionState.TryGetValue(node.Id, out bool expanded))
+            {
+                node.IsExpanded = expanded;
+            }
+
+            foreach (HierarchyNode child in node.Children)
+            {
+                this.RestoreExpansion(child);
+            }
+        }
+
+        /// <summary>
+        /// Saves the expansion.
+        /// </summary>
+        /// <param name="node">The node.</param>
+        private void SaveExpansion(HierarchyNode node)
+        {
+            this.expansionState[node.Id] = node.IsExpanded;
+            foreach (HierarchyNode child in node.Children)
+            {
+                this.SaveExpansion(child);
+            }
+        }
+
+        /// <summary>
+        /// Updates the visibility.
+        /// </summary>
+        /// <param name="node">The node.</param>
+        /// <returns>
+        /// The boolean.
+        /// </returns>
         private bool UpdateVisibility(HierarchyNode node)
         {
             bool childVisible = false;
-            foreach (var child in node.Children)
-                childVisible |= UpdateVisibility(child);
+            foreach (HierarchyNode child in node.Children)
+            {
+                childVisible |= this.UpdateVisibility(child);
+            }
 
-            bool visible = string.IsNullOrWhiteSpace(SearchText) || node.IsMatch || childVisible;
+            bool visible = string.IsNullOrWhiteSpace(this.SearchText) || node.IsMatch || childVisible;
             node.IsVisible = visible;
             return node.IsMatch || childVisible;
         }

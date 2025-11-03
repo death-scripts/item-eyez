@@ -16,82 +16,64 @@
 //              ███████║╚██████╗██║  ██║██║██║        ██║   ███████║
 //              ╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝╚═╝        ╚═╝   ╚══════╝
 // ----------------------------------------------------------------------------
+
 using Item_eyez.Database;
 
-namespace Item_eyez.Viewmodels
+namespace Item_eyez.Tests
 {
-    /// <summary>
-    /// The room.
-    /// </summary>
-    public class Room
+    // [TestClass]
+    public class DatabaseTests
     {
-        /// <summary>
-        /// The description.
-        /// </summary>
-        private string description;
+        private const string TestDbConnectionString = @"Server=localhost\SQLEXPRESS;Database=ITEMEYEZ_TEST;Integrated Security=true;TrustServerCertificate=True;";
+        private IItemEyezDatabase db;
 
-        /// <summary>
-        /// The name.
-        /// </summary>
-        private string name;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Room"/> class.
-        /// </summary>
-        /// <param name="id">The identifier.</param>
-        /// <param name="name">The name.</param>
-        /// <param name="description">The description.</param>
-        public Room(Guid id, string name, string description)
+        // [TestMethod]
+        public void AddContainer_AddsContainerToDatabase()
         {
-            this.Id = id;
-            this.name = name;
-            this.description = description;
+            // Act
+            _ = db.AddContainer("Test Container", "Test Description");
+
+            // Assert
+            System.Collections.ObjectModel.ObservableCollection<Viewmodels.Container> containers = db.GetContainersWithRelationships();
+            Assert.AreEqual(1, containers.Count);
+            Assert.AreEqual("Test Container", containers.First().Name);
         }
 
-        /// <summary>
-        /// Gets or sets the description.
-        /// </summary>
-        /// <value>
-        /// The description.
-        /// </value>
-        public string Description
+        // [TestMethod]
+        public void AddItem_AddsItemToDatabase()
         {
-            get => this.description;
-            set
-            {
-                this.description = value;
-                ItemEyezDatabase.Instance().UpdateRoom(
-                            this.Id,
-                            this.Name,
-                            this.Description);
-            }
+            // Act
+            _ = db.AddItem("Test Item", "Test Description", 10.00m, "Test Category");
+
+            // Assert
+            System.Collections.ObjectModel.ObservableCollection<Viewmodels.Item> items = db.GetItemsWithRelationships();
+            Assert.AreEqual(1, items.Count);
+            Assert.AreEqual("Test Item", items.First().Name);
         }
 
-        /// <summary>
-        /// Gets or sets the identifier.
-        /// </summary>
-        /// <value>
-        /// The identifier.
-        /// </value>
-        public Guid Id { get; set; }
-
-        /// <summary>
-        /// Gets or sets the name.
-        /// </summary>
-        /// <value>
-        /// The name.
-        /// </value>
-        public string Name
+        // [TestMethod]
+        public void AddRoom_AddsRoomToDatabase()
         {
-            get => this.name;
-            set
-            {
-                this.name = value;
-                ItemEyezDatabase.Instance().UpdateRoom(
-                            this.Id,
-                            this.Name,
-                            this.Description);
-            }
+            // Act
+            db.AddRoom("Test Room", "Test Description");
+
+            // Assert
+            System.Collections.ObjectModel.ObservableCollection<Viewmodels.Room> rooms = db.GetRoomsList();
+            Assert.AreEqual(1, rooms.Count);
+            Assert.AreEqual("Test Room", rooms.First().Name);
+        }
+
+        // [TestCleanup]
+        public void TestCleanup()
+        {
+            DatabaseHelper.DeleteDatabase(TestDbConnectionString);
+        }
+
+        // [TestInitialize]
+        public void TestInitialize()
+        {
+            DatabaseHelper.CreateDatabase(TestDbConnectionString);
+            db = ItemEyezDatabase.Instance(TestDbConnectionString);
         }
     }
 }

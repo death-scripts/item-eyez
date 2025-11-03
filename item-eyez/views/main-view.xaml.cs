@@ -1,28 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿// ----------------------------------------------------------------------------
+// <copyright company="death-scripts">
+// Copyright (c) death-scripts. All rights reserved.
+// </copyright>
+//                   ██████╗ ███████╗ █████╗ ████████╗██╗  ██╗
+//                   ██╔══██╗██╔════╝██╔══██╗╚══██╔══╝██║  ██║
+//                   ██║  ██║█████╗  ███████║   ██║   ███████║
+//                   ██║  ██║██╔══╝  ██╔══██║   ██║   ██╔══██║
+//                   ██████╔╝███████╗██║  ██║   ██║   ██║  ██║
+//                   ╚═════╝ ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
+//
+//              ███████╗ ██████╗██████╗ ██╗██████╗ ████████╗███████╗
+//              ██╔════╝██╔════╝██╔══██╗██║██╔══██╗╚══██╔══╝██╔════╝
+//              ███████╗██║     ██████╔╝██║██████╔╝   ██║   ███████╗
+//              ╚════██║██║     ██╔══██╗██║██╔═══╝    ██║   ╚════██║
+//              ███████║╚██████╗██║  ██║██║██║        ██║   ███████║
+//              ╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝╚═╝        ╚═╝   ╚══════╝
+// ----------------------------------------------------------------------------
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
-namespace item_eyez
+namespace Item_eyez.Views
 {
     /// <summary>
-    /// Interaction logic for main_view.xaml
+    /// Interaction logic for main_view.xaml.
     /// </summary>
-    public partial class main_view : UserControl
+    public partial class Main_view : UserControl
     {
-        public main_view()
-        {
-            InitializeComponent();
-        }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Main_view"/> class.
+        /// </summary>
+        public Main_view() => this.InitializeComponent();
     }
 }

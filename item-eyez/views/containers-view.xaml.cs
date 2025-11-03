@@ -1,33 +1,33 @@
-﻿using System.Windows;
+﻿// ----------------------------------------------------------------------------
+// <copyright company="death-scripts">
+// Copyright (c) death-scripts. All rights reserved.
+// </copyright>
+//                   ██████╗ ███████╗ █████╗ ████████╗██╗  ██╗
+//                   ██╔══██╗██╔════╝██╔══██╗╚══██╔══╝██║  ██║
+//                   ██║  ██║█████╗  ███████║   ██║   ███████║
+//                   ██║  ██║██╔══╝  ██╔══██║   ██║   ██╔══██║
+//                   ██████╔╝███████╗██║  ██║   ██║   ██║  ██║
+//                   ╚═════╝ ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
+//
+//              ███████╗ ██████╗██████╗ ██╗██████╗ ████████╗███████╗
+//              ██╔════╝██╔════╝██╔══██╗██║██╔══██╗╚══██╔══╝██╔════╝
+//              ███████╗██║     ██████╔╝██║██████╔╝   ██║   ███████╗
+//              ╚════██║██║     ██╔══██╗██║██╔═══╝    ██║   ╚════██║
+//              ███████║╚██████╗██║  ██║██║██║        ██║   ███████║
+//              ╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝╚═╝        ╚═╝   ╚══════╝
+// ----------------------------------------------------------------------------
 using System.Windows.Controls;
-using System.Windows.Input;
 
-namespace item_eyez
+namespace Item_eyez.Views
 {
     /// <summary>
-    /// Interaction logic for containers_view.xaml
+    /// Interaction logic for containers_view.xaml.
     /// </summary>
-    public partial class containers_view : UserControl
+    public partial class Containers_view : UserControl
     {
-        public containers_view()
-        {
-            InitializeComponent();
-        }
-
-        private void DataGridRow_LeftClick(object sender, MouseButtonEventArgs e)
-        {
-            var row = (DataGridRow)sender;
-            row.IsSelected = true;
-            row.ContextMenu.DataContext = row.DataContext;
-            row.ContextMenu.IsOpen = true;
-        }
-
-        private void DeleteRow_Click(object sender, RoutedEventArgs e)
-        {
-            if (DataContext is ContainersViewModel vm && ((FrameworkElement)sender).DataContext is Container container)
-            {
-                vm.Containers.Remove(container);
-            }
-        }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Containers_view"/> class.
+        /// </summary>
+        public Containers_view() => this.InitializeComponent();
     }
 }

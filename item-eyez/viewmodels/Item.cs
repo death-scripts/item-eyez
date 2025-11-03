@@ -1,80 +1,77 @@
-﻿namespace item_eyez
+﻿// ----------------------------------------------------------------------------
+// <copyright company="death-scripts">
+// Copyright (c) death-scripts. All rights reserved.
+// </copyright>
+//                   ██████╗ ███████╗ █████╗ ████████╗██╗  ██╗
+//                   ██╔══██╗██╔════╝██╔══██╗╚══██╔══╝██║  ██║
+//                   ██║  ██║█████╗  ███████║   ██║   ███████║
+//                   ██║  ██║██╔══╝  ██╔══██║   ██║   ██╔══██║
+//                   ██████╔╝███████╗██║  ██║   ██║   ██║  ██║
+//                   ╚═════╝ ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
+//
+//              ███████╗ ██████╗██████╗ ██╗██████╗ ████████╗███████╗
+//              ██╔════╝██╔════╝██╔══██╗██║██╔══██╗╚══██╔══╝██╔════╝
+//              ███████╗██║     ██████╔╝██║██████╔╝   ██║   ███████╗
+//              ╚════██║██║     ██╔══██╗██║██╔═══╝    ██║   ╚════██║
+//              ███████║╚██████╗██║  ██║██║██║        ██║   ███████║
+//              ╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝╚═╝        ╚═╝   ╚══════╝
+// ----------------------------------------------------------------------------
+using Item_eyez.Database;
+
+namespace Item_eyez.Viewmodels
 {
+    /// <summary>
+    /// The item.
+    /// </summary>
+    /// <seealso cref="Item_eyez.Viewmodels.ViewModelBase" />
     public class Item : ViewModelBase
     {
-        private string description;
-        private string name;
+        /// <summary>
+        /// The categories.
+        /// </summary>
         private string categories;
-        private decimal value;
-        private Guid id;
 
+        /// <summary>
+        /// The description.
+        /// </summary>
+        private string description;
+
+        /// <summary>
+        /// The name.
+        /// </summary>
+        private string name;
+
+        /// <summary>
+        /// The value.
+        /// </summary>
+        private decimal value;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Item"/> class.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <param name="name">The name.</param>
+        /// <param name="description">The description.</param>
+        /// <param name="value">The value.</param>
+        /// <param name="catagories">The catagories.</param>
         public Item(Guid id, string name, string description, decimal value, string catagories)
         {
-            this.id = id;
+            this.Id = id;
             this.name = name;
             this.description = description;
             this.value = value;
             this.categories = catagories;
         }
 
-        public Guid Id
-        {
-            get { return id; }
-            set
-            {
-                this.id = value;
-            }
-        }
-
-        public string Name
-        {
-            get { return name; }
-            set
-            {
-                this.name = value;
-                ItemEyezDatabase.Instance().UpdateItem(
-                            this.Id,
-                            this.Name,
-                            this.Description,
-                            this.Value,
-                            this.Categories
-                        );
-            }
-        }
-        public string Description
-        {
-            get { return description; }
-            set
-            {
-                this.description = value;
-                ItemEyezDatabase.Instance().UpdateItem(
-                            this.Id,
-                            this.Name,
-                            this.Description,
-                            this.Value,
-                            this.Categories
-                        );
-            }
-        }
-        public decimal Value
-        {
-            get { return value; }
-            set
-            {
-                this.value = value;
-                ItemEyezDatabase.Instance().UpdateItem(
-                            this.Id,
-                            this.Name,
-                            this.Description,
-                            this.Value,
-                            this.Categories
-                        );
-            }
-        }
-
+        /// <summary>
+        /// Gets or sets the categories.
+        /// </summary>
+        /// <value>
+        /// The categories.
+        /// </value>
         public string Categories
         {
-            get { return categories; }
+            get => this.categories;
             set
             {
                 this.categories = value;
@@ -83,19 +80,22 @@
                             this.Name,
                             this.Description,
                             this.Value,
-                            this.Categories
-                        );
+                            this.Categories);
             }
         }
+
+        /// <summary>
+        /// Gets or sets the contained in.
+        /// </summary>
+        /// <value>
+        /// The contained in.
+        /// </value>
         public Container ContainedIn
         {
-            get
-            {
-                return ItemEyezDatabase.Instance().GetItemsContainer(this.Id);
-            }
+            get => ItemEyezDatabase.Instance().GetItemsContainer(this.Id);
             set
             {
-                Guid? id = value == null ? null : value.Id;
+                Guid? id = value?.Id;
                 ItemEyezDatabase.Instance().SetItemsContainer(this.Id, id);
 
                 if (value != null)
@@ -103,30 +103,103 @@
                     Guid? roomId = ItemEyezDatabase.Instance().GetRoomIdForEntity(value.Id);
                     ItemEyezDatabase.Instance().SetItemsRoom(this.Id, roomId);
                 }
-                
-                OnPropertyChanged(nameof(ContainedIn));
-                OnPropertyChanged(nameof(StoredIn));
+
+                this.OnPropertyChanged(nameof(this.ContainedIn));
+                this.OnPropertyChanged(nameof(this.StoredIn));
             }
         }
-        public Room StoredIn
-        {
-            get
-            {
 
-                return ItemEyezDatabase.Instance().GetItemsRoom(this.Id);
-            }
+        /// <summary>
+        /// Gets or sets the description.
+        /// </summary>
+        /// <value>
+        /// The description.
+        /// </value>
+        public string Description
+        {
+            get => this.description;
             set
             {
-                Guid? id = value == null ? null : value.Id;
+                this.description = value;
+                ItemEyezDatabase.Instance().UpdateItem(
+                            this.Id,
+                            this.Name,
+                            this.Description,
+                            this.Value,
+                            this.Categories);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the identifier.
+        /// </summary>
+        /// <value>
+        /// The identifier.
+        /// </value>
+        public Guid Id { get; set; }
+
+        /// <summary>
+        /// Gets or sets the name.
+        /// </summary>
+        /// <value>
+        /// The name.
+        /// </value>
+        public string Name
+        {
+            get => this.name;
+            set
+            {
+                this.name = value;
+                ItemEyezDatabase.Instance().UpdateItem(
+                            this.Id,
+                            this.Name,
+                            this.Description,
+                            this.Value,
+                            this.Categories);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the stored in.
+        /// </summary>
+        /// <value>
+        /// The stored in.
+        /// </value>
+        public Room StoredIn
+        {
+            get => ItemEyezDatabase.Instance().GetItemsRoom(this.Id);
+            set
+            {
+                Guid? id = value?.Id;
                 if (this.ContainedIn != null)
                 {
                     ItemEyezDatabase.Instance().UnassociateItemFromContainer(this.Id);
                 }
 
                 ItemEyezDatabase.Instance().SetItemsRoom(this.Id, id);
-                OnPropertyChanged(nameof(StoredIn));
+                this.OnPropertyChanged(nameof(this.StoredIn));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the value.
+        /// </summary>
+        /// <value>
+        /// The value.
+        /// </value>
+        public decimal Value
+        {
+            get => this.value;
+            set
+            {
+                this.value = value;
+                ItemEyezDatabase.Instance().UpdateItem(
+                            this.Id,
+                            this.Name,
+                            this.Description,
+                            this.Value,
+                            this.Categories);
             }
         }
     }
-
 }

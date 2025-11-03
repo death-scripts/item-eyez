@@ -1,12 +1,37 @@
-﻿using System.Windows;
+﻿// ----------------------------------------------------------------------------
+// <copyright company="death-scripts">
+// Copyright (c) death-scripts. All rights reserved.
+// </copyright>
+//                   ██████╗ ███████╗ █████╗ ████████╗██╗  ██╗
+//                   ██╔══██╗██╔════╝██╔══██╗╚══██╔══╝██║  ██║
+//                   ██║  ██║█████╗  ███████║   ██║   ███████║
+//                   ██║  ██║██╔══╝  ██╔══██║   ██║   ██╔══██║
+//                   ██████╔╝███████╗██║  ██║   ██║   ██║  ██║
+//                   ╚═════╝ ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
+//
+//              ███████╗ ██████╗██████╗ ██╗██████╗ ████████╗███████╗
+//              ██╔════╝██╔════╝██╔══██╗██║██╔══██╗╚══██╔══╝██╔════╝
+//              ███████╗██║     ██████╔╝██║██████╔╝   ██║   ███████╗
+//              ╚════██║██║     ██╔══██╗██║██╔═══╝    ██║   ╚════██║
+//              ███████║╚██████╗██║  ██║██║██║        ██║   ███████║
+//              ╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝╚═╝        ╚═╝   ╚══════╝
+// ----------------------------------------------------------------------------
 
-namespace item_eyez
+using System.Windows;
+using Item_eyez.Database;
+
+namespace Item_eyez
 {
     /// <summary>
-    /// Interaction logic for App.xaml
+    /// The application.
     /// </summary>
+    /// <seealso cref="System.Windows.Application" />
     public partial class App : Application
     {
+        /// <summary>
+        /// Raises the <see cref="E:System.Windows.Application.Startup" /> event.
+        /// </summary>
+        /// <param name="e">A <see cref="T:System.Windows.StartupEventArgs" /> that contains the event data.</param>
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
@@ -17,12 +42,11 @@ namespace item_eyez
 
                 DatabaseInitializer.InitializeDatabase(serverConnectionString, databaseName);
 
-                //// init instance
-                ItemEyezDatabase.Instance("Server=localhost\\SQLEXPRESS;Database=ITEMEYEZ;Integrated Security=true;TrustServerCertificate=True;");
+                _ = ItemEyezDatabase.Instance("Server=localhost\\SQLEXPRESS;Database=ITEMEYEZ;Integrated Security=true;TrustServerCertificate=True;");
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.ToString());
+                _ = MessageBox.Show(ex.ToString());
                 Application.Current.Shutdown();
             }
         }
