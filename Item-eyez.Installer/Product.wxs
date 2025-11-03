@@ -34,23 +34,35 @@
         </Fragment>
 
 	<Fragment>
-		<ComponentGroup Id="SqlComponents">
-			<Component Id="SqlComponent"
-					   Guid="A1B2C3D4-E5F6-7890-1234-567890ABCDEF"
-					   Directory="INSTALLFOLDER">
-				<sql:SqlDatabase Id="ItemEyezDatabase"
-								 Database="ITEMEYEZ"
-								 Server="[SQLSERVER_INSTANCE]"
-								 CreateOnInstall="yes"
-								 DropOnUninstall="yes"
-								 ContinueOnError="no">
-					<sql:SqlScript Id="CreateSchema"
-								   BinaryRef="CreateSqlScript"
-								   ExecuteOnInstall="yes"
-								   Sequence="1" />
-				</sql:SqlDatabase>
-			</Component>
-		</ComponentGroup>
+                <ComponentGroup Id="SqlComponents">
+                        <Component Id="SqlComponent"
+                                           Guid="A1B2C3D4-E5F6-7890-1234-567890ABCDEF"
+                                           Directory="INSTALLFOLDER">
+                                <sql:SqlDatabase Id="MasterDatabaseContext"
+                                                                 Database="master"
+                                                                 Server="[SQLSERVER_INSTANCE]"
+                                                                 CreateOnInstall="no"
+                                                                 DropOnUninstall="no"
+                                                                 ContinueOnError="no">
+                                        <sql:SqlScript Id="EnsureDatabase"
+                                                                   BinaryRef="EnsureDatabaseScript"
+                                                                   ExecuteOnInstall="yes"
+                                                                   Sequence="1" />
+                                </sql:SqlDatabase>
+                                <sql:SqlDatabase Id="ItemEyezDatabase"
+                                                                 Database="ITEMEYEZ"
+                                                                 Server="[SQLSERVER_INSTANCE]"
+                                                                 CreateOnInstall="no"
+                                                                 DropOnUninstall="no"
+                                                                 ContinueOnError="no">
+                                        <sql:SqlScript Id="CreateSchema"
+                                                                   BinaryRef="CreateSqlScript"
+                                                                   ExecuteOnInstall="yes"
+                                                                   Sequence="2" />
+                                </sql:SqlDatabase>
+                        </Component>
+                </ComponentGroup>
+                <Binary Id="EnsureDatabaseScript" SourceFile="..\\item-eyez\\ensure_database.sql" />
                 <Binary Id="CreateSqlScript" SourceFile="..\\item-eyez\\create.sql" />
         </Fragment>
 </Wix>
