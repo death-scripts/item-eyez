@@ -1522,6 +1522,7 @@
                     <Path Data="M 0 4 L 3.5 0 L 7 4 Z" Fill="{StaticResource Menu.Static.Foreground}" />
                 </RepeatButton>
                 <Track
+                    x:Name="PART_Track"
                     Grid.Row="1"
                     IsDirectionReversed="true"
                     ViewportSize="{TemplateBinding ViewportSize}">
@@ -1561,7 +1562,7 @@
                     Style="{StaticResource ScrollBarPageButton}">
                     <Path Data="M 4 0 L 0 3.5 L 4 7 Z" Fill="{StaticResource Menu.Static.Foreground}" />
                 </RepeatButton>
-                <Track Grid.Column="1" ViewportSize="{TemplateBinding ViewportSize}">
+                <Track x:Name="PART_Track" Grid.Column="1" ViewportSize="{TemplateBinding ViewportSize}">
                     <Track.DecreaseRepeatButton>
                         <RepeatButton Command="ScrollBar.PageLeftCommand" Style="{StaticResource ScrollBarPageButton}" />
                     </Track.DecreaseRepeatButton>
