@@ -4,13 +4,17 @@
     <OutputType>Package</OutputType>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Item-eyez\Item-eyez.csproj" />
+    <ProjectReference Include="..\item-eyez\item-eyez.csproj" />
   </ItemGroup>
   <ItemGroup>
     <HarvestDirectory Include="..\item-eyez\bin\$(Configuration)\net8.0-windows">
       <ComponentGroupId>ApplicationFiles</ComponentGroupId>
       <DirectoryRefId>INSTALLFOLDER</DirectoryRefId>
-      <HarvestType>payload</HarvestType>
+      <HarvestType>directory</HarvestType>
+      <SuppressCom>true</SuppressCom>
+      <SuppressRegistry>true</SuppressRegistry>
+      <SuppressRootDirectory>true</SuppressRootDirectory>
+      <SuppressFragments>true</SuppressFragments>
     </HarvestDirectory>
   </ItemGroup>
   <ItemGroup>

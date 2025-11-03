@@ -51,6 +51,6 @@
 				</sql:SqlDatabase>
 			</Component>
 		</ComponentGroup>
-		<Binary Id="CreateSqlScript" SourceFile="..\\Item-eyez\\create.sql" />
-	</Fragment>
+                <Binary Id="CreateSqlScript" SourceFile="..\\item-eyez\\create.sql" />
+        </Fragment>
 </Wix>
