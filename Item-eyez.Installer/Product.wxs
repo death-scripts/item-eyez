@@ -2,55 +2,53 @@
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
      xmlns:sql="http://wixtoolset.org/schemas/v4/wxs/sql"
      xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
-  <Package Name="ItemEyezInstaller"
-           Manufacturer="death-scripts"
-           Version="1.0.0.0"
-           UpgradeCode="8A2E1F3C-5B7D-4E9A-8C1B-2F0E7D6C5A3B"
-           Compressed="yes"
-           Platform="x64">
-    <MediaTemplate EmbedCab="yes" />
-    <Feature Id="ProductFeature" Title="ItemEyez Installer" Level="1">
-      <ComponentGroupRef Id="ApplicationFiles" />
-      <ComponentGroupRef Id="SqlComponents" />
-    </Feature>
-    <UI>
-      <ui:WixUI Id="WixUI_InstallDir" />
-    </UI>
-    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
-    <Property Id="SQLSERVER_INSTANCE" Value="localhost\\SQLEXPRESS" />
-  </Package>
+	<Package Name="ItemEyezInstaller"
+			 Manufacturer="death-scripts"
+			 Version="1.0.0.0"
+			 UpgradeCode="8A2E1F3C-5B7D-4E9A-8C1B-2F0E7D6C5A3B"
+			 Compressed="yes">
+		<MediaTemplate EmbedCab="yes" />
+		<Feature Id="ProductFeature" Title="ItemEyez Installer" Level="1">
+			<ComponentGroupRef Id="ApplicationFiles" />
+			<ComponentGroupRef Id="SqlComponents" />
+		</Feature>
+		<UI>
+			<ui:WixUI Id="WixUI_InstallDir" />
+		</UI>
+		<Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+		<Property Id="SQLSERVER_INSTANCE" Value="localhost\\SQLEXPRESS" />
+	</Package>
 
-  <Fragment>
-    <StandardDirectory Id="ProgramFiles64Folder">
-      <Directory Id="INSTALLFOLDER" Name="ItemEyez" />
-    </StandardDirectory>
-  </Fragment>
+	<Fragment>
+		<StandardDirectory Id="ProgramFiles64Folder">
+			<Directory Id="INSTALLFOLDER" Name="ItemEyez" />
+		</StandardDirectory>
+	</Fragment>
 
-  <Fragment>
-    <ComponentGroup Id="ApplicationFiles" Directory="INSTALLFOLDER">
-      <!-- Application files will be harvested here -->
-    </ComponentGroup>
-  </Fragment>
+	<Fragment>
+		<ComponentGroup Id="ApplicationFiles" Directory="INSTALLFOLDER">
+			<!-- Application files will be harvested here -->
+		</ComponentGroup>
+	</Fragment>
 
-  <Fragment>
-    <ComponentGroup Id="SqlComponents">
-      <Component Id="SqlComponent"
-                 Guid="A1B2C3D4-E5F6-7890-1234-567890ABCDEF"
-                 Directory="INSTALLFOLDER"
-                 Win64="yes">
-        <sql:SqlDatabase Id="ItemEyezDatabase"
-                         Database="ITEMEYEZ"
-                         Server="[SQLSERVER_INSTANCE]"
-                         CreateOnInstall="yes"
-                         DropOnUninstall="yes"
-                         ContinueOnError="no">
-          <sql:SqlScript Id="CreateSchema"
-                         BinaryRef="CreateSqlScript"
-                         ExecuteOnInstall="yes"
-                         Sequence="1" />
-        </sql:SqlDatabase>
-      </Component>
-    </ComponentGroup>
-    <Binary Id="CreateSqlScript" SourceFile="..\\Item-eyez\\create.sql" />
-  </Fragment>
+	<Fragment>
+		<ComponentGroup Id="SqlComponents">
+			<Component Id="SqlComponent"
+					   Guid="A1B2C3D4-E5F6-7890-1234-567890ABCDEF"
+					   Directory="INSTALLFOLDER">
+				<sql:SqlDatabase Id="ItemEyezDatabase"
+								 Database="ITEMEYEZ"
+								 Server="[SQLSERVER_INSTANCE]"
+								 CreateOnInstall="yes"
+								 DropOnUninstall="yes"
+								 ContinueOnError="no">
+					<sql:SqlScript Id="CreateSchema"
+								   BinaryRef="CreateSqlScript"
+								   ExecuteOnInstall="yes"
+								   Sequence="1" />
+				</sql:SqlDatabase>
+			</Component>
+		</ComponentGroup>
+		<Binary Id="CreateSqlScript" SourceFile="..\\Item-eyez\\create.sql" />
+	</Fragment>
 </Wix>
