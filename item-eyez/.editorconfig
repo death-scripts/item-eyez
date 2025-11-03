@@ -17,6 +17,7 @@ insert_final_newline = false
 
 #### .NET Code Actions ####
 
+dotnet_diagnostic.SA1200.severity = none
 dotnet_diagnostic.IDE0290.severity = none
 dotnet_diagnostic.CA1822.severity = none
 dotnet_diagnostic.SA1636.severity = none
