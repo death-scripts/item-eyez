@@ -38,18 +38,30 @@
                         <Component Id="SqlComponent"
                                            Guid="A1B2C3D4-E5F6-7890-1234-567890ABCDEF"
                                            Directory="INSTALLFOLDER">
+                                <sql:SqlDatabase Id="MasterDatabase"
+                                                     Server="[SQLSERVER_INSTANCE]"
+                                                     Database="master"
+                                                     CreateOnInstall="no"
+                                                     CreateOnUninstall="no"
+                                                     DropOnInstall="no"
+                                                     DropOnUninstall="no" />
+                                <sql:SqlDatabase Id="ItemEyezDatabase"
+                                                     Server="[SQLSERVER_INSTANCE]"
+                                                     Database="ITEMEYEZ"
+                                                     CreateOnInstall="no"
+                                                     CreateOnUninstall="no"
+                                                     DropOnInstall="no"
+                                                     DropOnUninstall="no" />
                                 <sql:SqlScript Id="EnsureDatabase"
+                                                       SqlDb="MasterDatabase"
                                                        BinaryRef="EnsureDbScript"
                                                        ExecuteOnInstall="yes"
-                                                       Sequence="1"
-                                                       Server="[SQLSERVER_INSTANCE]"
-                                                       Database="master" />
+                                                       Sequence="1" />
                                 <sql:SqlScript Id="CreateSchema"
+                                                       SqlDb="MasterDatabase"
                                                        BinaryRef="CreateSqlScript"
                                                        ExecuteOnInstall="yes"
-                                                       Sequence="2"
-                                                       Server="[SQLSERVER_INSTANCE]"
-                                                       Database="ITEMEYEZ" />
+                                                       Sequence="2" />
                         </Component>
                 </ComponentGroup>
                 <Binary Id="EnsureDbScript" SourceFile="..\\item-eyez\\ensure_database.sql" />
