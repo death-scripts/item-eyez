@@ -1,7 +1,7 @@
 <Project Sdk="WixToolset.Sdk/4.0.0">
   <PropertyGroup>
     <OutputName>ItemEyezInstaller</OutputName>
-    <OutputType>Bundle</OutputType>
+    <OutputType>Package</OutputType>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Item-eyez\Item-eyez.csproj" />
