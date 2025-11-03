@@ -12,12 +12,14 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<None Remove="Images\item-eyez-icon1.webp" />
-		<None Remove="Images\item-eyez-icon2.webp" />
+		<None Remove="images\item-eyez-icon1.webp" />
+		<None Remove="images\item-eyez-icon2.webp" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<Content Include="Images\item-eyez.ico" />
+		<Content Include="images\item-eyez.ico">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -30,8 +32,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Resource Include="Images\item-eyez-icon1.webp" />
-		<Resource Include="Images\item-eyez-icon2.webp" />
+		<Resource Include="images\item-eyez-icon1.webp" />
+		<Resource Include="images\item-eyez-icon2.webp" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -7,6 +7,13 @@
     <ProjectReference Include="..\Item-eyez\Item-eyez.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <HarvestDirectory Include="..\item-eyez\bin\$(Configuration)\net8.0-windows">
+      <ComponentGroupId>ApplicationFiles</ComponentGroupId>
+      <DirectoryRefId>INSTALLFOLDER</DirectoryRefId>
+      <HarvestType>payload</HarvestType>
+    </HarvestDirectory>
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="WixToolset.Heat" Version="4.0.0" />
     <PackageReference Include="WixToolset.Sql.wixext" Version="4.0.6" />
     <PackageReference Include="WixToolset.UI.wixext" Version="4.0.0" />

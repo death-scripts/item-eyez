@@ -15,21 +15,23 @@
 		<UI>
 			<ui:WixUI Id="WixUI_InstallDir" />
 		</UI>
-		<Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
-		<Property Id="SQLSERVER_INSTANCE" Value="localhost\\SQLEXPRESS" />
-	</Package>
+                <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+                <Property Id="SQLSERVER_INSTANCE" Value="localhost\\SQLEXPRESS" />
+                <Property Id="ARPPRODUCTICON" Value="ApplicationIcon" />
+        </Package>
 
-	<Fragment>
-		<StandardDirectory Id="ProgramFiles64Folder">
-			<Directory Id="INSTALLFOLDER" Name="ItemEyez" />
-		</StandardDirectory>
-	</Fragment>
+        <Fragment>
+                <StandardDirectory Id="ProgramFiles64Folder">
+                        <Directory Id="INSTALLFOLDER" Name="ItemEyez" />
+                </StandardDirectory>
+        </Fragment>
 
-	<Fragment>
-		<ComponentGroup Id="ApplicationFiles" Directory="INSTALLFOLDER">
-			<!-- Application files will be harvested here -->
-		</ComponentGroup>
-	</Fragment>
+        <Fragment>
+                <Icon Id="ApplicationIcon" SourceFile="..\\item-eyez\\images\\item-eyez.ico" />
+                <ComponentGroup Id="ApplicationFiles" Directory="INSTALLFOLDER">
+                        <!-- Populated at build time via HarvestDirectory in the WiX project. -->
+                </ComponentGroup>
+        </Fragment>
 
 	<Fragment>
 		<ComponentGroup Id="SqlComponents">
