@@ -2,19 +2,19 @@
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
      xmlns:sql="http://wixtoolset.org/schemas/v4/wxs/sql"
      xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
-	<Package Name="ItemEyezInstaller"
-			 Manufacturer="death-scripts"
-			 Version="1.0.0.0"
-			 UpgradeCode="8A2E1F3C-5B7D-4E9A-8C1B-2F0E7D6C5A3B"
-			 Compressed="yes">
-		<MediaTemplate EmbedCab="yes" />
-		<Feature Id="ProductFeature" Title="ItemEyez Installer" Level="1">
-			<ComponentGroupRef Id="ApplicationFiles" />
-			<ComponentGroupRef Id="SqlComponents" />
-		</Feature>
-		<UI>
-			<ui:WixUI Id="WixUI_InstallDir" />
-		</UI>
+        <Package Name="ItemEyezInstaller"
+                         Manufacturer="death-scripts"
+                         Version="1.0.0.0"
+                         UpgradeCode="8A2E1F3C-5B7D-4E9A-8C1B-2F0E7D6C5A3B"
+                         Compressed="yes">
+                <MediaTemplate EmbedCab="yes" />
+                <Feature Id="ProductFeature" Title="ItemEyez Installer" Level="1">
+                        <ComponentGroupRef Id="ApplicationFiles" />
+                        <ComponentGroupRef Id="SqlComponents" />
+                </Feature>
+                <UI>
+                        <ui:WixUI Id="WixUI_InstallDir" />
+                </UI>
                 <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
                 <Property Id="SQLSERVER_INSTANCE" Value="localhost\\SQLEXPRESS" />
                 <Property Id="ARPPRODUCTICON" Value="ApplicationIcon" />
@@ -38,33 +38,22 @@
                         <Component Id="SqlComponent"
                                            Guid="A1B2C3D4-E5F6-7890-1234-567890ABCDEF"
                                            Directory="INSTALLFOLDER">
-                                <sql:SqlDatabase Id="MasterDatabase"
-                                                     Server="[SQLSERVER_INSTANCE]"
-                                                     Database="master"
-                                                     CreateOnInstall="no"
-                                                     CreateOnUninstall="no"
-                                                     DropOnInstall="no"
-                                                     DropOnUninstall="no" />
                                 <sql:SqlDatabase Id="ItemEyezDatabase"
                                                      Server="[SQLSERVER_INSTANCE]"
                                                      Database="ITEMEYEZ"
-                                                     CreateOnInstall="no"
+                                                     CreateOnInstall="yes"
                                                      CreateOnUninstall="no"
                                                      DropOnInstall="no"
-                                                     DropOnUninstall="no" />
-                                <sql:SqlScript Id="EnsureDatabase"
-                                                       SqlDb="MasterDatabase"
-                                                       BinaryRef="EnsureDbScript"
-                                                       ExecuteOnInstall="yes"
-                                                       Sequence="1" />
+                                                     DropOnUninstall="no"
+                                                     ContinueOnError="yes" />
                                 <sql:SqlScript Id="CreateSchema"
-                                                       SqlDb="MasterDatabase"
+                                                       SqlDb="ItemEyezDatabase"
                                                        BinaryRef="CreateSqlScript"
                                                        ExecuteOnInstall="yes"
-                                                       Sequence="2" />
+                                                       ExecuteOnReinstall="yes"
+                                                       Sequence="1" />
                         </Component>
                 </ComponentGroup>
-                <Binary Id="EnsureDbScript" SourceFile="..\\item-eyez\\ensure_database.sql" />
                 <Binary Id="CreateSqlScript" SourceFile="..\\item-eyez\\create.sql" />
         </Fragment>
 </Wix>
