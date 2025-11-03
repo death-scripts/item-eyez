@@ -28,9 +28,9 @@
         </Fragment>
 
         <Fragment>
-                <DirectoryRef Id="ProgramMenuFolder">
+                <StandardDirectory Id="ProgramMenuFolder">
                         <Directory Id="ApplicationProgramsFolder" Name="ItemEyez" />
-                </DirectoryRef>
+                </StandardDirectory>
         </Fragment>
 
         <Fragment>
