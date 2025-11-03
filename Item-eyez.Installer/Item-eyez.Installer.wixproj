@@ -8,7 +8,7 @@
   </ItemGroup>
   <ItemGroup>
     <HarvestDirectory Include="..\item-eyez\bin\$(Configuration)\net8.0-windows">
-      <ComponentGroupId>ApplicationFiles</ComponentGroupId>
+      <ComponentGroupName>ApplicationFiles</ComponentGroupName>
       <DirectoryRefId>INSTALLFOLDER</DirectoryRefId>
       <HarvestType>directory</HarvestType>
       <SuppressCom>true</SuppressCom>
