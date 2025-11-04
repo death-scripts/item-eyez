@@ -31,10 +31,10 @@ namespace Item_eyez.Tests
         public void AddContainer_AddsContainerToDatabase()
         {
             // Act
-            _ = db.AddContainer("Test Container", "Test Description");
+            _ = this.db.AddContainer("Test Container", "Test Description");
 
             // Assert
-            System.Collections.ObjectModel.ObservableCollection<Viewmodels.Container> containers = db.GetContainersWithRelationships();
+            System.Collections.ObjectModel.ObservableCollection<Viewmodels.Container> containers = this.db.GetContainersWithRelationships();
             Assert.AreEqual(1, containers.Count);
             Assert.AreEqual("Test Container", containers.First().Name);
         }
@@ -43,10 +43,10 @@ namespace Item_eyez.Tests
         public void AddItem_AddsItemToDatabase()
         {
             // Act
-            _ = db.AddItem("Test Item", "Test Description", 10.00m, "Test Category");
+            _ = this.db.AddItem("Test Item", "Test Description", 10.00m, "Test Category");
 
             // Assert
-            System.Collections.ObjectModel.ObservableCollection<Viewmodels.Item> items = db.GetItemsWithRelationships();
+            System.Collections.ObjectModel.ObservableCollection<Viewmodels.Item> items = this.db.GetItemsWithRelationships();
             Assert.AreEqual(1, items.Count);
             Assert.AreEqual("Test Item", items.First().Name);
         }
@@ -55,10 +55,10 @@ namespace Item_eyez.Tests
         public void AddRoom_AddsRoomToDatabase()
         {
             // Act
-            db.AddRoom("Test Room", "Test Description");
+            this.db.AddRoom("Test Room", "Test Description");
 
             // Assert
-            System.Collections.ObjectModel.ObservableCollection<Viewmodels.Room> rooms = db.GetRoomsList();
+            System.Collections.ObjectModel.ObservableCollection<Viewmodels.Room> rooms = this.db.GetRoomsList();
             Assert.AreEqual(1, rooms.Count);
             Assert.AreEqual("Test Room", rooms.First().Name);
         }
@@ -73,7 +73,7 @@ namespace Item_eyez.Tests
         public void TestInitialize()
         {
             DatabaseHelper.CreateDatabase(TestDbConnectionString);
-            db = ItemEyezDatabase.Instance(TestDbConnectionString);
+            this.db = ItemEyezDatabase.Instance(TestDbConnectionString);
         }
     }
 }

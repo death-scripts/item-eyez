@@ -15,31 +15,31 @@ namespace Item_eyez.Tests
         [TestInitialize]
         public void TestInitialize()
         {
-            dbMock = new Mock<IItemEyezDatabase>();
-            dbMock.Setup(db => db.GetRoomsList()).Returns(new ObservableCollection<Room>());
-            viewModel = new RoomViewModel(dbMock.Object);
+            this.dbMock = new Mock<IItemEyezDatabase>();
+            this.dbMock.Setup(db => db.GetRoomsList()).Returns(new ObservableCollection<Room>());
+            this.viewModel = new RoomViewModel(this.dbMock.Object);
         }
 
         [TestMethod]
         public void Constructor_LoadsRooms()
         {
             // Assert
-            dbMock.Verify(db => db.GetRoomsList(), Times.Once);
-            Assert.IsNotNull(viewModel.Rooms);
+            this.dbMock.Verify(db => db.GetRoomsList(), Times.Once);
+            Assert.IsNotNull(this.viewModel.Rooms);
         }
 
         [TestMethod]
         public void AddRoom_CallsAddRoomOnDatabase()
         {
             // Arrange
-            viewModel.Name = "Test Room";
-            viewModel.Description = "Test Description";
+            this.viewModel.Name = "Test Room";
+            this.viewModel.Description = "Test Description";
 
             // Act
-            viewModel.AddRoom();
+            this.viewModel.AddRoom();
 
             // Assert
-            dbMock.Verify(db => db.AddRoom("Test Room", "Test Description"), Times.Once);
+            this.dbMock.Verify(db => db.AddRoom("Test Room", "Test Description"), Times.Once);
         }
 
         [TestMethod]
@@ -47,14 +47,14 @@ namespace Item_eyez.Tests
         {
             // Arrange
             var room = new Room(Guid.NewGuid(), "Test", "");
-            viewModel.Rooms.Add(room);
-            viewModel.SelectedRoomRow = room;
+            this.viewModel.Rooms.Add(room);
+            this.viewModel.SelectedRoomRow = room;
 
             // Act
-            viewModel.DeleteRoomCommand.Execute(null);
+            this.viewModel.DeleteRoomCommand.Execute(null);
 
             // Assert
-            Assert.IsFalse(viewModel.Rooms.Contains(room));
+            Assert.IsFalse(this.viewModel.Rooms.Contains(room));
         }
     }
 }

@@ -16,25 +16,21 @@
 //              ███████║╚██████╗██║  ██║██║██║        ██║   ███████║
 //              ╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝╚═╝        ╚═╝   ╚══════╝
 // ----------------------------------------------------------------------------
-using Microsoft.Data.SqlClient;
-
 namespace Item_eyez.Database
 {
+    using Microsoft.Data.SqlClient;
+
     /// <summary>
     /// The database initializer.
     /// </summary>
     public class DatabaseInitializer
     {
         /// <summary>
-        /// The server connection string.
-        /// </summary>
-        private readonly string serverConnectionString;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="DatabaseInitializer"/> class.
         /// </summary>
-        /// <param name="serverConnectionString">The server connection string.</param>
-        public DatabaseInitializer(string serverConnectionString) => this.serverConnectionString = serverConnectionString;
+        public DatabaseInitializer()
+        {
+        }
 
         /// <summary>
         /// Initializes the database.

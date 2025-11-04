@@ -1,9 +1,9 @@
 using System.Collections.ObjectModel;
+using System.Linq;
 using Item_eyez.Database;
 using Item_eyez.Viewmodels;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System.Linq;
 
 namespace Item_eyez.Tests
 {
@@ -16,21 +16,21 @@ namespace Item_eyez.Tests
         [TestInitialize]
         public void TestInitialize()
         {
-            dbMock = new Mock<IItemEyezDatabase>();
-            dbMock.Setup(db => db.GetRoomsList()).Returns(new ObservableCollection<Room>());
-            dbMock.Setup(db => db.GetContainersWithRelationships()).Returns(new ObservableCollection<Container>());
-            dbMock.Setup(db => db.GetItemsWithRelationships()).Returns(new ObservableCollection<Item>());
-            viewModel = new OrganizeViewModel(dbMock.Object);
+            this.dbMock = new Mock<IItemEyezDatabase>();
+            this.dbMock.Setup(db => db.GetRoomsList()).Returns(new ObservableCollection<Room>());
+            this.dbMock.Setup(db => db.GetContainersWithRelationships()).Returns(new ObservableCollection<Container>());
+            this.dbMock.Setup(db => db.GetItemsWithRelationships()).Returns(new ObservableCollection<Item>());
+            this.viewModel = new OrganizeViewModel(this.dbMock.Object);
         }
 
         [TestMethod]
         public void Constructor_LoadsData()
         {
             // Assert
-            dbMock.Verify(db => db.GetRoomsList(), Times.Once);
-            dbMock.Verify(db => db.GetContainersWithRelationships(), Times.Once);
-            dbMock.Verify(db => db.GetItemsWithRelationships(), Times.Once);
-            Assert.IsNotNull(viewModel.Roots);
+            this.dbMock.Verify(db => db.GetRoomsList(), Times.Once);
+            this.dbMock.Verify(db => db.GetContainersWithRelationships(), Times.Once);
+            this.dbMock.Verify(db => db.GetItemsWithRelationships(), Times.Once);
+            Assert.IsNotNull(this.viewModel.Roots);
         }
 
         [TestMethod]
@@ -41,19 +41,19 @@ namespace Item_eyez.Tests
             var container = new Container(Guid.NewGuid(), "Test Container", "");
             var item = new Item(Guid.NewGuid(), "Test Item", "", 0, "");
 
-            dbMock.Setup(db => db.GetRoomsList()).Returns(new ObservableCollection<Room> { room });
-            dbMock.Setup(db => db.GetContainersWithRelationships()).Returns(new ObservableCollection<Container> { container });
-            dbMock.Setup(db => db.GetItemsWithRelationships()).Returns(new ObservableCollection<Item> { item });
+            this.dbMock.Setup(db => db.GetRoomsList()).Returns(new ObservableCollection<Room> { room });
+            this.dbMock.Setup(db => db.GetContainersWithRelationships()).Returns(new ObservableCollection<Container> { container });
+            this.dbMock.Setup(db => db.GetItemsWithRelationships()).Returns(new ObservableCollection<Item> { item });
 
-            viewModel.Load();
+            this.viewModel.Load();
 
             // Act
-            viewModel.SearchText = "Item";
+            this.viewModel.SearchText = "Item";
 
             // Assert
-            Assert.IsTrue(viewModel.Roots.Any(r => r.Name == "Test Item" && r.IsVisible));
-            Assert.IsFalse(viewModel.Roots.Any(r => r.Name == "Test Room" && r.IsVisible));
-            Assert.IsFalse(viewModel.Roots.Any(r => r.Name == "Test Container" && r.IsVisible));
+            Assert.IsTrue(this.viewModel.Roots.Any(r => r.Name == "Test Item" && r.IsVisible));
+            Assert.IsFalse(this.viewModel.Roots.Any(r => r.Name == "Test Room" && r.IsVisible));
+            Assert.IsFalse(this.viewModel.Roots.Any(r => r.Name == "Test Container" && r.IsVisible));
         }
     }
 }

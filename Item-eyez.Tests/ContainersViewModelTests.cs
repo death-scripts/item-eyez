@@ -1,7 +1,24 @@
+﻿// ----------------------------------------------------------------------------
+// <copyright company="death-scripts">
+// Copyright (c) death-scripts. All rights reserved.
+// </copyright>
+//                   ██████╗ ███████╗ █████╗ ████████╗██╗  ██╗
+//                   ██╔══██╗██╔════╝██╔══██╗╚══██╔══╝██║  ██║
+//                   ██║  ██║█████╗  ███████║   ██║   ███████║
+//                   ██║  ██║██╔══╝  ██╔══██║   ██║   ██╔══██║
+//                   ██████╔╝███████╗██║  ██║   ██║   ██║  ██║
+//                   ╚═════╝ ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
+//
+//              ███████╗ ██████╗██████╗ ██╗██████╗ ████████╗███████╗
+//              ██╔════╝██╔════╝██╔══██╗██║██╔══██╗╚══██╔══╝██╔════╝
+//              ███████╗██║     ██████╔╝██║██████╔╝   ██║   ███████╗
+//              ╚════██║██║     ██╔══██╗██║██╔═══╝    ██║   ╚════██║
+//              ███████║╚██████╗██║  ██║██║██║        ██║   ███████║
+//              ╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝╚═╝        ╚═╝   ╚══════╝
+// ----------------------------------------------------------------------------
 using System.Collections.ObjectModel;
 using Item_eyez.Database;
 using Item_eyez.Viewmodels;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
 namespace Item_eyez.Tests
@@ -12,68 +29,67 @@ namespace Item_eyez.Tests
         private Mock<IItemEyezDatabase> dbMock;
         private ContainersViewModel viewModel;
 
-        [TestInitialize]
-        public void TestInitialize()
-        {
-            dbMock = new Mock<IItemEyezDatabase>();
-            dbMock.Setup(db => db.GetContainersWithRelationships()).Returns(new ObservableCollection<Container>());
-            viewModel = new ContainersViewModel(dbMock.Object);
-        }
-
-        [TestMethod]
-        public void Constructor_LoadsContainers()
-        {
-            // Assert
-            dbMock.Verify(db => db.GetContainersWithRelationships(), Times.Once);
-            Assert.IsNotNull(viewModel.Containers);
-        }
-
         [TestMethod]
         public void Add_CallsAddContainerOnDatabase()
         {
             // Arrange
-            viewModel.Name = "Test Container";
-            viewModel.Description = "Test Description";
+            this.viewModel.Name = "Test Container";
+            this.viewModel.Description = "Test Description";
 
             // Act
-            viewModel.Add();
+            this.viewModel.Add();
 
             // Assert
-            dbMock.Verify(db => db.AddContainer("Test Container", "Test Description"), Times.Once);
+            this.dbMock.Verify(db => db.AddContainer("Test Container", "Test Description"), Times.Once);
         }
 
         [TestMethod]
         public void Add_WithSelectedContainer_AssociatesWithContainer()
         {
             // Arrange
-            viewModel.Name = "Test Container";
-            viewModel.Description = "Test Description";
-            var parentContainer = new Container(Guid.NewGuid(), "Parent", "");
-            viewModel.SelectedContainer = parentContainer;
-            var newContainerId = Guid.NewGuid();
-            dbMock.Setup(db => db.AddContainer(It.IsAny<string>(), It.IsAny<string>())).Returns(newContainerId);
-
+            this.viewModel.Name = "Test Container";
+            this.viewModel.Description = "Test Description";
+            Container parentContainer = new(Guid.NewGuid(), "Parent", "");
+            this.viewModel.SelectedContainer = parentContainer;
+            Guid newContainerId = Guid.NewGuid();
+            _ = this.dbMock.Setup(db => db.AddContainer(It.IsAny<string>(), It.IsAny<string>())).Returns(newContainerId);
 
             // Act
-            viewModel.Add();
+            this.viewModel.Add();
 
             // Assert
-            dbMock.Verify(db => db.AssociateItemWithContainer(newContainerId, parentContainer.Id), Times.Once);
+            this.dbMock.Verify(db => db.AssociateItemWithContainer(newContainerId, parentContainer.Id), Times.Once);
+        }
+
+        [TestMethod]
+        public void Constructor_LoadsContainers()
+        {
+            // Assert
+            this.dbMock.Verify(db => db.GetContainersWithRelationships(), Times.Once);
+            Assert.IsNotNull(this.viewModel.Containers);
         }
 
         [TestMethod]
         public void DeleteSelectedContainer_RemovesContainerFromCollection()
         {
             // Arrange
-            var container = new Container(Guid.NewGuid(), "Test", "");
-            viewModel.Containers.Add(container);
-            viewModel.SelectedContainerRow = container;
+            Container container = new(Guid.NewGuid(), "Test", "");
+            this.viewModel.Containers.Add(container);
+            this.viewModel.SelectedContainerRow = container;
 
             // Act
-            viewModel.DeleteContainerCommand.Execute(null);
+            this.viewModel.DeleteContainerCommand.Execute(null);
 
             // Assert
-            Assert.IsFalse(viewModel.Containers.Contains(container));
+            Assert.IsFalse(this.viewModel.Containers.Contains(container));
+        }
+
+        [TestInitialize]
+        public void TestInitialize()
+        {
+            this.dbMock = new Mock<IItemEyezDatabase>();
+            _ = this.dbMock.Setup(db => db.GetContainersWithRelationships()).Returns(new ObservableCollection<Container>());
+            this.viewModel = new ContainersViewModel(this.dbMock.Object);
         }
     }
 }
