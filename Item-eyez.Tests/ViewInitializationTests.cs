@@ -6,22 +6,23 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Item_eyez.Tests
 {
     [TestClass]
+    [DoNotParallelize]
     public class ViewInitializationTests
     {
-        [TestMethod]
-        public void Initialize_ContainersView()
+        private static Exception? RunOnSta(Func<object> ctor)
         {
             var mre = new ManualResetEvent(false);
+            Exception? captured = null;
+
             var thread = new Thread(() =>
             {
                 try
                 {
-                    var view = new Containers_view();
-                    Assert.IsNotNull(view);
+                    var _ = ctor();
                 }
                 catch (Exception ex)
                 {
-                    Assert.Fail($"View initialization failed: {ex.Message}");
+                    captured = ex;
                 }
                 finally
                 {
@@ -32,110 +33,58 @@ namespace Item_eyez.Tests
             thread.SetApartmentState(ApartmentState.STA);
             thread.Start();
             mre.WaitOne();
+            thread.Join();
+            return captured;
+        }
+
+        [TestMethod]
+        public void Initialize_ContainersView()
+        {
+            var ex = RunOnSta(() => new Containers_view());
+            if (ex != null)
+            {
+                Assert.Fail($"View initialization failed: {ex.Message}");
+            }
         }
 
         [TestMethod]
         public void Initialize_ItemsView()
         {
-            var mre = new ManualResetEvent(false);
-            var thread = new Thread(() =>
+            var ex = RunOnSta(() => new Items_view());
+            if (ex != null)
             {
-                try
-                {
-                    var view = new Items_view();
-                    Assert.IsNotNull(view);
-                }
-                catch (Exception ex)
-                {
-                    Assert.Fail($"View initialization failed: {ex.Message}");
-                }
-                finally
-                {
-                    mre.Set();
-                }
-            });
-
-            thread.SetApartmentState(ApartmentState.STA);
-            thread.Start();
-            mre.WaitOne();
+                Assert.Fail($"View initialization failed: {ex.Message}");
+            }
         }
 
         [TestMethod]
         public void Initialize_MainView()
         {
-            var mre = new ManualResetEvent(false);
-            var thread = new Thread(() =>
+            var ex = RunOnSta(() => new Main_view());
+            if (ex != null)
             {
-                try
-                {
-                    var view = new Main_view();
-                    Assert.IsNotNull(view);
-                }
-                catch (Exception ex)
-                {
-                    Assert.Fail($"View initialization failed: {ex.Message}");
-                }
-                finally
-                {
-                    mre.Set();
-                }
-            });
-
-            thread.SetApartmentState(ApartmentState.STA);
-            thread.Start();
-            mre.WaitOne();
+                Assert.Fail($"View initialization failed: {ex.Message}");
+            }
         }
 
         [TestMethod]
         public void Initialize_OrganizeView()
         {
-            var mre = new ManualResetEvent(false);
-            var thread = new Thread(() =>
+            var ex = RunOnSta(() => new Organize_view());
+            if (ex != null)
             {
-                try
-                {
-                    var view = new Organize_view();
-                    Assert.IsNotNull(view);
-                }
-                catch (Exception ex)
-                {
-                    Assert.Fail($"View initialization failed: {ex.Message}");
-                }
-                finally
-                {
-                    mre.Set();
-                }
-            });
-
-            thread.SetApartmentState(ApartmentState.STA);
-            thread.Start();
-            mre.WaitOne();
+                Assert.Fail($"View initialization failed: {ex.Message}");
+            }
         }
 
         [TestMethod]
         public void Initialize_RoomsView()
         {
-            var mre = new ManualResetEvent(false);
-            var thread = new Thread(() =>
+            var ex = RunOnSta(() => new Rooms_view());
+            if (ex != null)
             {
-                try
-                {
-                    var view = new Rooms_view();
-                    Assert.IsNotNull(view);
-                }
-                catch (Exception ex)
-                {
-                    Assert.Fail($"View initialization failed: {ex.Message}");
-                }
-                finally
-                {
-                    mre.Set();
-                }
-            });
-
-            thread.SetApartmentState(ApartmentState.STA);
-            thread.Start();
-            mre.WaitOne();
+                Assert.Fail($"View initialization failed: {ex.Message}");
+            }
         }
     }
 }
