@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: ["main", "master"]
+  pull_request:
+    branches: ["main", "master"]
+  workflow_dispatch:
+
+jobs:
+  build-test-package:
+    runs-on: windows-latest
+    env:
+      Configuration: Release
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore
+        run: dotnet restore item-eyez.sln
+
+      - name: Build
+        run: dotnet build item-eyez.sln -c $env:Configuration --no-restore
+
+      - name: Test
+        run: >-
+          dotnet test Item-eyez.Tests/Item-eyez.Tests.csproj
+          -c $env:Configuration --no-build
+          --logger trx --results-directory .\TestResults
+          --collect:"XPlat Code Coverage"
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: |
+            TestResults/*.trx
+            TestResults/**/coverage.cobertura.xml
+            TestResults/**/coverage.info
+            TestResults/**/coverage.json
+          if-no-files-found: ignore
+
+      - name: Build MSI (WiX v4)
+        run: dotnet build Item-eyez.Installer/Item-eyez.Installer.wixproj -c $env:Configuration --no-restore
+
+      - name: Upload MSI Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ItemEyezInstaller
+          path: |
+            Item-eyez.Installer/bin/${{ env.Configuration }}/*.msi

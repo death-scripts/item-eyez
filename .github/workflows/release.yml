@@ -1,0 +1,134 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version (e.g., 1.2.3.4). Leave blank to auto-increment.'
+        required: false
+
+jobs:
+  create-release:
+    runs-on: windows-latest
+    env:
+      Configuration: Release
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Determine Version
+        id: version
+        shell: pwsh
+        run: |
+          $inputVersion = "${{ github.event.inputs.version }}"
+          $ref = "${{ github.ref }}"
+          $tagName = if ($ref -like 'refs/tags/*') { $ref.Substring(10) } else { '' }
+
+          if ([string]::IsNullOrWhiteSpace($inputVersion)) {
+            if (-not [string]::IsNullOrWhiteSpace($tagName)) {
+              $verStr = $tagName.TrimStart('v','V')
+            }
+            else {
+              $latestTag = (git tag --list "v*" --sort=-v:refname | Select-Object -First 1)
+              if ($latestTag) { $base = $latestTag.TrimStart('v','V') }
+              else {
+                [xml]$xml = Get-Content 'Item-eyez.Installer/Product.wxs'
+                $ns = New-Object System.Xml.XmlNamespaceManager($xml.NameTable)
+                $ns.AddNamespace('wxs','http://wixtoolset.org/schemas/v4/wxs')
+                $pkg = $xml.SelectSingleNode('//wxs:Package', $ns)
+                $base = $pkg.Version
+              }
+              $parts = $base.Split('.')
+              while ($parts.Count -lt 4) { $parts += '0' }
+              $parts[3] = ([int]$parts[3]) + 1
+              $verStr = ($parts -join '.')
+            }
+          }
+          else {
+            $verStr = $inputVersion
+          }
+
+          "release_version=$verStr" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          Write-Host "Computed release version: $verStr"
+
+      - name: Update MSI Version in WiX
+        shell: pwsh
+        run: |
+          [xml]$xml = Get-Content 'Item-eyez.Installer/Product.wxs'
+          $ns = New-Object System.Xml.XmlNamespaceManager($xml.NameTable)
+          $ns.AddNamespace('wxs','http://wixtoolset.org/schemas/v4/wxs')
+          $pkg = $xml.SelectSingleNode('//wxs:Package', $ns)
+          $pkg.Version = $env:release_version
+          $xml.Save('Item-eyez.Installer/Product.wxs')
+
+      - name: Restore
+        run: dotnet restore item-eyez.sln
+
+      - name: Build
+        run: dotnet build item-eyez.sln -c $env:Configuration --no-restore
+
+      - name: Test
+        run: >-
+          dotnet test Item-eyez.Tests/Item-eyez.Tests.csproj
+          -c $env:Configuration --no-build
+          --logger trx --results-directory .\TestResults
+          --collect:"XPlat Code Coverage"
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: |
+            TestResults/*.trx
+            TestResults/**/coverage.cobertura.xml
+            TestResults/**/coverage.info
+            TestResults/**/coverage.json
+          if-no-files-found: ignore
+
+      - name: Build MSI (WiX v4)
+        run: dotnet build Item-eyez.Installer/Item-eyez.Installer.wixproj -c $env:Configuration --no-restore
+
+      - name: Locate MSI
+        id: msi
+        shell: pwsh
+        run: |
+          $msi = Get-ChildItem -Path "Item-eyez.Installer/bin/$env:Configuration" -Filter *.msi | Select-Object -First 1
+          if (-not $msi) { throw "MSI not found" }
+          "msi_path=$($msi.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          Write-Host "MSI: $($msi.FullName)"
+
+      - name: Upload MSI Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ItemEyezInstaller-${{ env.release_version }}
+          path: ${{ env.msi_path }}
+
+      - name: Create Git Tag (if needed)
+        if: startsWith(github.ref, 'refs/tags/') == false
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $tag = "v$env:release_version"
+          git tag $tag
+          git push origin $tag
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ env.release_version }}
+          name: ItemEyez v${{ env.release_version }}
+          draft: false
+          prerelease: false
+          files: ${{ env.msi_path }}
