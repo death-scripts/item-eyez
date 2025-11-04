@@ -24,9 +24,6 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
-          source-url: https://nuget.pkg.github.com/death-scripts/index.json
-        env:
-          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Restore
         run: dotnet restore item-eyez.sln
