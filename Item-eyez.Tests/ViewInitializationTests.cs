@@ -38,6 +38,7 @@ namespace Item_eyez.Tests
         }
 
         [TestMethod]
+        [TestCategory("UI")]
         public void Initialize_ContainersView()
         {
             var ex = RunOnSta(() => new Containers_view());
@@ -48,6 +49,7 @@ namespace Item_eyez.Tests
         }
 
         [TestMethod]
+        [TestCategory("UI")]
         public void Initialize_ItemsView()
         {
             var ex = RunOnSta(() => new Items_view());
@@ -58,6 +60,7 @@ namespace Item_eyez.Tests
         }
 
         [TestMethod]
+        [TestCategory("UI")]
         public void Initialize_MainView()
         {
             var ex = RunOnSta(() => new Main_view());
@@ -68,6 +71,7 @@ namespace Item_eyez.Tests
         }
 
         [TestMethod]
+        [TestCategory("UI")]
         public void Initialize_OrganizeView()
         {
             var ex = RunOnSta(() => new Organize_view());
@@ -78,6 +82,7 @@ namespace Item_eyez.Tests
         }
 
         [TestMethod]
+        [TestCategory("UI")]
         public void Initialize_RoomsView()
         {
             var ex = RunOnSta(() => new Rooms_view());

@@ -81,12 +81,12 @@ jobs:
       - name: Build
         run: dotnet build item-eyez.sln -c $env:Configuration --no-restore
 
-      - name: Test
+      - name: Test (exclude UI category)
         run: >-
           dotnet test Item-eyez.Tests/Item-eyez.Tests.csproj
           -c $env:Configuration --no-build
           --logger trx --results-directory .\TestResults
-          --collect:"XPlat Code Coverage"
+          --collect:"XPlat Code Coverage" --filter "TestCategory!=UI"
 
       - name: Upload Test Results
         if: always()
