@@ -2,83 +2,84 @@
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
      xmlns:sql="http://wixtoolset.org/schemas/v4/wxs/sql"
      xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
-        <Package Name="ItemEyezInstaller"
-                         Manufacturer="death-scripts"
-                         Version="1.0.0.0"
-                         UpgradeCode="8A2E1F3C-5B7D-4E9A-8C1B-2F0E7D6C5A3B"
-                         Compressed="yes">
-                <MediaTemplate EmbedCab="yes" />
-                <Feature Id="ProductFeature" Title="ItemEyez Installer" Level="1">
-                        <ComponentGroupRef Id="ApplicationFiles" />
-                        <ComponentGroupRef Id="SqlComponents" />
-                        <ComponentGroupRef Id="ApplicationShortcuts" />
-                </Feature>
-                <UI>
-                        <ui:WixUI Id="WixUI_InstallDir" />
-                </UI>
-                <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
-                <Property Id="SQLSERVER_INSTANCE" Value="localhost\\SQLEXPRESS" />
-                <Property Id="ARPPRODUCTICON" Value="ApplicationIcon" />
-        </Package>
+	<Package Name="ItemEyezInstaller"
+					 Manufacturer="death-scripts"
+					 Version="1.0.0.0"
+					 UpgradeCode="8A2E1F3C-5B7D-4E9A-8C1B-2F0E7D6C5A3B"
+					 Compressed="yes">
+		<MediaTemplate EmbedCab="yes" />
+		<Feature Id="ProductFeature" Title="ItemEyez Installer" Level="1">
+			<ComponentGroupRef Id="ApplicationFiles" />
+			<ComponentGroupRef Id="SqlComponents" />
+			<ComponentGroupRef Id="ApplicationShortcuts" />
+		</Feature>
+		<UI>
+			<ui:WixUI Id="WixUI_InstallDir" />
+		</UI>
+		<Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+		<Property Id="SQLSERVER_INSTANCE" Value="localhost\\SQLEXPRESS" />
+		<Property Id="ARPPRODUCTICON" Value="ApplicationIcon" />
+	</Package>
 
-        <Fragment>
-                <StandardDirectory Id="ProgramFiles64Folder">
-                        <Directory Id="INSTALLFOLDER" Name="ItemEyez" />
-                </StandardDirectory>
-        </Fragment>
+	<Fragment>
+		<StandardDirectory Id="ProgramFiles64Folder">
+			<Directory Id="INSTALLFOLDER" Name="ItemEyez" />
+		</StandardDirectory>
+	</Fragment>
 
-        <Fragment>
-                <StandardDirectory Id="ProgramMenuFolder">
-                        <Directory Id="ApplicationProgramsFolder" Name="ItemEyez" />
-                </StandardDirectory>
-        </Fragment>
+	<Fragment>
+		<StandardDirectory Id="ProgramMenuFolder">
+			<Directory Id="ApplicationProgramsFolder" Name="ItemEyez" />
+		</StandardDirectory>
+	</Fragment>
 
-        <Fragment>
-                <Icon Id="ApplicationIcon" SourceFile="..\\item-eyez\\images\\item-eyez.ico" />
-        </Fragment>
+	<Fragment>
+		<Icon Id="ApplicationIcon" SourceFile="..\\item-eyez\\images\\item-eyez.ico" />
+	</Fragment>
 
-        <Fragment>
-                <ComponentGroup Id="SqlComponents">
-                        <Component Id="SqlComponent"
-                                           Guid="A1B2C3D4-E5F6-7890-1234-567890ABCDEF"
-                                           Directory="INSTALLFOLDER">
-                                <sql:SqlDatabase Id="ItemEyezDatabase"
-                                                     Server="[SQLSERVER_INSTANCE]"
-                                                     Database="ITEMEYEZ"
-                                                     CreateOnInstall="yes"
-                                                     CreateOnUninstall="no"
-                                                     DropOnInstall="no"
-                                                     DropOnUninstall="no"
-                                                     ContinueOnError="yes" />
-                                <sql:SqlScript Id="CreateSchema"
-                                                       SqlDb="ItemEyezDatabase"
-                                                       BinaryRef="CreateSqlScript"
-                                                       ExecuteOnInstall="yes"
-                                                       ExecuteOnReinstall="yes"
-                                                       Sequence="1" />
-                        </Component>
-                </ComponentGroup>
-                <Binary Id="CreateSqlScript" SourceFile="..\\item-eyez\\create.sql" />
-        </Fragment>
+	<Fragment>
+		<ComponentGroup Id="SqlComponents">
+			<Component Id="SqlComponent"
+							   Guid="A1B2C3D4-E5F6-7890-1234-567890ABCDEF"
+							   Directory="INSTALLFOLDER"
+							   Bitness="always64">
+				<sql:SqlDatabase Id="ItemEyezDatabase"
+									 Server="[SQLSERVER_INSTANCE]"
+									 Database="ITEMEYEZ"
+									 CreateOnInstall="yes"
+									 CreateOnUninstall="no"
+									 DropOnInstall="no"
+									 DropOnUninstall="no"
+									 ContinueOnError="yes" />
+				<sql:SqlScript Id="CreateSchema"
+									   SqlDb="ItemEyezDatabase"
+									   BinaryRef="CreateSqlScript"
+									   ExecuteOnInstall="yes"
+									   ExecuteOnReinstall="yes"
+									   Sequence="1" />
+			</Component>
+		</ComponentGroup>
+		<Binary Id="CreateSqlScript" SourceFile="..\\item-eyez\\create.sql" />
+	</Fragment>
 
-        <Fragment>
-                <ComponentGroup Id="ApplicationShortcuts">
-                        <Component Id="ApplicationShortcut"
-                                           Guid="0C0DAE45-3C0B-4C43-AB2E-4FB1A2B4EF51"
-                                           Directory="ApplicationProgramsFolder">
-                                <Shortcut Id="StartMenuShortcut"
-                                                  Name="ItemEyez"
-                                                  Target="[INSTALLFOLDER]Item-eyez.exe"
-                                                  WorkingDirectory="INSTALLFOLDER"
-                                                  Icon="ApplicationIcon" />
-                                <RemoveFolder Id="RemoveApplicationProgramsFolder" On="uninstall" />
-                                <RegistryValue Root="HKCU"
-                                                             Key="Software\death-scripts\ItemEyez"
-                                                             Name="Installed"
-                                                             Type="integer"
-                                                             Value="1"
-                                                             KeyPath="yes" />
-                        </Component>
-                </ComponentGroup>
-        </Fragment>
+	<Fragment>
+		<ComponentGroup Id="ApplicationShortcuts">
+			<Component Id="ApplicationShortcut"
+							   Guid="0C0DAE45-3C0B-4C43-AB2E-4FB1A2B4EF51"
+							   Directory="ApplicationProgramsFolder">
+				<Shortcut Id="StartMenuShortcut"
+								  Name="ItemEyez"
+								  Target="[INSTALLFOLDER]Item-eyez.exe"
+								  WorkingDirectory="INSTALLFOLDER"
+								  Icon="ApplicationIcon" />
+				<RemoveFolder Id="RemoveApplicationProgramsFolder" On="uninstall" />
+				<RegistryValue Root="HKCU"
+											 Key="Software\death-scripts\ItemEyez"
+											 Name="Installed"
+											 Type="integer"
+											 Value="1"
+											 KeyPath="yes" />
+			</Component>
+		</ComponentGroup>
+	</Fragment>
 </Wix>

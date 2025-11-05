@@ -2,6 +2,7 @@
   <PropertyGroup>
     <OutputName>ItemEyezInstaller</OutputName>
     <OutputType>Package</OutputType>
+    <Platform>x64</Platform>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\item-eyez\item-eyez.csproj" />
