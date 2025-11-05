@@ -52,7 +52,8 @@ namespace Item_eyez.Database
         /// Initializes a new instance of the <see cref="ItemEyezDatabase" /> class.
         /// </summary>
         /// <param name="connString">The connection string.</param>
-        public ItemEyezDatabase(string connString) => connectionString = connString;
+        public ItemEyezDatabase(
+            string connString) => connectionString = BuildSecureConnectionString(connString);
 
         /// <summary>
         /// The data changed event handler.
@@ -89,16 +90,23 @@ namespace Item_eyez.Database
         /// <returns>
         /// The item eyez database.
         /// </returns>
-        public static ItemEyezDatabase Instance(string connectionString = "Server=localhost\\SQLEXPRESS;Database=ITEMEYEZ;Integrated Security=true;TrustServerCertificate=True;")
+        public static ItemEyezDatabase Instance(string? connectionString = null)
         {
-            ItemEyezDatabase.connectionString = connectionString;
+            string? envConn = Environment.GetEnvironmentVariable("ITEMEYEZ_DB_CONNECTION");
+            string effective = !string.IsNullOrWhiteSpace(connectionString)
+                ? connectionString
+                : !string.IsNullOrWhiteSpace(envConn)
+                    ? envConn!
+                    : "Server=localhost\\SQLEXPRESS;Database=ITEMEYEZ;Integrated Security=True;Encrypt=True;TrustServerCertificate=False;";
+
+            ItemEyezDatabase.connectionString = BuildSecureConnectionString(effective);
             if (instance == null)
             {
                 lock (Lock)
                 {
-                    if (instance == null && connectionString != null)
+                    if (instance == null && ItemEyezDatabase.connectionString != null)
                     {
-                        instance = new ItemEyezDatabase(connectionString);
+                        instance = new ItemEyezDatabase(ItemEyezDatabase.connectionString);
                     }
                 }
             }
@@ -121,8 +129,8 @@ namespace Item_eyez.Database
             command.CommandType = CommandType.StoredProcedure;
 
             // Input parameters
-            _ = command.Parameters.AddWithValue("@containerName", name);
-            _ = command.Parameters.AddWithValue("@containerDescription", description);
+            _ = command.Parameters.Add(new SqlParameter("@containerName", SqlDbType.NVarChar, 256) { Value = name });
+            _ = command.Parameters.Add(new SqlParameter("@containerDescription", SqlDbType.NVarChar, -1) { Value = (object?)description ?? DBNull.Value });
 
             // Output parameter for the ID
             SqlParameter idParam = new("@containerId", SqlDbType.UniqueIdentifier)
@@ -131,8 +139,11 @@ namespace Item_eyez.Database
             };
             _ = command.Parameters.Add(idParam);
 
-            connection.Open();
-            _ = command.ExecuteNonQuery();
+            RetryPolicy.Execute(() =>
+            {
+                connection.Open();
+                _ = command.ExecuteNonQuery();
+            });
 
             this.OnDataChanged();
 
@@ -153,15 +164,14 @@ namespace Item_eyez.Database
         public Guid AddItem(string name, string description, decimal value, string categories)
         {
             using SqlConnection connection = new(connectionString);
-            connection.Open();
             using SqlCommand command = new("AddItem", connection);
             command.CommandType = CommandType.StoredProcedure;
 
             // Input parameters
-            _ = command.Parameters.AddWithValue("@itemName", name);
-            _ = command.Parameters.AddWithValue("@itemDescription", description);
-            _ = command.Parameters.AddWithValue("@itemValue", value);
-            _ = command.Parameters.AddWithValue("@itemCategories", categories);
+            _ = command.Parameters.Add(new SqlParameter("@itemName", SqlDbType.NVarChar, 256) { Value = name });
+            _ = command.Parameters.Add(new SqlParameter("@itemDescription", SqlDbType.NVarChar, -1) { Value = (object?)description ?? DBNull.Value });
+            _ = command.Parameters.Add(new SqlParameter("@itemValue", SqlDbType.Decimal) { Precision = 18, Scale = 2, Value = value });
+            _ = command.Parameters.Add(new SqlParameter("@itemCategories", SqlDbType.NVarChar, -1) { Value = (object?)categories ?? DBNull.Value });
 
             // Output parameter for the ID
             SqlParameter idParam = new("@itemId", SqlDbType.UniqueIdentifier)
@@ -171,7 +181,11 @@ namespace Item_eyez.Database
 
             _ = command.Parameters.Add(idParam);
 
-            _ = command.ExecuteNonQuery();
+            RetryPolicy.Execute(() =>
+            {
+                connection.Open();
+                _ = command.ExecuteNonQuery();
+            });
 
             this.OnDataChanged();
 
@@ -191,11 +205,14 @@ namespace Item_eyez.Database
             {
                 command.CommandType = CommandType.StoredProcedure;
 
-                _ = command.Parameters.AddWithValue("@roomName", name);
-                _ = command.Parameters.AddWithValue("@roomDescription", description);
+                _ = command.Parameters.Add(new SqlParameter("@roomName", SqlDbType.NVarChar, 256) { Value = name });
+                _ = command.Parameters.Add(new SqlParameter("@roomDescription", SqlDbType.NVarChar, -1) { Value = (object?)description ?? DBNull.Value });
 
-                connection.Open();
-                _ = command.ExecuteNonQuery();
+                RetryPolicy.Execute(() =>
+                {
+                    connection.Open();
+                    _ = command.ExecuteNonQuery();
+                });
             }
 
             this.OnDataChanged();
@@ -706,6 +723,26 @@ namespace Item_eyez.Database
             }
 
             this.OnDataChanged();
+        }
+
+        private static string BuildSecureConnectionString(string raw)
+        {
+            SqlConnectionStringBuilder builder = new(raw);
+            if (!builder.IntegratedSecurity && string.IsNullOrWhiteSpace(builder.UserID))
+            {
+                // Ensure explicit auth is intentional; leave as-is if provided via env.
+            }
+
+            // Enforce encrypted connections by default
+            builder.Encrypt = true;
+
+            // Only allow trusting server cert if explicitly requested via env override
+            string? trustEnv = Environment.GetEnvironmentVariable("ITEMEYEZ_DB_TRUST_CERT");
+            builder.TrustServerCertificate = bool.TryParse(trustEnv, out bool trust) && trust;
+
+            // Reasonable defaults to reduce connection spoofing risk
+            builder.ConnectTimeout = Math.Max(builder.ConnectTimeout, 15);
+            return builder.ToString();
         }
 
         /// <summary>

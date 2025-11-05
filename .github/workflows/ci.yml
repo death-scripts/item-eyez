@@ -58,4 +58,5 @@ jobs:
         with:
           name: ItemEyezInstaller
           path: |
-            Item-eyez.Installer/bin/${{ env.Configuration }}/*.msi
+            Item-eyez.Installer/bin/**/*.msi
+          if-no-files-found: error

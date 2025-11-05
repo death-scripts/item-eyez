@@ -107,7 +107,9 @@ jobs:
         id: msi
         shell: pwsh
         run: |
-          $msi = Get-ChildItem -Path "Item-eyez.Installer/bin/$env:Configuration" -Filter *.msi | Select-Object -First 1
+          $msi = Get-ChildItem -Path "Item-eyez.Installer/bin" -Recurse -Filter *.msi |
+            Sort-Object LastWriteTime -Descending |
+            Select-Object -First 1
           if (-not $msi) { throw "MSI not found" }
           "msi_path=$($msi.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
           Write-Host "MSI: $($msi.FullName)"
