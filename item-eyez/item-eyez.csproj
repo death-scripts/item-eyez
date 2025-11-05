@@ -9,6 +9,7 @@
 		<UseWPF>true</UseWPF>
 		<ApplicationIcon>images\item-eyez.ico</ApplicationIcon>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<SatelliteResourceLanguages>en</SatelliteResourceLanguages>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -45,5 +46,9 @@
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>
+
+  <PropertyGroup>
+    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+  </PropertyGroup>
 
 </Project>

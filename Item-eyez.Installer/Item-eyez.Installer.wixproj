@@ -1,22 +1,31 @@
 <Project Sdk="WixToolset.Sdk/4.0.6">
   <PropertyGroup>
-    <OutputName>ItemEyezInstaller</OutputName>
+    <OutputName>Item-eyez</OutputName>
     <OutputType>Package</OutputType>
     <Platform>x64</Platform>
   </PropertyGroup>
+
   <ItemGroup>
-    <ProjectReference Include="..\item-eyez\item-eyez.csproj" />
+
+    <ProjectReference Include="..\Item-eyez\item-eyez.csproj" />
+
   </ItemGroup>
+
   <ItemGroup>
-    <HarvestDirectory Include="..\item-eyez\bin\$(Configuration)\net8.0-windows">
+    <HarvestDirectory Include="..\Item-eyez\bin\$(Configuration)\net8.0-windows">
       <ComponentGroupName>ApplicationFiles</ComponentGroupName>
       <DirectoryRefId>INSTALLFOLDER</DirectoryRefId>
       <HarvestType>directory</HarvestType>
+      <Exclude>**\*.pdb;**\*.xml</Exclude>
       <SuppressCom>true</SuppressCom>
       <SuppressRegistry>true</SuppressRegistry>
       <SuppressRootDirectory>true</SuppressRootDirectory>
     </HarvestDirectory>
   </ItemGroup>
+
+
+  <!-- No pre-publish: we harvest framework-dependent output -->
+
   <ItemGroup>
     <PackageReference Include="WixToolset.Heat" Version="4.0.6" />
     <PackageReference Include="WixToolset.Sql.wixext" Version="4.0.6" />

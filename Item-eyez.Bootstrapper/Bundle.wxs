@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:netfx="http://wixtoolset.org/schemas/v4/wxs/netfx">
+  <Bundle Name="Item-eyez"
+          Manufacturer="death-scripts"
+          Version="1.0.0.0"
+          UpgradeCode="D4B2C7E9-5D6A-4D21-98B9-78E9A0E7B5F1"
+          Compressed="yes">
+
+    <BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.HyperlinkLicense" />
+
+    <Chain>
+      <!-- Detect .NET 8 Desktop Runtime (x64). Variable will contain version string if present. -->
+      <netfx:DotNetCoreSearch RuntimeType="desktop" MajorVersion="8" Platform="x64" Variable="DOTNET_DESKTOP_VERS" />
+
+      <!-- Install the runtime only if not present. Pin a specific 8.0.x installer URL. -->
+      <ExePackage Id="DotNetDesktopRuntime8"
+                  DetectCondition="DOTNET_DESKTOP_VERS &gt;= '8.0.0'"
+                  Permanent="yes"
+                  Vital="no"
+                  InstallArguments="/install /quiet /norestart"
+                  RepairArguments="/repair /quiet /norestart"
+                  UninstallArguments="/uninstall /quiet /norestart">
+        <ExePackagePayload
+            Name="windowsdesktop-runtime-8.0.10-win-x64.exe"
+            ProductName=".NET Desktop Runtime 8 (x64)"
+            Description=".NET Desktop Runtime 8 (x64)"
+            DownloadUrl="https://download.visualstudio.microsoft.com/download/pr/6a4d9c91-3bd0-4a6b-9c8a-1d3a56b3d14d/b5b0c8d5d5d149d5a6e56d1d9b6d2c63/windowsdesktop-runtime-8.0.10-win-x64.exe" />
+      </ExePackage>
+
+      <!-- Install our MSI -->
+      <MsiPackage Id="AppMsi" SourceFile="payload\Item-eyez.msi" />
+    </Chain>
+  </Bundle>
+</Wix>
+

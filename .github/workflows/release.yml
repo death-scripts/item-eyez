@@ -81,6 +81,12 @@ jobs:
       - name: Build
         run: dotnet build item-eyez.sln -c $env:Configuration --no-restore
 
+      - name: Publish app (self-contained x64)
+        run: >-
+          dotnet publish Item-eyez/Item-eyez.csproj
+          -c $env:Configuration -r win-x64 --self-contained true
+          -p:PublishSingleFile=false
+
       - name: Test
         run: >-
           dotnet test Item-eyez.Tests/Item-eyez.Tests.csproj
@@ -103,6 +109,9 @@ jobs:
       - name: Build MSI (WiX v4)
         run: dotnet build Item-eyez.Installer/Item-eyez.Installer.wixproj -c $env:Configuration --no-restore
 
+      - name: Build Bundle (Bootstrapper)
+        run: dotnet build Item-eyez.Bootstrapper/Item-eyez.Bootstrapper.wixproj -c $env:Configuration --no-restore
+
       - name: Locate MSI
         id: msi
         shell: pwsh
@@ -114,11 +123,28 @@ jobs:
           "msi_path=$($msi.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
           Write-Host "MSI: $($msi.FullName)"
 
+      - name: Locate Bundle
+        id: bundle
+        shell: pwsh
+        run: |
+          $bundle = Get-ChildItem -Path "Item-eyez.Bootstrapper/bin" -Recurse -Filter *.exe |
+            Sort-Object LastWriteTime -Descending |
+            Select-Object -First 1
+          if (-not $bundle) { throw "Bundle EXE not found" }
+          "bundle_path=$($bundle.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          Write-Host "Bundle: $($bundle.FullName)"
+
       - name: Upload MSI Artifact
         uses: actions/upload-artifact@v4
         with:
           name: ItemEyezInstaller-${{ env.release_version }}
           path: ${{ env.msi_path }}
+
+      - name: Upload Bundle Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ItemEyezBundle-${{ env.release_version }}
+          path: ${{ env.bundle_path }}
 
       - name: Create Git Tag (if needed)
         if: startsWith(github.ref, 'refs/tags/') == false
@@ -137,4 +163,6 @@ jobs:
           name: ItemEyez v${{ env.release_version }}
           draft: false
           prerelease: false
-          files: ${{ env.msi_path }}
+          files: |
+            ${{ env.bundle_path }}
+            ${{ env.msi_path }}

@@ -1,0 +1,26 @@
+<Project Sdk="WixToolset.Sdk/4.0.6">
+  <PropertyGroup>
+    <OutputName>Item-eyez-Setup</OutputName>
+    <OutputType>Bundle</OutputType>
+    <Platform>x64</Platform>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Item-eyez.Installer\Item-eyez.Installer.wixproj" />
+  </ItemGroup>
+
+  <Target Name="PrepareMsiForBundle" BeforeTargets="Build">
+    <MSBuild Projects="..\Item-eyez.Installer\Item-eyez.Installer.wixproj"
+             Targets="Build"
+             Properties="Configuration=$(Configuration)" />
+    <ItemGroup>
+      <_MsiSource Include="..\Item-eyez.Installer\bin\x64\$(Configuration)\Item-eyez.msi" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_MsiSource)" DestinationFolder="$(MSBuildProjectDirectory)\payload" SkipUnchangedFiles="true" />
+  </Target>
+
+  <ItemGroup>
+    <PackageReference Include="WixToolset.NetFx.wixext" Version="4.0.6" />
+  </ItemGroup>
+</Project>
+

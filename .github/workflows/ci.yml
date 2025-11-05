@@ -31,6 +31,12 @@ jobs:
       - name: Build
         run: dotnet build item-eyez.sln -c $env:Configuration --no-restore
 
+      - name: Publish app (self-contained x64)
+        run: >-
+          dotnet publish Item-eyez/Item-eyez.csproj
+          -c $env:Configuration -r win-x64 --self-contained true
+          -p:PublishSingleFile=false
+
       - name: Test
         run: >-
           dotnet test Item-eyez.Tests/Item-eyez.Tests.csproj
@@ -53,10 +59,21 @@ jobs:
       - name: Build MSI (WiX v4)
         run: dotnet build Item-eyez.Installer/Item-eyez.Installer.wixproj -c $env:Configuration --no-restore
 
+      - name: Build Bundle (Bootstrapper)
+        run: dotnet build Item-eyez.Bootstrapper/Item-eyez.Bootstrapper.wixproj -c $env:Configuration --no-restore
+
       - name: Upload MSI Artifact
         uses: actions/upload-artifact@v4
         with:
           name: ItemEyezInstaller
           path: |
             Item-eyez.Installer/bin/**/*.msi
+          if-no-files-found: error
+
+      - name: Upload Bundle Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ItemEyezBundle
+          path: |
+            Item-eyez.Bootstrapper/bin/**/*.exe
           if-no-files-found: error
