@@ -60,3 +60,17 @@ jobs:
           path: |
             Item-eyez.Installer/bin/**/*.msi
           if-no-files-found: error
+
+      - name: Restore Bundle (WiX v4)
+        run: dotnet restore Item-eyez.Bundle/Item-eyez.Bundle.wixproj
+
+      - name: Build Bundle (WiX v4)
+        run: dotnet build Item-eyez.Bundle/Item-eyez.Bundle.wixproj -c $env:Configuration
+
+      - name: Upload Bundle Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ItemEyezInstallerBundle
+          path: |
+            Item-eyez.Bundle/bin/**/*.exe
+          if-no-files-found: error

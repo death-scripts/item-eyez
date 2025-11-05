@@ -120,6 +120,29 @@ jobs:
           name: ItemEyezInstaller-${{ env.release_version }}
           path: ${{ env.msi_path }}
 
+      - name: Restore Bundle (WiX v4)
+        run: dotnet restore Item-eyez.Bundle/Item-eyez.Bundle.wixproj
+
+      - name: Build Bundle (WiX v4)
+        run: dotnet build Item-eyez.Bundle/Item-eyez.Bundle.wixproj -c $env:Configuration
+
+      - name: Locate Bundle EXE
+        id: bundle
+        shell: pwsh
+        run: |
+          $exe = Get-ChildItem -Path "Item-eyez.Bundle/bin" -Recurse -Filter *.exe |
+            Sort-Object LastWriteTime -Descending |
+            Select-Object -First 1
+          if (-not $exe) { throw "Bundle EXE not found" }
+          "bundle_path=$($exe.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          Write-Host "Bundle EXE: $($exe.FullName)"
+
+      - name: Upload Bundle Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ItemEyezInstallerBundle-${{ env.release_version }}
+          path: ${{ env.bundle_path }}
+
       - name: Create Git Tag (if needed)
         if: startsWith(github.ref, 'refs/tags/') == false
         shell: pwsh
@@ -137,4 +160,6 @@ jobs:
           name: ItemEyez v${{ env.release_version }}
           draft: false
           prerelease: false
-          files: ${{ env.msi_path }}
+          files: |
+            ${{ env.msi_path }}
+            ${{ env.bundle_path }}

@@ -5,11 +5,14 @@
     <Platform>x64</Platform>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="WixToolset.Bal.wixext" Version="4.0.6" />
-    <PackageReference Include="WixToolset.Util.wixext" Version="4.0.6" />
+	  <PackageReference Include="WixToolset.Bal.wixext" Version="4.0.6" />
+	  <PackageReference Include="WixToolset.Util.wixext" Version="4.0.6" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Bundle.wxs" />
+    <WixExtension Include="WixToolset.Bal.wixext" />
+    <WixExtension Include="WixToolset.Util.wixext" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Item-eyez.Installer\Item-eyez.Installer.wixproj" />
   </ItemGroup>
 </Project>
-
