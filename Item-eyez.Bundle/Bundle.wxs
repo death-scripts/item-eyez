@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:bal="http://wixtoolset.org/schemas/v4/wxs/bal"
+     xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
+  <Bundle Name="ItemEyez Installer"
+          Version="1.0.0.0"
+          Manufacturer="death-scripts"
+          UpgradeCode="{A5B3C7A1-4F2D-4B66-9C1F-4A07E1B2C3D4}"
+          Compressed="yes">
+
+    <BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.RtfLicense" />
+
+    <!-- Detect .NET Desktop Runtime 8.0.21 x64 via registry -->
+    <util:RegistrySearch Id="DetectDotNetDesktop8021x64"
+                         Root="HKLM"
+                         Key="SOFTWARE\dotnet\Setup\InstalledVersions\x64\sharedfx\Microsoft.WindowsDesktop.App\8.0.21"
+                         Result="exists"
+                         Variable="DOTNET_DESKTOP_8021_X64_PRESENT" />
+
+    <Chain>
+      <!-- Local runtime EXE is in the installer folder -->
+      <ExePackage Id="DotNetDesktopRuntime80x64"
+                  DisplayName=".NET Desktop Runtime 8.0.21 (x64)"
+                  SourceFile="..\Item-eyez.Installer\windowsdesktop-runtime-8.0.21-win-x64.exe"
+                  PerMachine="yes"
+                  Compressed="yes"
+                  Vital="yes"
+                  Permanent="yes"
+                  InstallArguments="/quiet /norestart"
+                  RepairArguments="/repair /quiet /norestart"
+                  DetectCondition="DOTNET_DESKTOP_8021_X64_PRESENT" />
+
+      <!-- MSI built by the WiX Package project -->
+      <MsiPackage Id="ItemEyezMsi"
+                  SourceFile="..\Item-eyez.Installer\bin\x64\$(var.Configuration)\ItemEyezInstaller.msi"
+                  Vital="yes" />
+    </Chain>
+  </Bundle>
+</Wix>
+
