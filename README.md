@@ -26,11 +26,10 @@ ItemEyez is a WPF application for organizing items in rooms and containers. The 
    ./installer/build-installer.sh
    ```
 
-   The resulting `ItemEyezInstaller.exe` will install .NET Desktop Runtime 8.0 and SQL Server Express if they are not present, and then install or upgrade ItemEyez.
+   The resulting `ItemEyezInstaller.exe` will install SQL Server Express if it is not present, and then install or upgrade ItemEyez.
 
 ## Installer Behavior
 
-- Detects Microsoft .NET Desktop Runtime 8.0. If missing, it will download and install it.
 - Detects a SQL Server Express instance named `SQLEXPRESS`. If missing, SQL Server Express is installed silently.
 - Supports upgrades when a previous version of ItemEyez is already installed.
 
