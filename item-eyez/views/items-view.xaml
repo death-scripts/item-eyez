@@ -73,8 +73,9 @@
             </GroupBox>
             <Button
                 Grid.Column="3"
-                Width="120"
+                Width="auto"
                 Height="100"
+                Padding="10"
                 Command="{Binding AddItemCommand}"
                 Content="Add Item"
                 FontSize="25" />

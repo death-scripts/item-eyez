@@ -43,8 +43,9 @@
             </GroupBox>
             <Button
                 Grid.Column="2"
-                Width="140"
+                Width="auto"
                 Height="100"
+                Padding="10"
                 Command="{Binding AddRoomCommand}"
                 Content="Add Room"
                 FontSize="25" />
