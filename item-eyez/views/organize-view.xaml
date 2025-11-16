@@ -8,8 +8,9 @@
     mc:Ignorable="d">
     <UserControl.Resources>
         <LinearGradientBrush x:Key="NodeBackgroundBrush" StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Offset="0" Color="#FF69B4" />
-            <GradientStop Offset="1" Color="#40E0D0" />
+            <!--  Halfway between original (#FF69B4 / #40E0D0) and current lighter colors  -->
+            <GradientStop Offset="0" Color="#FF8ECD" />
+            <GradientStop Offset="1" Color="#78F0E2" />
         </LinearGradientBrush>
         <LinearGradientBrush x:Key="TreeBackgroundBrush" StartPoint="0,0" EndPoint="0,1">
             <GradientStop Offset="0" Color="#20B2AA" />
