@@ -101,7 +101,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: Build MSI (WiX v4)
-        run: dotnet build Item-eyez.Installer/Item-eyez.Installer.wixproj -c $env:Configuration --no-restore
+        run: dotnet build Item-eyez.Installer/Item-eyez.Installer.wixproj -c $env:Configuration
 
       - name: Locate MSI
         id: msi
