@@ -89,6 +89,9 @@
                         <DataTrigger Binding="{Binding IsSelected}" Value="True">
                             <Setter TargetName="nodeBorder" Property="Background" Value="AliceBlue" />
                         </DataTrigger>
+                        <DataTrigger Binding="{Binding IsDropTarget}" Value="True">
+                            <Setter TargetName="nodeBorder" Property="BorderBrush" Value="Lime" />
+                        </DataTrigger>
                     </HierarchicalDataTemplate.Triggers>
                 </HierarchicalDataTemplate>
                 <Style TargetType="TreeViewItem">
@@ -148,6 +151,9 @@
                         </DataTrigger>
                         <DataTrigger Binding="{Binding IsSelected}" Value="True">
                             <Setter TargetName="nodeBorder" Property="Background" Value="AliceBlue" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding IsDropTarget}" Value="True">
+                            <Setter TargetName="nodeBorder" Property="BorderBrush" Value="Lime" />
                         </DataTrigger>
                     </HierarchicalDataTemplate.Triggers>
                 </HierarchicalDataTemplate>

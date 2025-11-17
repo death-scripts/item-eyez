@@ -113,6 +113,11 @@ namespace Item_eyez.Viewmodels
                 this.SaveExpansion(root);
             }
 
+            foreach (HierarchyNode root in this.RightRoots)
+            {
+                this.SaveExpansion(root);
+            }
+
             this.Roots.Clear();
             ObservableCollection<Room> rooms = this.db.GetRoomsList();
             ObservableCollection<Container> containers = this.db.GetContainersWithRelationships();

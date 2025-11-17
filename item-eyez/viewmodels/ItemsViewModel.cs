@@ -19,6 +19,7 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
+using System.Linq;
 using System.Windows.Input;
 using Item_eyez.Controls;
 using Item_eyez.Database;
@@ -374,7 +375,17 @@ namespace Item_eyez.Viewmodels
         /// </summary>
         private void ContainersDroppedDown()
         {
-            this.Containers = this.dbHelper.GetContainersWithRelationships();
+            ObservableCollection<Container> allContainers = this.dbHelper.GetContainersWithRelationships();
+            if (this.SelectedRoom != null)
+            {
+                this.Containers = new ObservableCollection<Container>(
+                    allContainers.Where(container => container.StoredIn.Id == this.SelectedRoom.Id));
+            }
+            else
+            {
+                this.Containers = allContainers;
+            }
+
             this.OnPropertyChanged(nameof(this.Containers));
         }
 

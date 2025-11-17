@@ -47,6 +47,11 @@ namespace Item_eyez.Viewmodels
         private bool isVisible = true;
 
         /// <summary>
+        /// The is drop target.
+        /// </summary>
+        private bool isDropTarget;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="HierarchyNode"/> class.
         /// </summary>
         /// <param name="entity">The entity.</param>
@@ -143,6 +148,22 @@ namespace Item_eyez.Viewmodels
             {
                 this.isVisible = value;
                 this.OnPropertyChanged(nameof(this.IsVisible));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this instance is drop target.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is drop target; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsDropTarget
+        {
+            get => this.isDropTarget;
+            set
+            {
+                this.isDropTarget = value;
+                this.OnPropertyChanged(nameof(this.IsDropTarget));
             }
         }
 

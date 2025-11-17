@@ -45,9 +45,9 @@ namespace Item_eyez.Views
         private readonly HashSet<HierarchyNode> selectedNodes = [];
 
         /// <summary>
-        /// The highlighted.
+        /// The highlighted drop target node.
         /// </summary>
-        private TreeViewItem? highlighted;
+        private HierarchyNode? highlighted;
 
         /// <summary>
         /// The start point.
@@ -247,19 +247,57 @@ namespace Item_eyez.Views
         {
             TreeView treeView = (TreeView)sender;
             TreeViewItem? item = GetContainerFromEvent(treeView, e.OriginalSource as DependencyObject);
-            if (this.highlighted != item)
+            HierarchyNode? targetNode = item?.DataContext as HierarchyNode;
+
+            if (this.highlighted != null && this.highlighted != targetNode)
+            {
+                this.highlighted.IsDropTarget = false;
+            }
+
+            if (targetNode == null)
             {
                 if (this.highlighted != null)
                 {
-                    this.highlighted.Background = Brushes.Transparent;
+                    this.highlighted.IsDropTarget = false;
+                    this.highlighted = null;
                 }
 
-                this.highlighted = item;
-                if (this.highlighted != null)
+                // Dropping on empty space (root) is always allowed.
+                e.Effects = DragDropEffects.Move;
+                e.Handled = true;
+                return;
+            }
+
+            List<HierarchyNode>? nodes = e.Data.GetData(typeof(List<HierarchyNode>)) as List<HierarchyNode>;
+            if (nodes == null && e.Data.GetData(typeof(HierarchyNode)) is HierarchyNode single)
+            {
+                nodes = [single];
+            }
+
+            bool canDrop = false;
+            if (nodes != null)
+            {
+                foreach (HierarchyNode node in nodes)
                 {
-                    this.highlighted.Background = Brushes.AliceBlue;
+                    if (node == targetNode)
+                    {
+                        continue;
+                    }
+
+                    if (node.Entity is Room && targetNode.Entity is Container)
+                    {
+                        continue;
+                    }
+
+                    canDrop = true;
+                    break;
                 }
             }
+
+            this.highlighted = targetNode;
+            this.highlighted.IsDropTarget = canDrop;
+            e.Effects = canDrop ? DragDropEffects.Move : DragDropEffects.None;
+            e.Handled = true;
         }
 
         /// <summary>
@@ -352,8 +390,6 @@ namespace Item_eyez.Views
                             // rooms nested inside rooms are allowed; nothing to do in DB
                         }
                     }
-
-                    vm.RemoveRightFromRoots();
                 }
             }
             finally
@@ -366,7 +402,7 @@ namespace Item_eyez.Views
 
             if (this.highlighted != null)
             {
-                this.highlighted.Background = Brushes.Transparent;
+                this.highlighted.IsDropTarget = false;
                 this.highlighted = null;
             }
         }
