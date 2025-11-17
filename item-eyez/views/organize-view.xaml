@@ -71,11 +71,26 @@
                         BorderThickness="2"
                         CornerRadius="2">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock
+                            <Image
+                                Width="16"
+                                Height="16"
                                 Margin="0,0,4,0"
                                 MouseMove="DragHandle_MouseMove"
-                                PreviewMouseLeftButtonDown="DragHandle_PreviewMouseLeftButtonDown"
-                                Text="☰" />
+                                PreviewMouseLeftButtonDown="DragHandle_PreviewMouseLeftButtonDown">
+                                <Image.Style>
+                                    <Style TargetType="Image">
+                                        <Setter Property="Source" Value="../images/item-icon.png" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsRoom}" Value="True">
+                                                <Setter Property="Source" Value="../images/room-icon.png" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding IsContainer}" Value="True">
+                                                <Setter Property="Source" Value="../images/container-icon.png" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Image.Style>
+                            </Image>
                             <TextBox
                                 Background="Transparent"
                                 BorderThickness="0"
@@ -131,11 +146,26 @@
                         BorderThickness="2"
                         CornerRadius="2">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock
+                            <Image
+                                Width="16"
+                                Height="16"
                                 Margin="0,0,4,0"
                                 MouseMove="DragHandle_MouseMove"
-                                PreviewMouseLeftButtonDown="DragHandle_PreviewMouseLeftButtonDown"
-                                Text="☰" />
+                                PreviewMouseLeftButtonDown="DragHandle_PreviewMouseLeftButtonDown">
+                                <Image.Style>
+                                    <Style TargetType="Image">
+                                        <Setter Property="Source" Value="../images/item-icon.png" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsRoom}" Value="True">
+                                                <Setter Property="Source" Value="../images/room-icon.png" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding IsContainer}" Value="True">
+                                                <Setter Property="Source" Value="../images/container-icon.png" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Image.Style>
+                            </Image>
                             <TextBox
                                 Background="Transparent"
                                 BorderThickness="0"

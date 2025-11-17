@@ -204,6 +204,21 @@ namespace Item_eyez.Viewmodels
         }
 
         /// <summary>
+        /// Gets a value indicating whether this instance represents an item.
+        /// </summary>
+        public bool IsItem => this.Entity is Item;
+
+        /// <summary>
+        /// Gets a value indicating whether this instance represents a container.
+        /// </summary>
+        public bool IsContainer => this.Entity is Container;
+
+        /// <summary>
+        /// Gets a value indicating whether this instance represents a room.
+        /// </summary>
+        public bool IsRoom => this.Entity is Room;
+
+        /// <summary>
         /// Converts to string.
         /// </summary>
         /// <returns>
