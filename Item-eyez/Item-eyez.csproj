@@ -1,0 +1,55 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net8.0-windows</TargetFramework>
+		<RootNamespace>Item_eyez</RootNamespace>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UseWPF>true</UseWPF>
+		<ApplicationIcon>images\item-eyez.ico</ApplicationIcon>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Remove="images\container-icon.png" />
+		<None Remove="images\item-eyez-icon1.webp" />
+		<None Remove="images\item-eyez-icon2.webp" />
+		<None Remove="images\item-icon.png" />
+		<None Remove="images\room-icon.png" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Content Include="images\item-eyez.ico">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="DeathScripts.Analyzer" Version="1.0.8">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2" />
+		<PackageReference Include="StyleCop.Analyzers.Unstable" Version="1.2.0.556">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="System.Data.OleDb" Version="8.0.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Resource Include="images\container-icon.png" />
+		<Resource Include="images\item-eyez-icon1.webp" />
+		<Resource Include="images\item-eyez-icon2.webp" />
+		<Resource Include="images\item-icon.png" />
+		<Resource Include="images\room-icon.png" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="create.sql">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
+</Project>
