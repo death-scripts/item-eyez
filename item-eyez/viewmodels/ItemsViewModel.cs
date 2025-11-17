@@ -78,6 +78,11 @@ namespace Item_eyez.Viewmodels
         private string value;
 
         /// <summary>
+        /// The selected path.
+        /// </summary>
+        private string selectedPath = string.Empty;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ItemsViewModel"/> class.
         /// </summary>
         public ItemsViewModel()
@@ -261,6 +266,7 @@ namespace Item_eyez.Viewmodels
             {
                 this.selectedItem = value;
                 this.OnPropertyChanged(nameof(this.SelectedItem));
+                this.UpdateSelectedPath();
             }
         }
 
@@ -279,6 +285,19 @@ namespace Item_eyez.Viewmodels
                 this.OnPropertyChanged(nameof(this.SelectedRoom));
                 this.selectedContainer = null;
                 this.OnPropertyChanged(nameof(this.SelectedContainer));
+            }
+        }
+
+        /// <summary>
+        /// Gets the selected path.
+        /// </summary>
+        public string SelectedPath
+        {
+            get => this.selectedPath;
+            private set
+            {
+                this.selectedPath = value;
+                this.OnPropertyChanged(nameof(this.SelectedPath));
             }
         }
 
@@ -369,6 +388,48 @@ namespace Item_eyez.Viewmodels
         /// </summary>
         /// <param name="propertyName">Name of the property.</param>
         protected void OnPropertyChanged(string propertyName) => this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+        /// <summary>
+        /// Updates the selected path.
+        /// </summary>
+        private void UpdateSelectedPath()
+        {
+            if (this.selectedItem == null)
+            {
+                this.SelectedPath = string.Empty;
+                return;
+            }
+
+            List<string> segments = [];
+
+            // Room
+            Room room = this.dbHelper.GetItemsRoom(this.selectedItem.Id);
+            if (room != null && !string.IsNullOrWhiteSpace(room.Name))
+            {
+                segments.Add(room.Name);
+            }
+
+            // Container chain, from outermost to innermost
+            List<string> containers = [];
+            HashSet<Guid> visited = [];
+            Container container = this.selectedItem.ContainedIn;
+            while (container != null && container.Id != Guid.Empty && visited.Add(container.Id))
+            {
+                containers.Insert(0, container.Name);
+                Container parent = container.ContainedIn;
+                if (parent == null)
+                {
+                    break;
+                }
+
+                container = parent;
+            }
+
+            segments.AddRange(containers);
+            segments.Add(this.selectedItem.Name);
+
+            this.SelectedPath = string.Join(" -> ", segments);
+        }
 
         /// <summary>
         /// Containerses the dropped down.

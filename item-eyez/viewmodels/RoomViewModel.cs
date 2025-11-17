@@ -57,6 +57,11 @@ namespace Item_eyez.Viewmodels
         private Room selectedRoomRow;
 
         /// <summary>
+        /// The selected path.
+        /// </summary>
+        private string selectedPath = string.Empty;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="RoomViewModel" /> class.
         /// </summary>
         public RoomViewModel()
@@ -174,6 +179,20 @@ namespace Item_eyez.Viewmodels
             {
                 this.selectedRoomRow = value;
                 this.OnPropertyChanged(nameof(this.SelectedRoomRow));
+                this.UpdateSelectedPath();
+            }
+        }
+
+        /// <summary>
+        /// Gets the selected path.
+        /// </summary>
+        public string SelectedPath
+        {
+            get => this.selectedPath;
+            private set
+            {
+                this.selectedPath = value;
+                this.OnPropertyChanged(nameof(this.SelectedPath));
             }
         }
 
@@ -235,6 +254,21 @@ namespace Item_eyez.Viewmodels
         /// </summary>
         /// <param name="propertyName">Name of the property.</param>
         protected void OnPropertyChanged(string propertyName) => this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+        /// <summary>
+        /// Updates the selected path.
+        /// </summary>
+        private void UpdateSelectedPath()
+        {
+            if (this.selectedRoomRow == null)
+            {
+                this.SelectedPath = string.Empty;
+                return;
+            }
+
+            // For now, path is just the room's name.
+            this.SelectedPath = this.selectedRoomRow.Name;
+        }
 
         /// <summary>
         /// Handles the DataChanged event of the DbHelper control.

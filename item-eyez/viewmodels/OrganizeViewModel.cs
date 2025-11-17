@@ -128,12 +128,15 @@ namespace Item_eyez.Viewmodels
             Dictionary<Guid, HierarchyNode> roomNodes = rooms.ToDictionary(r => r.Id, r => new HierarchyNode(r));
             Dictionary<Guid, HierarchyNode> containerNodes = containers.ToDictionary(c => c.Id, c => new HierarchyNode(c));
             Dictionary<Guid, Guid?> roomParentMap = [];
-            foreach (System.Data.DataRow row in roomsTable.Rows)
+            foreach (DataRow row in roomsTable.Rows)
             {
-                Guid id = row.Field<Guid>("id");
-                Guid? parentId = row.Table.Columns.Contains("parent_room_id")
-                    ? row.Field<Guid?>("parent_room_id")
-                    : null;
+                Guid id = (Guid)row["id"];
+                Guid? parentId = null;
+                if (roomsTable.Columns.Contains("parent_room_id") && row["parent_room_id"] != DBNull.Value)
+                {
+                    parentId = (Guid)row["parent_room_id"];
+                }
+
                 roomParentMap[id] = parentId;
             }
 
