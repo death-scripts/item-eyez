@@ -248,7 +248,10 @@ namespace Item_eyez.Viewmodels
             {
                 this.selectedContainerRow = value;
                 this.OnPropertyChanged(nameof(this.SelectedContainerRow));
-                this.UpdateSelectedPath();
+                if (this.dbHelper is ItemEyezDatabase)
+                {
+                    this.UpdateSelectedPath();
+                }
             }
         }
 

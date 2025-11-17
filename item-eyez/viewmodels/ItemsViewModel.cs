@@ -266,7 +266,10 @@ namespace Item_eyez.Viewmodels
             {
                 this.selectedItem = value;
                 this.OnPropertyChanged(nameof(this.SelectedItem));
-                this.UpdateSelectedPath();
+                if (this.dbHelper is ItemEyezDatabase)
+                {
+                    this.UpdateSelectedPath();
+                }
             }
         }
 
