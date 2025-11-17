@@ -219,6 +219,32 @@ namespace Item_eyez.Database
         }
 
         /// <summary>
+        /// Sets the parent room for a room.
+        /// </summary>
+        /// <param name="roomId">The child room identifier.</param>
+        /// <param name="parentRoomId">The parent room identifier, or null to clear.</param>
+        public void SetRoomParent(Guid roomId, Guid? parentRoomId)
+        {
+            using SqlConnection connection = new(connectionString);
+            using SqlCommand command = new(parentRoomId.HasValue ? "SetRoomParent" : "ClearRoomParent", connection);
+            command.CommandType = CommandType.StoredProcedure;
+
+            _ = command.Parameters.Add(new SqlParameter("@roomId", SqlDbType.UniqueIdentifier) { Value = roomId });
+            if (parentRoomId.HasValue)
+            {
+                _ = command.Parameters.Add(new SqlParameter("@parentRoomId", SqlDbType.UniqueIdentifier) { Value = parentRoomId.Value });
+            }
+
+            RetryPolicy.Execute(() =>
+            {
+                connection.Open();
+                _ = command.ExecuteNonQuery();
+            });
+
+            this.OnDataChanged();
+        }
+
+        /// <summary>
         /// Associates the item with container.
         /// </summary>
         /// <param name="itemId">The item identifier.</param>

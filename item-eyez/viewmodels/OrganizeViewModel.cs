@@ -17,6 +17,7 @@
 //              ╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝╚═╝        ╚═╝   ╚══════╝
 // ----------------------------------------------------------------------------
 using System.Collections.ObjectModel;
+using System.Data;
 using Item_eyez.Database;
 
 namespace Item_eyez.Viewmodels
@@ -119,12 +120,22 @@ namespace Item_eyez.Viewmodels
             }
 
             this.Roots.Clear();
+            System.Data.DataTable roomsTable = this.db.GetRooms();
             ObservableCollection<Room> rooms = this.db.GetRoomsList();
             ObservableCollection<Container> containers = this.db.GetContainersWithRelationships();
             ObservableCollection<Item> items = this.db.GetItemsWithRelationships();
 
             Dictionary<Guid, HierarchyNode> roomNodes = rooms.ToDictionary(r => r.Id, r => new HierarchyNode(r));
             Dictionary<Guid, HierarchyNode> containerNodes = containers.ToDictionary(c => c.Id, c => new HierarchyNode(c));
+            Dictionary<Guid, Guid?> roomParentMap = [];
+            foreach (System.Data.DataRow row in roomsTable.Rows)
+            {
+                Guid id = row.Field<Guid>("id");
+                Guid? parentId = row.Table.Columns.Contains("parent_room_id")
+                    ? row.Field<Guid?>("parent_room_id")
+                    : null;
+                roomParentMap[id] = parentId;
+            }
 
             // link containers
             foreach (Container container in containers)
@@ -179,9 +190,18 @@ namespace Item_eyez.Viewmodels
                 }
             }
 
-            foreach (HierarchyNode? rn in roomNodes.Values)
+            foreach (KeyValuePair<Guid, HierarchyNode> pair in roomNodes)
             {
-                this.Roots.Add(rn);
+                Guid id = pair.Key;
+                HierarchyNode node = pair.Value;
+                if (roomParentMap.TryGetValue(id, out Guid? parentId) && parentId.HasValue && roomNodes.TryGetValue(parentId.Value, out HierarchyNode? parentNode))
+                {
+                    parentNode.Children.Add(node);
+                }
+                else
+                {
+                    this.Roots.Add(node);
+                }
             }
 
             foreach (HierarchyNode root in this.Roots)

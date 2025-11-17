@@ -46,6 +46,14 @@ BEGIN
 END;
 GO
 
+-- Optional parent/child relationship between rooms
+IF COL_LENGTH('dbo.room', 'parent_room_id') IS NULL
+BEGIN
+    ALTER TABLE dbo.room
+    ADD parent_room_id UNIQUEIDENTIFIER NULL;
+END;
+GO
+
 IF OBJECT_ID(N'dbo.isContainedIn', N'U') IS NULL
 BEGIN
     EXEC(N'
@@ -84,6 +92,31 @@ BEGIN
 
     INSERT INTO dbo.room (name, description)
     VALUES (@roomName, @roomDescription);
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.SetRoomParent
+    @roomId UNIQUEIDENTIFIER,
+    @parentRoomId UNIQUEIDENTIFIER
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    UPDATE dbo.room
+    SET parent_room_id = @parentRoomId
+    WHERE id = @roomId;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.ClearRoomParent
+    @roomId UNIQUEIDENTIFIER
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    UPDATE dbo.room
+    SET parent_room_id = NULL
+    WHERE id = @roomId;
 END;
 GO
 

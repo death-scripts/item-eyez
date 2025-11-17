@@ -338,6 +338,10 @@ namespace Item_eyez.Views
                     foreach (HierarchyNode node in nodes)
                     {
                         list.Add(node);
+                        if (node.Entity is Room r)
+                        {
+                            this.db.SetRoomParent(r.Id, null);
+                        }
                     }
 
                     e.Handled = true;
@@ -385,9 +389,9 @@ namespace Item_eyez.Views
                                 sc.StoredIn = tr;
                             }
                         }
-                        else if (node.Entity is Room && target.Entity is Room)
+                        else if (node.Entity is Room sr && target.Entity is Room trRoom)
                         {
-                            // rooms nested inside rooms are allowed; nothing to do in DB
+                            this.db.SetRoomParent(sr.Id, trRoom.Id);
                         }
                     }
                 }

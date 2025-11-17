@@ -60,6 +60,13 @@ namespace Item_eyez.Database
         void AddRoom(string name, string description);
 
         /// <summary>
+        /// Sets the parent room for a room.
+        /// </summary>
+        /// <param name="roomId">The ID of the child room.</param>
+        /// <param name="parentRoomId">The ID of the parent room, or null to clear.</param>
+        void SetRoomParent(Guid roomId, Guid? parentRoomId);
+
+        /// <summary>
         /// Associates an item with a container.
         /// </summary>
         /// <param name="itemId">The ID of the item.</param>
