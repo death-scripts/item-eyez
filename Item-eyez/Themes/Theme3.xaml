@@ -21,6 +21,7 @@
 
     <SolidColorBrush x:Key="GroupBoxBorderBrush" Color="#FF80DEEA" />
     <SolidColorBrush x:Key="GroupBoxHeaderBorderBrush" Color="#FF3F51B5" />
+    <SolidColorBrush x:Key="GroupBoxHeaderForegroundBrush" Color="#FF3F51B5" />
     <SolidColorBrush x:Key="GroupBoxOuterBorderBrush" Color="Black" />
     <SolidColorBrush x:Key="GroupBoxInnerBorderBrush" Color="Black" />
     <SolidColorBrush x:Key="GroupBoxTransparentBorderBrush" Color="Transparent" />
@@ -127,6 +128,7 @@
     <SolidColorBrush x:Key="DataGridHeaderBackgroundBrush" Color="#FF3F51B5" />
     <SolidColorBrush x:Key="DataGridHeaderForegroundBrush" Color="#FFFFFFFF" />
     <SolidColorBrush x:Key="DataGridHeaderBorderBrush" Color="#FF9FA8DA" />
+    <SolidColorBrush x:Key="PathTextBrush" Color="#FF3F51B5" />
 
     <!-- Organize view brushes -->
     <LinearGradientBrush x:Key="NodeBackgroundBrush" StartPoint="0,0" EndPoint="1,1">
@@ -143,6 +145,7 @@
     <SolidColorBrush x:Key="OrganizeNodeTextBackgroundBrush" Color="Transparent" />
     <SolidColorBrush x:Key="OrganizeNodeHighlightBackgroundBrush" Color="#FFEDE7F6" />
     <SolidColorBrush x:Key="OrganizeNodeDropTargetBorderBrush" Color="#FFAB47BC" />
+    <SolidColorBrush x:Key="OrganizeNodeTextForegroundBrush" Color="#FF000000" />
 
     <!-- TabItem visuals -->
     <LinearGradientBrush x:Key="TabItem.Static.Background" StartPoint="0,0" EndPoint="0,1">

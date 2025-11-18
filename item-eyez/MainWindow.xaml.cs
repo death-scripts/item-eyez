@@ -50,5 +50,11 @@ namespace Item_eyez
             ThemeManager.ApplyTheme(ThemeManager.Theme3Source);
             ThemeManager.SaveThemeSource(ThemeManager.Theme3Source);
         }
+
+        private void Theme4_Click(object sender, RoutedEventArgs e)
+        {
+            ThemeManager.ApplyTheme(ThemeManager.Theme4Source);
+            ThemeManager.SaveThemeSource(ThemeManager.Theme4Source);
+        }
     }
 }

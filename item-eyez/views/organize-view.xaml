@@ -85,6 +85,7 @@
                             <TextBox
                                 Background="{DynamicResource OrganizeNodeTextBackgroundBrush}"
                                 BorderThickness="0"
+                                Foreground="{DynamicResource OrganizeNodeTextForegroundBrush}"
                                 Text="{Binding Name, UpdateSourceTrigger=LostFocus}" />
                         </StackPanel>
                     </Border>

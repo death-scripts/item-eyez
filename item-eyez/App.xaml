@@ -36,9 +36,10 @@
             </Setter>
             </Style>
 
-            <!-- GroupBox/TextBox styles now reference Theme1 brushes -->
+            <!-- GroupBox/TextBox styles now reference theme brushes -->
             <Style TargetType="GroupBox">
                 <Setter Property="FontSize" Value="30" />
+                <Setter Property="Foreground" Value="{DynamicResource GroupBoxHeaderForegroundBrush}" />
                 <Setter Property="BorderBrush" Value="{DynamicResource GroupBoxBorderBrush}" />
                 <Setter Property="BorderThickness" Value="3" />
                 <Setter Property="Background" Value="{DynamicResource GroupBox.Static.Background}" />
