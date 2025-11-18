@@ -9,7 +9,7 @@
     Title="item-eyez"
     MinWidth="800"
     MinHeight="500"
-    Background="{StaticResource WindowBackgroundBrush}"
+    Background="{DynamicResource WindowBackgroundBrush}"
     mc:Ignorable="d">
     <Window.DataContext>
         <vm:MainViewModel />

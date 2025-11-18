@@ -86,15 +86,15 @@
         <DataGrid
             Name="datagrid"
             Grid.Row="3"
-            AlternatingRowBackground="LightBlue"
+            AlternatingRowBackground="{DynamicResource DataGridAlternatingRowBackgroundBrush}"
             AlternationCount="1"
             AutoGenerateColumns="False"
-            Background="Pink"
+            Background="{DynamicResource DataGridBackgroundBrush}"
             CanUserDeleteRows="True"
             CanUserResizeColumns="True"
             ColumnWidth="*"
             ItemsSource="{Binding Containers}"
-            RowBackground="SkyBlue"
+            RowBackground="{DynamicResource DataGridRowBackgroundBrush}"
             ScrollViewer.HorizontalScrollBarVisibility="Auto"
             ScrollViewer.VerticalScrollBarVisibility="Auto"
             SelectedItem="{Binding SelectedContainerRow}">

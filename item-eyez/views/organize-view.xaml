@@ -7,15 +7,6 @@
     xmlns:vm="clr-namespace:Item_eyez.Viewmodels"
     mc:Ignorable="d">
     <UserControl.Resources>
-        <LinearGradientBrush x:Key="NodeBackgroundBrush" StartPoint="0,0" EndPoint="1,1">
-            <!--  Halfway between original (#FF69B4 / #40E0D0) and current lighter colors  -->
-            <GradientStop Offset="0" Color="#FF8ECD" />
-            <GradientStop Offset="1" Color="#78F0E2" />
-        </LinearGradientBrush>
-        <LinearGradientBrush x:Key="TreeBackgroundBrush" StartPoint="0,0" EndPoint="0,1">
-            <GradientStop Offset="0" Color="#20B2AA" />
-            <GradientStop Offset="1" Color="#FFDAB9" />
-        </LinearGradientBrush>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
     </UserControl.Resources>
     <UserControl.DataContext>
@@ -45,7 +36,7 @@
             Grid.Row="1"
             Grid.Column="0"
             AllowDrop="True"
-            Background="{StaticResource TreeBackgroundBrush}"
+            Background="{DynamicResource TreeBackgroundBrush}"
             DragOver="Tree_DragOver"
             Drop="Tree_Drop"
             ItemsSource="{Binding Roots}"
@@ -66,8 +57,8 @@
                         x:Name="nodeBorder"
                         Margin="1"
                         Padding="2"
-                        Background="{StaticResource NodeBackgroundBrush}"
-                        BorderBrush="Blue"
+                        Background="{DynamicResource NodeBackgroundBrush}"
+                        BorderBrush="{DynamicResource OrganizeNodeBorderBrush}"
                         BorderThickness="2"
                         CornerRadius="2">
                         <StackPanel Orientation="Horizontal">
@@ -92,17 +83,17 @@
                                 </Image.Style>
                             </Image>
                             <TextBox
-                                Background="Transparent"
+                                Background="{DynamicResource OrganizeNodeTextBackgroundBrush}"
                                 BorderThickness="0"
                                 Text="{Binding Name, UpdateSourceTrigger=LostFocus}" />
                         </StackPanel>
                     </Border>
                     <HierarchicalDataTemplate.Triggers>
                         <DataTrigger Binding="{Binding IsMatch}" Value="True">
-                            <Setter TargetName="nodeBorder" Property="Background" Value="LightGoldenrodYellow" />
+                            <Setter TargetName="nodeBorder" Property="Background" Value="{DynamicResource OrganizeNodeHighlightBackgroundBrush}" />
                         </DataTrigger>
                         <DataTrigger Binding="{Binding IsDropTarget}" Value="True">
-                            <Setter TargetName="nodeBorder" Property="BorderBrush" Value="Lime" />
+                            <Setter TargetName="nodeBorder" Property="BorderBrush" Value="{DynamicResource OrganizeNodeDropTargetBorderBrush}" />
                         </DataTrigger>
                     </HierarchicalDataTemplate.Triggers>
                 </HierarchicalDataTemplate>
@@ -120,7 +111,7 @@
             Grid.Row="1"
             Grid.Column="1"
             AllowDrop="True"
-            Background="{StaticResource TreeBackgroundBrush}"
+            Background="{DynamicResource TreeBackgroundBrush}"
             DragOver="Tree_DragOver"
             Drop="Tree_Drop"
             ItemsSource="{Binding RightRoots}"
@@ -141,8 +132,8 @@
                         x:Name="nodeBorder"
                         Margin="1"
                         Padding="2"
-                        Background="{StaticResource NodeBackgroundBrush}"
-                        BorderBrush="Blue"
+                        Background="{DynamicResource NodeBackgroundBrush}"
+                        BorderBrush="{DynamicResource OrganizeNodeBorderBrush}"
                         BorderThickness="2"
                         CornerRadius="2">
                         <StackPanel Orientation="Horizontal">
@@ -167,17 +158,17 @@
                                 </Image.Style>
                             </Image>
                             <TextBox
-                                Background="Transparent"
+                                Background="{DynamicResource OrganizeNodeTextBackgroundBrush}"
                                 BorderThickness="0"
                                 Text="{Binding Name, UpdateSourceTrigger=LostFocus}" />
                         </StackPanel>
                     </Border>
                     <HierarchicalDataTemplate.Triggers>
                         <DataTrigger Binding="{Binding IsMatch}" Value="True">
-                            <Setter TargetName="nodeBorder" Property="Background" Value="LightGoldenrodYellow" />
+                            <Setter TargetName="nodeBorder" Property="Background" Value="{DynamicResource OrganizeNodeHighlightBackgroundBrush}" />
                         </DataTrigger>
                         <DataTrigger Binding="{Binding IsDropTarget}" Value="True">
-                            <Setter TargetName="nodeBorder" Property="BorderBrush" Value="Lime" />
+                            <Setter TargetName="nodeBorder" Property="BorderBrush" Value="{DynamicResource OrganizeNodeDropTargetBorderBrush}" />
                         </DataTrigger>
                     </HierarchicalDataTemplate.Triggers>
                 </HierarchicalDataTemplate>
