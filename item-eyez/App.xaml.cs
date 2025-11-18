@@ -19,6 +19,7 @@
 
 using System.Windows;
 using Item_eyez.Database;
+using Item_eyez.Themes;
 
 namespace Item_eyez
 {
@@ -37,6 +38,8 @@ namespace Item_eyez
             base.OnStartup(e);
             try
             {
+                ThemeManager.ApplyThemeFromConfig();
+
                 string serverConnectionString = "Server=localhost\\SQLEXPRESS;Integrated Security=true;TrustServerCertificate=True;";
                 string databaseName = "ITEMEYEZ";
 
