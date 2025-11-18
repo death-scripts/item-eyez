@@ -15,6 +15,7 @@ namespace Item_eyez.Themes
     {
         internal const string Theme1Source = "Themes/Theme1.xaml";
         internal const string Theme2Source = "Themes/Theme2.xaml";
+        internal const string Theme3Source = "Themes/Theme3.xaml";
 
         private const string ConfigFileName = "theme-config.json";
         private const string AppFolderName = "Item-eyez";
@@ -118,4 +119,3 @@ namespace Item_eyez.Themes
         }
     }
 }
-
