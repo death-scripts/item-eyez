@@ -620,7 +620,8 @@
             <!--  Increased tab header font size by 2pt  -->
             <Setter Property="FontSize" Value="14" />
             <Setter Property="FontWeight" Value="Bold" />
-            <Setter Property="Foreground" Value="Black" />
+            <!-- Use theme brush so dark theme tabs can be off-white -->
+            <Setter Property="Foreground" Value="{DynamicResource TabItem.ForegroundBrush}" />
             <Setter Property="Background" Value="{DynamicResource TabItem.Static.Background}" />
             <Setter Property="BorderBrush" Value="{DynamicResource TabItem.Static.Border}" />
             <Setter Property="Margin" Value="0" />

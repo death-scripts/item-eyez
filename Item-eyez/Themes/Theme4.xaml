@@ -143,8 +143,9 @@
 
     <SolidColorBrush x:Key="OrganizeNodeBorderBrush" Color="#FFFFA000" />
     <SolidColorBrush x:Key="OrganizeNodeTextBackgroundBrush" Color="Transparent" />
-    <SolidColorBrush x:Key="OrganizeNodeHighlightBackgroundBrush" Color="#40FFFFFF" />
-    <SolidColorBrush x:Key="OrganizeNodeDropTargetBorderBrush" Color="#FFFFB74D" />
+    <!-- Make node highlight and drag/drop border much more visible -->
+    <SolidColorBrush x:Key="OrganizeNodeHighlightBackgroundBrush" Color="#60FFFFFF" />
+    <SolidColorBrush x:Key="OrganizeNodeDropTargetBorderBrush" Color="#FFFFFFFF" />
     <SolidColorBrush x:Key="OrganizeNodeTextForegroundBrush" Color="#FF000000" />
 
     <!-- TabItem visuals -->

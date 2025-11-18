@@ -23,7 +23,7 @@
             </MenuItem>
             <MenuItem Header="Theme">
                 <MenuItem Header="Colorful (Theme1)" Click="Theme1_Click" />
-                <MenuItem Header="Grayscale (Theme2)" Click="Theme2_Click" />
+                <MenuItem Header="Chrome Dark (Theme2)" Click="Theme2_Click" />
                 <MenuItem Header="Blue/Purple (Theme3)" Click="Theme3_Click" />
                 <MenuItem Header="Dark Teal/Orange (Theme4)" Click="Theme4_Click" />
             </MenuItem>
