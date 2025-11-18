@@ -184,8 +184,8 @@
         </ControlTemplate>
 
         <Style TargetType="DataGridColumnHeader">
-            <Setter Property="Background" Value="LightGreen" />
-            <Setter Property="Foreground" Value="Black" />
+            <Setter Property="Background" Value="{DynamicResource DataGridHeaderBackgroundBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource DataGridHeaderForegroundBrush}" />
             <Setter Property="HorizontalContentAlignment" Value="Center" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
             <Setter Property="FontWeight" Value="Bold" />
@@ -194,7 +194,7 @@
                     <ControlTemplate TargetType="DataGridColumnHeader">
                         <Grid Background="{TemplateBinding Background}">
                             <Border
-                                BorderBrush="Blue"
+                                BorderBrush="{DynamicResource DataGridHeaderBorderBrush}"
                                 BorderThickness="4"
                                 CornerRadius="2">
                                 <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
@@ -221,8 +221,8 @@
         </Style>
         <Style TargetType="{x:Type Button}">
             <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}" />
-            <Setter Property="Background" Value="{StaticResource Button.Static.Background}" />
-            <Setter Property="BorderBrush" Value="{StaticResource Button.Static.Border}" />
+            <Setter Property="Background" Value="{DynamicResource Button.Static.Background}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource Button.Static.Border}" />
             <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="HorizontalContentAlignment" Value="Center" />
@@ -257,17 +257,17 @@
                                 <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" />
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="true">
-                                <Setter TargetName="border" Property="Background" Value="{StaticResource Button.MouseOver.Background}" />
-                                <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource Button.MouseOver.Border}" />
+                                <Setter TargetName="border" Property="Background" Value="{DynamicResource Button.MouseOver.Background}" />
+                                <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource Button.MouseOver.Border}" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="true">
-                                <Setter TargetName="border" Property="Background" Value="{StaticResource Button.Pressed.Background}" />
-                                <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource Button.Pressed.Border}" />
+                                <Setter TargetName="border" Property="Background" Value="{DynamicResource Button.Pressed.Background}" />
+                                <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource Button.Pressed.Border}" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="false">
-                                <Setter TargetName="border" Property="Background" Value="{StaticResource Button.Disabled.Background}" />
-                                <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource Button.Disabled.Border}" />
-                                <Setter TargetName="contentPresenter" Property="TextElement.Foreground" Value="{StaticResource Button.Disabled.Foreground}" />
+                                <Setter TargetName="border" Property="Background" Value="{DynamicResource Button.Disabled.Background}" />
+                                <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource Button.Disabled.Border}" />
+                                <Setter TargetName="contentPresenter" Property="TextElement.Foreground" Value="{DynamicResource Button.Disabled.Foreground}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -305,8 +305,8 @@
                     <ControlTemplate TargetType="{x:Type ToggleButton}">
                         <Border
                             x:Name="templateRoot"
-                            Background="{StaticResource ComboBox.Static.Background}"
-                            BorderBrush="{StaticResource ComboBox.Static.Border}"
+                            Background="{DynamicResource ComboBox.Static.Background}"
+                            BorderBrush="{DynamicResource ComboBox.Static.Border}"
                             BorderThickness="{TemplateBinding BorderThickness}"
                             SnapsToDevicePixels="true">
                             <Border
@@ -323,7 +323,7 @@
                                     HorizontalAlignment="Center"
                                     VerticalAlignment="Center"
                                     Data="F1 M 0,0 L 2.667,2.66665 L 5.3334,0 L 5.3334,-1.78168 L 2.6667,0.88501 L0,-1.78168 L0,0 Z"
-                                    Fill="{StaticResource ComboBox.Static.Glyph}" />
+                                    Fill="{DynamicResource ComboBox.Static.Glyph}" />
                             </Border>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -334,73 +334,73 @@
                                     <Condition Binding="{Binding IsPressed, RelativeSource={RelativeSource Mode=Self}}" Value="false" />
                                     <Condition Binding="{Binding IsEnabled, RelativeSource={RelativeSource Mode=Self}}" Value="true" />
                                 </MultiDataTrigger.Conditions>
-                                <Setter TargetName="templateRoot" Property="Background" Value="{StaticResource ComboBox.Static.Editable.Background}" />
-                                <Setter TargetName="templateRoot" Property="BorderBrush" Value="{StaticResource ComboBox.Static.Editable.Border}" />
-                                <Setter TargetName="splitBorder" Property="Background" Value="{StaticResource ComboBox.Static.Editable.Button.Background}" />
-                                <Setter TargetName="splitBorder" Property="BorderBrush" Value="{StaticResource ComboBox.Static.Editable.Button.Border}" />
+                                <Setter TargetName="templateRoot" Property="Background" Value="{DynamicResource ComboBox.Static.Editable.Background}" />
+                                <Setter TargetName="templateRoot" Property="BorderBrush" Value="{DynamicResource ComboBox.Static.Editable.Border}" />
+                                <Setter TargetName="splitBorder" Property="Background" Value="{DynamicResource ComboBox.Static.Editable.Button.Background}" />
+                                <Setter TargetName="splitBorder" Property="BorderBrush" Value="{DynamicResource ComboBox.Static.Editable.Button.Border}" />
                             </MultiDataTrigger>
                             <Trigger Property="IsMouseOver" Value="true">
-                                <Setter TargetName="arrow" Property="Fill" Value="{StaticResource ComboBox.MouseOver.Glyph}" />
+                                <Setter TargetName="arrow" Property="Fill" Value="{DynamicResource ComboBox.MouseOver.Glyph}" />
                             </Trigger>
                             <MultiDataTrigger>
                                 <MultiDataTrigger.Conditions>
                                     <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Mode=Self}}" Value="true" />
                                     <Condition Binding="{Binding IsEditable, RelativeSource={RelativeSource AncestorType={x:Type ComboBox}}}" Value="false" />
                                 </MultiDataTrigger.Conditions>
-                                <Setter TargetName="templateRoot" Property="Background" Value="{StaticResource ComboBox.MouseOver.Background}" />
-                                <Setter TargetName="templateRoot" Property="BorderBrush" Value="{StaticResource ComboBox.MouseOver.Border}" />
+                                <Setter TargetName="templateRoot" Property="Background" Value="{DynamicResource ComboBox.MouseOver.Background}" />
+                                <Setter TargetName="templateRoot" Property="BorderBrush" Value="{DynamicResource ComboBox.MouseOver.Border}" />
                             </MultiDataTrigger>
                             <MultiDataTrigger>
                                 <MultiDataTrigger.Conditions>
                                     <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Mode=Self}}" Value="true" />
                                     <Condition Binding="{Binding IsEditable, RelativeSource={RelativeSource AncestorType={x:Type ComboBox}}}" Value="true" />
                                 </MultiDataTrigger.Conditions>
-                                <Setter TargetName="templateRoot" Property="Background" Value="{StaticResource ComboBox.MouseOver.Editable.Background}" />
-                                <Setter TargetName="templateRoot" Property="BorderBrush" Value="{StaticResource ComboBox.MouseOver.Editable.Border}" />
-                                <Setter TargetName="splitBorder" Property="Background" Value="{StaticResource ComboBox.MouseOver.Editable.Button.Background}" />
-                                <Setter TargetName="splitBorder" Property="BorderBrush" Value="{StaticResource ComboBox.MouseOver.Editable.Button.Border}" />
+                                <Setter TargetName="templateRoot" Property="Background" Value="{DynamicResource ComboBox.MouseOver.Editable.Background}" />
+                                <Setter TargetName="templateRoot" Property="BorderBrush" Value="{DynamicResource ComboBox.MouseOver.Editable.Border}" />
+                                <Setter TargetName="splitBorder" Property="Background" Value="{DynamicResource ComboBox.MouseOver.Editable.Button.Background}" />
+                                <Setter TargetName="splitBorder" Property="BorderBrush" Value="{DynamicResource ComboBox.MouseOver.Editable.Button.Border}" />
                             </MultiDataTrigger>
                             <Trigger Property="IsPressed" Value="true">
-                                <Setter TargetName="arrow" Property="Fill" Value="{StaticResource ComboBox.Pressed.Glyph}" />
+                                <Setter TargetName="arrow" Property="Fill" Value="{DynamicResource ComboBox.Pressed.Glyph}" />
                             </Trigger>
                             <MultiDataTrigger>
                                 <MultiDataTrigger.Conditions>
                                     <Condition Binding="{Binding IsPressed, RelativeSource={RelativeSource Mode=Self}}" Value="true" />
                                     <Condition Binding="{Binding IsEditable, RelativeSource={RelativeSource AncestorType={x:Type ComboBox}}}" Value="false" />
                                 </MultiDataTrigger.Conditions>
-                                <Setter TargetName="templateRoot" Property="Background" Value="{StaticResource ComboBox.Pressed.Background}" />
-                                <Setter TargetName="templateRoot" Property="BorderBrush" Value="{StaticResource ComboBox.Pressed.Border}" />
+                                <Setter TargetName="templateRoot" Property="Background" Value="{DynamicResource ComboBox.Pressed.Background}" />
+                                <Setter TargetName="templateRoot" Property="BorderBrush" Value="{DynamicResource ComboBox.Pressed.Border}" />
                             </MultiDataTrigger>
                             <MultiDataTrigger>
                                 <MultiDataTrigger.Conditions>
                                     <Condition Binding="{Binding IsPressed, RelativeSource={RelativeSource Mode=Self}}" Value="true" />
                                     <Condition Binding="{Binding IsEditable, RelativeSource={RelativeSource AncestorType={x:Type ComboBox}}}" Value="true" />
                                 </MultiDataTrigger.Conditions>
-                                <Setter TargetName="templateRoot" Property="Background" Value="{StaticResource ComboBox.Pressed.Editable.Background}" />
-                                <Setter TargetName="templateRoot" Property="BorderBrush" Value="{StaticResource ComboBox.Pressed.Editable.Border}" />
-                                <Setter TargetName="splitBorder" Property="Background" Value="{StaticResource ComboBox.Pressed.Editable.Button.Background}" />
-                                <Setter TargetName="splitBorder" Property="BorderBrush" Value="{StaticResource ComboBox.Pressed.Editable.Button.Border}" />
+                                <Setter TargetName="templateRoot" Property="Background" Value="{DynamicResource ComboBox.Pressed.Editable.Background}" />
+                                <Setter TargetName="templateRoot" Property="BorderBrush" Value="{DynamicResource ComboBox.Pressed.Editable.Border}" />
+                                <Setter TargetName="splitBorder" Property="Background" Value="{DynamicResource ComboBox.Pressed.Editable.Button.Background}" />
+                                <Setter TargetName="splitBorder" Property="BorderBrush" Value="{DynamicResource ComboBox.Pressed.Editable.Button.Border}" />
                             </MultiDataTrigger>
                             <Trigger Property="IsEnabled" Value="false">
-                                <Setter TargetName="arrow" Property="Fill" Value="{StaticResource ComboBox.Disabled.Glyph}" />
+                                <Setter TargetName="arrow" Property="Fill" Value="{DynamicResource ComboBox.Disabled.Glyph}" />
                             </Trigger>
                             <MultiDataTrigger>
                                 <MultiDataTrigger.Conditions>
                                     <Condition Binding="{Binding IsEnabled, RelativeSource={RelativeSource Mode=Self}}" Value="false" />
                                     <Condition Binding="{Binding IsEditable, RelativeSource={RelativeSource AncestorType={x:Type ComboBox}}}" Value="false" />
                                 </MultiDataTrigger.Conditions>
-                                <Setter TargetName="templateRoot" Property="Background" Value="{StaticResource ComboBox.Disabled.Background}" />
-                                <Setter TargetName="templateRoot" Property="BorderBrush" Value="{StaticResource ComboBox.Disabled.Border}" />
+                                <Setter TargetName="templateRoot" Property="Background" Value="{DynamicResource ComboBox.Disabled.Background}" />
+                                <Setter TargetName="templateRoot" Property="BorderBrush" Value="{DynamicResource ComboBox.Disabled.Border}" />
                             </MultiDataTrigger>
                             <MultiDataTrigger>
                                 <MultiDataTrigger.Conditions>
                                     <Condition Binding="{Binding IsEnabled, RelativeSource={RelativeSource Mode=Self}}" Value="false" />
                                     <Condition Binding="{Binding IsEditable, RelativeSource={RelativeSource AncestorType={x:Type ComboBox}}}" Value="true" />
                                 </MultiDataTrigger.Conditions>
-                                <Setter TargetName="templateRoot" Property="Background" Value="{StaticResource ComboBox.Disabled.Editable.Background}" />
-                                <Setter TargetName="templateRoot" Property="BorderBrush" Value="{StaticResource ComboBox.Disabled.Editable.Border}" />
-                                <Setter TargetName="splitBorder" Property="Background" Value="{StaticResource ComboBox.Disabled.Editable.Button.Background}" />
-                                <Setter TargetName="splitBorder" Property="BorderBrush" Value="{StaticResource ComboBox.Disabled.Editable.Button.Border}" />
+                                <Setter TargetName="templateRoot" Property="Background" Value="{DynamicResource ComboBox.Disabled.Editable.Background}" />
+                                <Setter TargetName="templateRoot" Property="BorderBrush" Value="{DynamicResource ComboBox.Disabled.Editable.Border}" />
+                                <Setter TargetName="splitBorder" Property="Background" Value="{DynamicResource ComboBox.Disabled.Editable.Button.Background}" />
+                                <Setter TargetName="splitBorder" Property="BorderBrush" Value="{DynamicResource ComboBox.Disabled.Editable.Button.Border}" />
                             </MultiDataTrigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -591,8 +591,8 @@
         </ControlTemplate>
         <Style TargetType="{x:Type ComboBox}">
             <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}" />
-            <Setter Property="Background" Value="{StaticResource ComboBox.Static.Background}" />
-            <Setter Property="BorderBrush" Value="{StaticResource ComboBox.Static.Border}" />
+            <Setter Property="Background" Value="{DynamicResource ComboBox.Static.Background}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ComboBox.Static.Border}" />
             <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.WindowTextBrushKey}}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto" />
@@ -614,31 +614,14 @@
             </Style.Triggers>
         </Style>
 
-        <LinearGradientBrush x:Key="TabItem.Static.Background" StartPoint="0,0" EndPoint="0,1">
-            <GradientStop Offset="0.0" Color="#db4437" />
-            <GradientStop Offset="0.6" Color="LightBlue" />
-        </LinearGradientBrush>
-        <SolidColorBrush x:Key="TabItem.Static.Border" Color="#ACACAC" />
-        <LinearGradientBrush x:Key="TabItem.MouseOver.Background" StartPoint="0,0" EndPoint="0,1">
-            <GradientStop Offset="0.0" Color="LightBlue" />
-            <GradientStop Offset="0.6" Color="#db4437" />
-        </LinearGradientBrush>
-        <SolidColorBrush x:Key="TabItem.MouseOver.Border" Color="#7EB4EA" />
-        <LinearGradientBrush x:Key="TabItem.Selected.Background">
-            <GradientStop Offset="0.0" Color="LightGreen" />
-            <GradientStop Offset="1.0" Color="LightCoral" />
-        </LinearGradientBrush>
-        <SolidColorBrush x:Key="TabItem.Selected.Border" Color="HotPink" />
-        <SolidColorBrush x:Key="TabItem.Disabled.Background" Color="#F0F0F0" />
-        <SolidColorBrush x:Key="TabItem.Disabled.Border" Color="#D9D9D9" />
         <Style TargetType="{x:Type TabItem}">
             <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}" />
             <!--  Increased tab header font size by 2pt  -->
             <Setter Property="FontSize" Value="14" />
             <Setter Property="FontWeight" Value="Bold" />
             <Setter Property="Foreground" Value="Black" />
-            <Setter Property="Background" Value="{StaticResource TabItem.Static.Background}" />
-            <Setter Property="BorderBrush" Value="{StaticResource TabItem.Static.Border}" />
+            <Setter Property="Background" Value="{DynamicResource TabItem.Static.Background}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource TabItem.Static.Border}" />
             <Setter Property="Margin" Value="0" />
             <Setter Property="Padding" Value="6,2,6,2" />
             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -656,8 +639,8 @@
                                 <Border
                                     x:Name="innerBorder"
                                     Margin="-1"
-                                    Background="{StaticResource TabItem.Selected.Background}"
-                                    BorderBrush="{StaticResource TabItem.Selected.Border}"
+                                    Background="{DynamicResource TabItem.Selected.Background}"
+                                    BorderBrush="{DynamicResource TabItem.Selected.Border}"
                                     BorderThickness="1,1,1,0"
                                     Opacity="0" />
                             </Border>
@@ -677,8 +660,8 @@
                                     <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Mode=Self}}" Value="true" />
                                     <Condition Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}}" Value="Left" />
                                 </MultiDataTrigger.Conditions>
-                                <Setter TargetName="mainBorder" Property="Background" Value="{StaticResource TabItem.MouseOver.Background}" />
-                                <Setter TargetName="mainBorder" Property="BorderBrush" Value="{StaticResource TabItem.MouseOver.Border}" />
+                                <Setter TargetName="mainBorder" Property="Background" Value="{DynamicResource TabItem.MouseOver.Background}" />
+                                <Setter TargetName="mainBorder" Property="BorderBrush" Value="{DynamicResource TabItem.MouseOver.Border}" />
                                 <Setter TargetName="innerBorder" Property="BorderThickness" Value="1,1,0,1" />
                                 <Setter TargetName="mainBorder" Property="BorderThickness" Value="1,1,0,1" />
                             </MultiDataTrigger>
@@ -687,8 +670,8 @@
                                     <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Mode=Self}}" Value="true" />
                                     <Condition Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}}" Value="Bottom" />
                                 </MultiDataTrigger.Conditions>
-                                <Setter TargetName="mainBorder" Property="Background" Value="{StaticResource TabItem.MouseOver.Background}" />
-                                <Setter TargetName="mainBorder" Property="BorderBrush" Value="{StaticResource TabItem.MouseOver.Border}" />
+                                <Setter TargetName="mainBorder" Property="Background" Value="{DynamicResource TabItem.MouseOver.Background}" />
+                                <Setter TargetName="mainBorder" Property="BorderBrush" Value="{DynamicResource TabItem.MouseOver.Border}" />
                                 <Setter TargetName="innerBorder" Property="BorderThickness" Value="1,0,1,1" />
                                 <Setter TargetName="mainBorder" Property="BorderThickness" Value="1,0,1,1" />
                             </MultiDataTrigger>
@@ -697,8 +680,8 @@
                                     <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Mode=Self}}" Value="true" />
                                     <Condition Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}}" Value="Right" />
                                 </MultiDataTrigger.Conditions>
-                                <Setter TargetName="mainBorder" Property="Background" Value="{StaticResource TabItem.MouseOver.Background}" />
-                                <Setter TargetName="mainBorder" Property="BorderBrush" Value="{StaticResource TabItem.MouseOver.Border}" />
+                                <Setter TargetName="mainBorder" Property="Background" Value="{DynamicResource TabItem.MouseOver.Background}" />
+                                <Setter TargetName="mainBorder" Property="BorderBrush" Value="{DynamicResource TabItem.MouseOver.Border}" />
                                 <Setter TargetName="innerBorder" Property="BorderThickness" Value="0,1,1,1" />
                                 <Setter TargetName="mainBorder" Property="BorderThickness" Value="0,1,1,1" />
                             </MultiDataTrigger>
@@ -707,8 +690,8 @@
                                     <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Mode=Self}}" Value="true" />
                                     <Condition Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}}" Value="Top" />
                                 </MultiDataTrigger.Conditions>
-                                <Setter TargetName="mainBorder" Property="Background" Value="{StaticResource TabItem.MouseOver.Background}" />
-                                <Setter TargetName="mainBorder" Property="BorderBrush" Value="{StaticResource TabItem.MouseOver.Border}" />
+                                <Setter TargetName="mainBorder" Property="Background" Value="{DynamicResource TabItem.MouseOver.Background}" />
+                                <Setter TargetName="mainBorder" Property="BorderBrush" Value="{DynamicResource TabItem.MouseOver.Border}" />
                                 <Setter TargetName="innerBorder" Property="BorderThickness" Value="1,1,1,0" />
                                 <Setter TargetName="mainBorder" Property="BorderThickness" Value="1,1,1,0" />
                             </MultiDataTrigger>
@@ -718,8 +701,8 @@
                                     <Condition Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}}" Value="Left" />
                                 </MultiDataTrigger.Conditions>
                                 <Setter TargetName="contentPresenter" Property="Opacity" Value="0.56" />
-                                <Setter TargetName="mainBorder" Property="Background" Value="{StaticResource TabItem.Disabled.Background}" />
-                                <Setter TargetName="mainBorder" Property="BorderBrush" Value="{StaticResource TabItem.Disabled.Border}" />
+                                <Setter TargetName="mainBorder" Property="Background" Value="{DynamicResource TabItem.Disabled.Background}" />
+                                <Setter TargetName="mainBorder" Property="BorderBrush" Value="{DynamicResource TabItem.Disabled.Border}" />
                                 <Setter TargetName="innerBorder" Property="BorderThickness" Value="1,1,0,1" />
                                 <Setter TargetName="mainBorder" Property="BorderThickness" Value="1,1,0,1" />
                             </MultiDataTrigger>
@@ -729,8 +712,8 @@
                                     <Condition Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}}" Value="Bottom" />
                                 </MultiDataTrigger.Conditions>
                                 <Setter TargetName="contentPresenter" Property="Opacity" Value="0.56" />
-                                <Setter TargetName="mainBorder" Property="Background" Value="{StaticResource TabItem.Disabled.Background}" />
-                                <Setter TargetName="mainBorder" Property="BorderBrush" Value="{StaticResource TabItem.Disabled.Border}" />
+                                <Setter TargetName="mainBorder" Property="Background" Value="{DynamicResource TabItem.Disabled.Background}" />
+                                <Setter TargetName="mainBorder" Property="BorderBrush" Value="{DynamicResource TabItem.Disabled.Border}" />
                                 <Setter TargetName="innerBorder" Property="BorderThickness" Value="1,0,1,1" />
                                 <Setter TargetName="mainBorder" Property="BorderThickness" Value="1,0,1,1" />
                             </MultiDataTrigger>
@@ -740,8 +723,8 @@
                                     <Condition Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}}" Value="Right" />
                                 </MultiDataTrigger.Conditions>
                                 <Setter TargetName="contentPresenter" Property="Opacity" Value="0.56" />
-                                <Setter TargetName="mainBorder" Property="Background" Value="{StaticResource TabItem.Disabled.Background}" />
-                                <Setter TargetName="mainBorder" Property="BorderBrush" Value="{StaticResource TabItem.Disabled.Border}" />
+                                <Setter TargetName="mainBorder" Property="Background" Value="{DynamicResource TabItem.Disabled.Background}" />
+                                <Setter TargetName="mainBorder" Property="BorderBrush" Value="{DynamicResource TabItem.Disabled.Border}" />
                                 <Setter TargetName="innerBorder" Property="BorderThickness" Value="0,1,1,1" />
                                 <Setter TargetName="mainBorder" Property="BorderThickness" Value="0,1,1,1" />
                             </MultiDataTrigger>
@@ -751,8 +734,8 @@
                                     <Condition Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}}" Value="Top" />
                                 </MultiDataTrigger.Conditions>
                                 <Setter TargetName="contentPresenter" Property="Opacity" Value="0.56" />
-                                <Setter TargetName="mainBorder" Property="Background" Value="{StaticResource TabItem.Disabled.Background}" />
-                                <Setter TargetName="mainBorder" Property="BorderBrush" Value="{StaticResource TabItem.Disabled.Border}" />
+                                <Setter TargetName="mainBorder" Property="Background" Value="{DynamicResource TabItem.Disabled.Background}" />
+                                <Setter TargetName="mainBorder" Property="BorderBrush" Value="{DynamicResource TabItem.Disabled.Border}" />
                                 <Setter TargetName="innerBorder" Property="BorderThickness" Value="1,1,1,0" />
                                 <Setter TargetName="mainBorder" Property="BorderThickness" Value="1,1,1,0" />
                             </MultiDataTrigger>
@@ -906,7 +889,7 @@
                                         <Binding Path="ViewportHeight" RelativeSource="{RelativeSource Mode=TemplatedParent}" />
                                     </MultiBinding>
                                 </RepeatButton.Visibility>
-                                <Path Data="{StaticResource UpArrow}" Fill="{StaticResource Menu.Static.Foreground}" />
+                                <Path Data="{StaticResource UpArrow}" Fill="{DynamicResource Menu.Static.Foreground}" />
                             </RepeatButton>
                             <RepeatButton
                                 Grid.Row="2"
@@ -926,7 +909,7 @@
                                         <Binding Path="ViewportHeight" RelativeSource="{RelativeSource Mode=TemplatedParent}" />
                                     </MultiBinding>
                                 </RepeatButton.Visibility>
-                                <Path Data="{StaticResource DownArrow}" Fill="{StaticResource Menu.Static.Foreground}" />
+                                <Path Data="{StaticResource DownArrow}" Fill="{DynamicResource Menu.Static.Foreground}" />
                             </RepeatButton>
                         </Grid>
                     </ControlTemplate>
@@ -934,7 +917,7 @@
             </Setter>
         </Style>
         <Style x:Key="MenuStyle1" TargetType="{x:Type Menu}">
-            <Setter Property="Background" Value="{StaticResource Menu.Static.Background}" />
+            <Setter Property="Background" Value="{DynamicResource Menu.Static.Background}" />
             <Setter Property="FontFamily" Value="{DynamicResource {x:Static SystemFonts.MenuFontFamilyKey}}" />
             <!--  Increased Menu font size by 2pt  -->
             <Setter Property="FontSize" Value="14" />
@@ -983,7 +966,7 @@
                         Margin="3"
                         VerticalAlignment="Center"
                         Data="{StaticResource Checkmark}"
-                        Fill="{StaticResource Menu.Static.Foreground}"
+                        Fill="{DynamicResource Menu.Static.Foreground}"
                         FlowDirection="LeftToRight"
                         Visibility="Collapsed" />
                     <ContentPresenter
@@ -1003,20 +986,20 @@
                     <Setter TargetName="Icon" Property="Visibility" Value="Collapsed" />
                 </Trigger>
                 <Trigger Property="IsHighlighted" Value="True">
-                    <Setter TargetName="templateRoot" Property="Background" Value="{StaticResource MenuItem.Highlight.Background}" />
-                    <Setter TargetName="templateRoot" Property="BorderBrush" Value="{StaticResource MenuItem.Highlight.Border}" />
+                    <Setter TargetName="templateRoot" Property="Background" Value="{DynamicResource MenuItem.Highlight.Background}" />
+                    <Setter TargetName="templateRoot" Property="BorderBrush" Value="{DynamicResource MenuItem.Highlight.Border}" />
                 </Trigger>
                 <Trigger Property="IsEnabled" Value="False">
-                    <Setter TargetName="templateRoot" Property="TextElement.Foreground" Value="{StaticResource Menu.Disabled.Foreground}" />
-                    <Setter TargetName="GlyphPanel" Property="Fill" Value="{StaticResource Menu.Disabled.Foreground}" />
+                    <Setter TargetName="templateRoot" Property="TextElement.Foreground" Value="{DynamicResource Menu.Disabled.Foreground}" />
+                    <Setter TargetName="GlyphPanel" Property="Fill" Value="{DynamicResource Menu.Disabled.Foreground}" />
                 </Trigger>
                 <MultiTrigger>
                     <MultiTrigger.Conditions>
                         <Condition Property="IsHighlighted" Value="True" />
                         <Condition Property="IsEnabled" Value="False" />
                     </MultiTrigger.Conditions>
-                    <Setter TargetName="templateRoot" Property="Background" Value="{StaticResource MenuItem.Highlight.Disabled.Background}" />
-                    <Setter TargetName="templateRoot" Property="BorderBrush" Value="{StaticResource MenuItem.Highlight.Disabled.Border}" />
+                    <Setter TargetName="templateRoot" Property="Background" Value="{DynamicResource MenuItem.Highlight.Disabled.Background}" />
+                    <Setter TargetName="templateRoot" Property="BorderBrush" Value="{DynamicResource MenuItem.Highlight.Disabled.Border}" />
                 </MultiTrigger>
             </ControlTemplate.Triggers>
         </ControlTemplate>
@@ -1066,8 +1049,8 @@
                         <Border
                             x:Name="SubMenuBorder"
                             Padding="2"
-                            Background="{StaticResource Menu.Static.Background}"
-                            BorderBrush="{StaticResource Menu.Static.Border}"
+                            Background="{DynamicResource Menu.Static.Background}"
+                            BorderBrush="{DynamicResource Menu.Static.Border}"
                             BorderThickness="1">
                             <ScrollViewer x:Name="SubMenuScrollViewer" Style="{DynamicResource {ComponentResourceKey ResourceId=MenuScrollViewer, TypeInTargetAssembly={x:Type FrameworkElement}}}">
                                 <Grid RenderOptions.ClearTypeHint="Enabled">
@@ -1086,7 +1069,7 @@
                                         Width="1"
                                         Margin="29,2,0,2"
                                         HorizontalAlignment="Left"
-                                        Fill="{StaticResource Menu.Static.Separator}" />
+                                        Fill="{DynamicResource Menu.Static.Separator}" />
                                     <ItemsPresenter
                                         x:Name="ItemsPresenter"
                                         Grid.IsSharedSizeScope="true"
@@ -1111,12 +1094,12 @@
                     <Setter TargetName="Icon" Property="Visibility" Value="Collapsed" />
                 </Trigger>
                 <Trigger Property="IsHighlighted" Value="True">
-                    <Setter TargetName="templateRoot" Property="Background" Value="{StaticResource MenuItem.Highlight.Background}" />
-                    <Setter TargetName="templateRoot" Property="BorderBrush" Value="{StaticResource MenuItem.Highlight.Border}" />
+                    <Setter TargetName="templateRoot" Property="Background" Value="{DynamicResource MenuItem.Highlight.Background}" />
+                    <Setter TargetName="templateRoot" Property="BorderBrush" Value="{DynamicResource MenuItem.Highlight.Border}" />
                 </Trigger>
                 <Trigger Property="IsEnabled" Value="False">
-                    <Setter TargetName="templateRoot" Property="TextElement.Foreground" Value="{StaticResource Menu.Disabled.Foreground}" />
-                    <Setter TargetName="GlyphPanel" Property="Fill" Value="{StaticResource Menu.Disabled.Foreground}" />
+                    <Setter TargetName="templateRoot" Property="TextElement.Foreground" Value="{DynamicResource Menu.Disabled.Foreground}" />
+                    <Setter TargetName="GlyphPanel" Property="Fill" Value="{DynamicResource Menu.Disabled.Foreground}" />
                 </Trigger>
                 <Trigger SourceName="SubMenuScrollViewer" Property="ScrollViewer.CanContentScroll" Value="false">
                     <Setter TargetName="OpaqueRect" Property="Canvas.Top" Value="{Binding VerticalOffset, ElementName=SubMenuScrollViewer}" />
@@ -1160,8 +1143,8 @@
                         Margin="-1,0,0,0"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
-                        Background="{StaticResource MenuItem.Selected.Background}"
-                        BorderBrush="{StaticResource MenuItem.Selected.Border}"
+                        Background="{DynamicResource MenuItem.Selected.Background}"
+                        BorderBrush="{DynamicResource MenuItem.Selected.Border}"
                         BorderThickness="1"
                         ClipToBounds="False"
                         Visibility="Hidden">
@@ -1170,7 +1153,7 @@
                             Width="10"
                             Height="11"
                             Data="{StaticResource Checkmark}"
-                            Fill="{StaticResource Menu.Static.Foreground}"
+                            Fill="{DynamicResource Menu.Static.Foreground}"
                             FlowDirection="LeftToRight" />
                     </Border>
                     <ContentPresenter
@@ -1200,20 +1183,20 @@
                     <Setter TargetName="Icon" Property="Visibility" Value="Collapsed" />
                 </Trigger>
                 <Trigger Property="IsHighlighted" Value="True">
-                    <Setter TargetName="templateRoot" Property="Background" Value="{StaticResource MenuItem.Highlight.Background}" />
-                    <Setter TargetName="templateRoot" Property="BorderBrush" Value="{StaticResource MenuItem.Highlight.Border}" />
+                    <Setter TargetName="templateRoot" Property="Background" Value="{DynamicResource MenuItem.Highlight.Background}" />
+                    <Setter TargetName="templateRoot" Property="BorderBrush" Value="{DynamicResource MenuItem.Highlight.Border}" />
                 </Trigger>
                 <Trigger Property="IsEnabled" Value="False">
-                    <Setter TargetName="templateRoot" Property="TextElement.Foreground" Value="{StaticResource Menu.Disabled.Foreground}" />
-                    <Setter TargetName="Glyph" Property="Fill" Value="{StaticResource Menu.Disabled.Foreground}" />
+                    <Setter TargetName="templateRoot" Property="TextElement.Foreground" Value="{DynamicResource Menu.Disabled.Foreground}" />
+                    <Setter TargetName="Glyph" Property="Fill" Value="{DynamicResource Menu.Disabled.Foreground}" />
                 </Trigger>
                 <MultiTrigger>
                     <MultiTrigger.Conditions>
                         <Condition Property="IsHighlighted" Value="True" />
                         <Condition Property="IsEnabled" Value="False" />
                     </MultiTrigger.Conditions>
-                    <Setter TargetName="templateRoot" Property="Background" Value="{StaticResource MenuItem.Highlight.Disabled.Background}" />
-                    <Setter TargetName="templateRoot" Property="BorderBrush" Value="{StaticResource MenuItem.Highlight.Disabled.Border}" />
+                    <Setter TargetName="templateRoot" Property="Background" Value="{DynamicResource MenuItem.Highlight.Disabled.Background}" />
+                    <Setter TargetName="templateRoot" Property="BorderBrush" Value="{DynamicResource MenuItem.Highlight.Disabled.Border}" />
                 </MultiTrigger>
             </ControlTemplate.Triggers>
         </ControlTemplate>
@@ -1252,8 +1235,8 @@
                         Height="22"
                         Margin="-1,0,0,0"
                         VerticalAlignment="Center"
-                        Background="{StaticResource MenuItem.Highlight.Background}"
-                        BorderBrush="{StaticResource MenuItem.Highlight.Border}"
+                        Background="{DynamicResource MenuItem.Highlight.Background}"
+                        BorderBrush="{DynamicResource MenuItem.Highlight.Border}"
                         BorderThickness="1"
                         Visibility="Hidden">
                         <Path
@@ -1261,7 +1244,7 @@
                             Width="9"
                             Height="11"
                             Data="{DynamicResource Checkmark}"
-                            Fill="{StaticResource Menu.Static.Foreground}"
+                            Fill="{DynamicResource Menu.Static.Foreground}"
                             FlowDirection="LeftToRight" />
                     </Border>
                     <ContentPresenter
@@ -1285,7 +1268,7 @@
                         HorizontalAlignment="Left"
                         VerticalAlignment="Center"
                         Data="{StaticResource RightArrow}"
-                        Fill="{StaticResource Menu.Static.Foreground}" />
+                        Fill="{DynamicResource Menu.Static.Foreground}" />
                     <Popup
                         x:Name="PART_Popup"
                         AllowsTransparency="true"
@@ -1298,8 +1281,8 @@
                         <Border
                             x:Name="SubMenuBorder"
                             Padding="2"
-                            Background="{StaticResource Menu.Static.Background}"
-                            BorderBrush="{StaticResource Menu.Static.Border}"
+                            Background="{DynamicResource Menu.Static.Background}"
+                            BorderBrush="{DynamicResource Menu.Static.Border}"
                             BorderThickness="1">
                             <ScrollViewer x:Name="SubMenuScrollViewer" Style="{DynamicResource {ComponentResourceKey ResourceId=MenuScrollViewer, TypeInTargetAssembly={x:Type FrameworkElement}}}">
                                 <Grid RenderOptions.ClearTypeHint="Enabled">
@@ -1344,12 +1327,12 @@
                 </Trigger>
                 <Trigger Property="IsHighlighted" Value="True">
                     <Setter TargetName="templateRoot" Property="Background" Value="Transparent" />
-                    <Setter TargetName="templateRoot" Property="BorderBrush" Value="{StaticResource MenuItem.Highlight.Border}" />
+                    <Setter TargetName="templateRoot" Property="BorderBrush" Value="{DynamicResource MenuItem.Highlight.Border}" />
                 </Trigger>
                 <Trigger Property="IsEnabled" Value="False">
-                    <Setter TargetName="templateRoot" Property="TextElement.Foreground" Value="{StaticResource Menu.Disabled.Foreground}" />
-                    <Setter TargetName="Glyph" Property="Fill" Value="{StaticResource Menu.Disabled.Foreground}" />
-                    <Setter TargetName="RightArrow" Property="Fill" Value="{StaticResource Menu.Disabled.Foreground}" />
+                    <Setter TargetName="templateRoot" Property="TextElement.Foreground" Value="{DynamicResource Menu.Disabled.Foreground}" />
+                    <Setter TargetName="Glyph" Property="Fill" Value="{DynamicResource Menu.Disabled.Foreground}" />
+                    <Setter TargetName="RightArrow" Property="Fill" Value="{DynamicResource Menu.Disabled.Foreground}" />
                 </Trigger>
                 <Trigger SourceName="SubMenuScrollViewer" Property="ScrollViewer.CanContentScroll" Value="false">
                     <Setter TargetName="OpaqueRect" Property="Canvas.Top" Value="{Binding VerticalOffset, ElementName=SubMenuScrollViewer}" />
@@ -1372,14 +1355,14 @@
                 <Trigger Property="Role" Value="TopLevelHeader">
                     <Setter Property="Background" Value="Transparent" />
                     <Setter Property="BorderBrush" Value="Transparent" />
-                    <Setter Property="Foreground" Value="{StaticResource Menu.Static.Foreground}" />
+                    <Setter Property="Foreground" Value="{DynamicResource Menu.Static.Foreground}" />
                     <Setter Property="Template" Value="{DynamicResource {ComponentResourceKey ResourceId=TopLevelHeaderTemplateKey, TypeInTargetAssembly={x:Type MenuItem}}}" />
                     <Setter Property="Padding" Value="6,0" />
                 </Trigger>
                 <Trigger Property="Role" Value="TopLevelItem">
-                    <Setter Property="Background" Value="{StaticResource Menu.Static.Background}" />
-                    <Setter Property="BorderBrush" Value="{StaticResource Menu.Static.Border}" />
-                    <Setter Property="Foreground" Value="{StaticResource Menu.Static.Foreground}" />
+                    <Setter Property="Background" Value="{DynamicResource Menu.Static.Background}" />
+                    <Setter Property="BorderBrush" Value="{DynamicResource Menu.Static.Border}" />
+                    <Setter Property="Foreground" Value="{DynamicResource Menu.Static.Foreground}" />
                     <Setter Property="Template" Value="{DynamicResource {ComponentResourceKey ResourceId=TopLevelItemTemplateKey, TypeInTargetAssembly={x:Type MenuItem}}}" />
                     <Setter Property="Padding" Value="6,0" />
                 </Trigger>
@@ -1437,7 +1420,7 @@
                     Grid.Row="0"
                     Command="ScrollBar.LineUpCommand"
                     Style="{StaticResource ScrollBarPageButton}">
-                    <Path Data="M 0 4 L 3.5 0 L 7 4 Z" Fill="{StaticResource Menu.Static.Foreground}" />
+                    <Path Data="M 0 4 L 3.5 0 L 7 4 Z" Fill="{DynamicResource Menu.Static.Foreground}" />
                 </RepeatButton>
                 <Track
                     x:Name="PART_Track"
@@ -1458,7 +1441,7 @@
                     Grid.Row="2"
                     Command="ScrollBar.LineDownCommand"
                     Style="{StaticResource ScrollBarPageButton}">
-                    <Path Data="M 0 0 L 3.5 4 L 7 0 Z" Fill="{StaticResource Menu.Static.Foreground}" />
+                    <Path Data="M 0 0 L 3.5 4 L 7 0 Z" Fill="{DynamicResource Menu.Static.Foreground}" />
                 </RepeatButton>
             </Grid>
         </ControlTemplate>
@@ -1478,7 +1461,7 @@
                     Grid.Column="0"
                     Command="ScrollBar.LineLeftCommand"
                     Style="{StaticResource ScrollBarPageButton}">
-                    <Path Data="M 4 0 L 0 3.5 L 4 7 Z" Fill="{StaticResource Menu.Static.Foreground}" />
+                    <Path Data="M 4 0 L 0 3.5 L 4 7 Z" Fill="{DynamicResource Menu.Static.Foreground}" />
                 </RepeatButton>
                 <Track
                     x:Name="PART_Track"
@@ -1498,7 +1481,7 @@
                     Grid.Column="2"
                     Command="ScrollBar.LineRightCommand"
                     Style="{StaticResource ScrollBarPageButton}">
-                    <Path Data="M 0 0 L 4 3.5 L 0 7 Z" Fill="{StaticResource Menu.Static.Foreground}" />
+                    <Path Data="M 0 0 L 4 3.5 L 0 7 Z" Fill="{DynamicResource Menu.Static.Foreground}" />
                 </RepeatButton>
             </Grid>
         </ControlTemplate>

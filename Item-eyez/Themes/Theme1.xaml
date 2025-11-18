@@ -124,6 +124,9 @@
     <SolidColorBrush x:Key="DataGridAlternatingRowBackgroundBrush" Color="LightBlue" />
     <SolidColorBrush x:Key="DataGridBackgroundBrush" Color="Pink" />
     <SolidColorBrush x:Key="DataGridRowBackgroundBrush" Color="SkyBlue" />
+    <SolidColorBrush x:Key="DataGridHeaderBackgroundBrush" Color="LightGreen" />
+    <SolidColorBrush x:Key="DataGridHeaderForegroundBrush" Color="Black" />
+    <SolidColorBrush x:Key="DataGridHeaderBorderBrush" Color="Blue" />
 
     <!-- Organize view brushes -->
     <LinearGradientBrush x:Key="NodeBackgroundBrush" StartPoint="0,0" EndPoint="1,1">
@@ -140,5 +143,24 @@
     <SolidColorBrush x:Key="OrganizeNodeTextBackgroundBrush" Color="Transparent" />
     <SolidColorBrush x:Key="OrganizeNodeHighlightBackgroundBrush" Color="LightGoldenrodYellow" />
     <SolidColorBrush x:Key="OrganizeNodeDropTargetBorderBrush" Color="Lime" />
+
+    <!-- TabItem visuals -->
+    <LinearGradientBrush x:Key="TabItem.Static.Background" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Offset="0.0" Color="#db4437" />
+        <GradientStop Offset="0.6" Color="LightBlue" />
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="TabItem.Static.Border" Color="#ACACAC" />
+    <LinearGradientBrush x:Key="TabItem.MouseOver.Background" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Offset="0.0" Color="LightBlue" />
+        <GradientStop Offset="0.6" Color="#db4437" />
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="TabItem.MouseOver.Border" Color="#7EB4EA" />
+    <LinearGradientBrush x:Key="TabItem.Selected.Background">
+        <GradientStop Offset="0.0" Color="LightGreen" />
+        <GradientStop Offset="1.0" Color="LightCoral" />
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="TabItem.Selected.Border" Color="HotPink" />
+    <SolidColorBrush x:Key="TabItem.Disabled.Background" Color="#F0F0F0" />
+    <SolidColorBrush x:Key="TabItem.Disabled.Border" Color="#D9D9D9" />
 
 </ResourceDictionary>

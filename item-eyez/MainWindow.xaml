@@ -21,6 +21,10 @@
                 <MenuItem Command="{Binding PopulateSampleDataCommand}" Header="Populate Sample Data" />
                 <MenuItem Command="{Binding ImportAccessCommand}" Header="Import Legacy .accdb" />
             </MenuItem>
+            <MenuItem Header="Theme">
+                <MenuItem Header="Colorful (Theme1)" Click="Theme1_Click" />
+                <MenuItem Header="Grayscale (Theme2)" Click="Theme2_Click" />
+            </MenuItem>
         </Menu>
 
         <!--  last child in DockPanel fills the rest by default  -->
