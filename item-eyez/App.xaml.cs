@@ -45,7 +45,9 @@ namespace Item_eyez
 
                 DatabaseInitializer.InitializeDatabase(serverConnectionString, databaseName);
 
-                _ = ItemEyezDatabase.Instance("Server=localhost\\SQLEXPRESS;Database=ITEMEYEZ;Integrated Security=true;TrustServerCertificate=True;");
+                // Use the default/environment-driven connection string for runtime access.
+                // In production, set ITEMEYEZ_DB_CONNECTION to use the itemeyez_app login.
+                _ = ItemEyezDatabase.Instance();
             }
             catch (Exception ex)
             {

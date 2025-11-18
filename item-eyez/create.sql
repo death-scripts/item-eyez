@@ -7,6 +7,17 @@ GO
 USE ITEMEYEZ;
 GO
 
+-- If a dedicated login named itemeyez_app already exists at the server level,
+-- map it into this database with least-privilege roles.
+IF EXISTS (SELECT 1 FROM sys.server_principals WHERE name = N'itemeyez_app')
+    AND NOT EXISTS (SELECT 1 FROM sys.database_principals WHERE name = N'itemeyez_app')
+BEGIN
+    CREATE USER [itemeyez_app] FOR LOGIN [itemeyez_app];
+    EXEC sp_addrolemember N'db_datareader', N'itemeyez_app';
+    EXEC sp_addrolemember N'db_datawriter', N'itemeyez_app';
+END;
+GO
+
 -- Ensure core tables exist.
 IF OBJECT_ID(N'dbo.item', N'U') IS NULL
 BEGIN
