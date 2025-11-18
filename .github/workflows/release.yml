@@ -133,3 +133,10 @@ jobs:
           prerelease: false
           files: |
             ${{ env.msi_path }}
+
+      - name: Upload MSI Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ItemEyezInstaller
+          path: ${{ env.msi_path }}
+          if-no-files-found: error

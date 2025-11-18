@@ -53,10 +53,19 @@ jobs:
       - name: Build MSI (WiX v4)
         run: dotnet build Item-eyez.Installer/Item-eyez.Installer.wixproj -c $env:Configuration
 
+      - name: Locate MSI
+        shell: pwsh
+        run: |
+          $msi = Get-ChildItem -Path "Item-eyez.Installer/bin" -Recurse -Filter *.msi |
+            Sort-Object LastWriteTime -Descending |
+            Select-Object -First 1
+          if (-not $msi) { throw "MSI not found under Item-eyez.Installer/bin" }
+          "msi_path=$($msi.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          Write-Host "MSI path: $($msi.FullName)"
+
       - name: Upload MSI Artifact
         uses: actions/upload-artifact@v4
         with:
           name: ItemEyezInstaller
-          path: |
-            Item-eyez.Installer/bin/**/*.msi
+          path: ${{ env.msi_path }}
           if-no-files-found: error
