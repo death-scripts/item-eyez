@@ -52,6 +52,11 @@ namespace Item_eyez.Viewmodels
         private bool isDropTarget;
 
         /// <summary>
+        /// The is editing.
+        /// </summary>
+        private bool isEditing;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="HierarchyNode"/> class.
         /// </summary>
         /// <param name="entity">The entity.</param>
@@ -164,6 +169,22 @@ namespace Item_eyez.Viewmodels
             {
                 this.isDropTarget = value;
                 this.OnPropertyChanged(nameof(this.IsDropTarget));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this instance is in editing mode.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is editing; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsEditing
+        {
+            get => this.isEditing;
+            set
+            {
+                this.isEditing = value;
+                this.OnPropertyChanged(nameof(this.IsEditing));
             }
         }
 

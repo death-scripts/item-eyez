@@ -60,14 +60,14 @@
                         Background="{DynamicResource NodeBackgroundBrush}"
                         BorderBrush="{DynamicResource OrganizeNodeBorderBrush}"
                         BorderThickness="2"
-                        CornerRadius="2">
+                        CornerRadius="2"
+                        MouseMove="DragHandle_MouseMove"
+                        PreviewMouseLeftButtonDown="DragHandle_PreviewMouseLeftButtonDown">
                         <StackPanel Orientation="Horizontal">
                             <Image
                                 Width="16"
                                 Height="16"
-                                Margin="0,0,4,0"
-                                MouseMove="DragHandle_MouseMove"
-                                PreviewMouseLeftButtonDown="DragHandle_PreviewMouseLeftButtonDown">
+                                Margin="0,0,4,0">
                                 <Image.Style>
                                     <Style TargetType="Image">
                                         <Setter Property="Source" Value="../images/item-icon.png" />
@@ -83,10 +83,28 @@
                                 </Image.Style>
                             </Image>
                             <TextBox
+                                x:Name="nodeTextBox"
                                 Background="{DynamicResource OrganizeNodeTextBackgroundBrush}"
                                 BorderThickness="0"
                                 Foreground="{DynamicResource OrganizeNodeTextForegroundBrush}"
-                                Text="{Binding Name, UpdateSourceTrigger=LostFocus}" />
+                                KeyDown="NodeTextBox_KeyDown"
+                                LostKeyboardFocus="NodeTextBox_LostKeyboardFocus"
+                                Text="{Binding Name, UpdateSourceTrigger=LostFocus}">
+                                <TextBox.Style>
+                                    <Style TargetType="TextBox">
+                                        <Setter Property="IsReadOnly" Value="True" />
+                                        <Setter Property="Focusable" Value="False" />
+                                        <Setter Property="IsHitTestVisible" Value="False" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsEditing}" Value="True">
+                                                <Setter Property="IsReadOnly" Value="False" />
+                                                <Setter Property="Focusable" Value="True" />
+                                                <Setter Property="IsHitTestVisible" Value="True" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBox.Style>
+                            </TextBox>
                         </StackPanel>
                     </Border>
                     <HierarchicalDataTemplate.Triggers>
@@ -104,6 +122,7 @@
                     <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
                     <EventSetter Event="PreviewMouseLeftButtonDown" Handler="TreeViewItem_PreviewMouseLeftButtonDown" />
                     <EventSetter Event="PreviewMouseRightButtonDown" Handler="TreeViewItem_LeftClick" />
+                    <EventSetter Event="MouseDoubleClick" Handler="TreeViewItem_MouseDoubleClick" />
                 </Style>
             </TreeView.Resources>
         </TreeView>
@@ -136,14 +155,14 @@
                         Background="{DynamicResource NodeBackgroundBrush}"
                         BorderBrush="{DynamicResource OrganizeNodeBorderBrush}"
                         BorderThickness="2"
-                        CornerRadius="2">
+                        CornerRadius="2"
+                        MouseMove="DragHandle_MouseMove"
+                        PreviewMouseLeftButtonDown="DragHandle_PreviewMouseLeftButtonDown">
                         <StackPanel Orientation="Horizontal">
                             <Image
                                 Width="16"
                                 Height="16"
-                                Margin="0,0,4,0"
-                                MouseMove="DragHandle_MouseMove"
-                                PreviewMouseLeftButtonDown="DragHandle_PreviewMouseLeftButtonDown">
+                                Margin="0,0,4,0">
                                 <Image.Style>
                                     <Style TargetType="Image">
                                         <Setter Property="Source" Value="../images/item-icon.png" />
@@ -159,9 +178,27 @@
                                 </Image.Style>
                             </Image>
                             <TextBox
+                                x:Name="nodeTextBox"
                                 Background="{DynamicResource OrganizeNodeTextBackgroundBrush}"
                                 BorderThickness="0"
-                                Text="{Binding Name, UpdateSourceTrigger=LostFocus}" />
+                                KeyDown="NodeTextBox_KeyDown"
+                                LostKeyboardFocus="NodeTextBox_LostKeyboardFocus"
+                                Text="{Binding Name, UpdateSourceTrigger=LostFocus}">
+                                <TextBox.Style>
+                                    <Style TargetType="TextBox">
+                                        <Setter Property="IsReadOnly" Value="True" />
+                                        <Setter Property="Focusable" Value="False" />
+                                        <Setter Property="IsHitTestVisible" Value="False" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsEditing}" Value="True">
+                                                <Setter Property="IsReadOnly" Value="False" />
+                                                <Setter Property="Focusable" Value="True" />
+                                                <Setter Property="IsHitTestVisible" Value="True" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBox.Style>
+                            </TextBox>
                         </StackPanel>
                     </Border>
                     <HierarchicalDataTemplate.Triggers>
@@ -179,6 +216,7 @@
                     <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
                     <EventSetter Event="PreviewMouseLeftButtonDown" Handler="TreeViewItem_PreviewMouseLeftButtonDown" />
                     <EventSetter Event="PreviewMouseRightButtonDown" Handler="TreeViewItem_LeftClick" />
+                    <EventSetter Event="MouseDoubleClick" Handler="TreeViewItem_MouseDoubleClick" />
                 </Style>
             </TreeView.Resources>
         </TreeView>

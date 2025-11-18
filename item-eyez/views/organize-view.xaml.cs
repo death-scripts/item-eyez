@@ -158,13 +158,14 @@ namespace Item_eyez.Views
         private void AddRoomRoot_Click(object sender, RoutedEventArgs e) => this.db.AddRoom("New Room", string.Empty);
 
         /// <summary>
-        /// Clears the selection.
+        /// Clears the selection and editing state.
         /// </summary>
         private void ClearSelection()
         {
             foreach (HierarchyNode? n in this.selectedNodes.ToList())
             {
                 n.IsSelected = false;
+                n.IsEditing = false;
             }
 
             this.selectedNodes.Clear();
@@ -515,6 +516,138 @@ namespace Item_eyez.Views
                 node.IsSelected = true;
                 _ = this.selectedNodes.Add(node);
             }
+        }
+
+        /// <summary>
+        /// Handles the MouseDoubleClick event of the TreeViewItem control to start editing.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="MouseButtonEventArgs"/> instance containing the event data.</param>
+        private void TreeViewItem_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is not TreeViewItem item)
+            {
+                return;
+            }
+
+            // Only start editing for the innermost TreeViewItem that was actually double-clicked.
+            if (e.OriginalSource is DependencyObject source)
+            {
+                TreeViewItem? clickedItem = FindAncestor<TreeViewItem>(source);
+                if (clickedItem != item)
+                {
+                    return;
+                }
+            }
+
+            if (item.DataContext is not HierarchyNode node)
+            {
+                return;
+            }
+
+            this.ClearSelection();
+            node.IsSelected = true;
+            node.IsEditing = true;
+            _ = this.selectedNodes.Add(node);
+
+            TextBox? textBox = FindVisualChild<TextBox>(item);
+            if (textBox != null)
+            {
+                textBox.Focus();
+                textBox.SelectAll();
+                Keyboard.Focus(textBox);
+            }
+
+            e.Handled = true;
+        }
+
+        /// <summary>
+        /// Handles the LostKeyboardFocus event of the node TextBox control to end editing.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="KeyboardFocusChangedEventArgs"/> instance containing the event data.</param>
+        private void NodeTextBox_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            if (sender is TextBox textBox && textBox.DataContext is HierarchyNode node)
+            {
+                node.IsEditing = false;
+            }
+        }
+
+        /// <summary>
+        /// Handles the KeyDown event of the node TextBox control to accept/cancel editing.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="KeyEventArgs"/> instance containing the event data.</param>
+        private void NodeTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (sender is not TextBox textBox || textBox.DataContext is not HierarchyNode node)
+            {
+                return;
+            }
+
+            if (e.Key == Key.Enter || e.Key == Key.Return)
+            {
+                node.IsEditing = false;
+                textBox.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
+                e.Handled = true;
+            }
+            else if (e.Key == Key.Escape)
+            {
+                node.IsEditing = false;
+                textBox.MoveFocus(new TraversalRequest(FocusNavigationDirection.Previous));
+                e.Handled = true;
+            }
+        }
+
+        /// <summary>
+        /// Finds the first visual child of the specified type.
+        /// </summary>
+        /// <typeparam name="T">The type of child to find.</typeparam>
+        /// <param name="parent">The parent element.</param>
+        /// <returns>The child element if found; otherwise, <c>null</c>.</returns>
+        private static T? FindVisualChild<T>(DependencyObject parent)
+            where T : DependencyObject
+        {
+            int count = VisualTreeHelper.GetChildrenCount(parent);
+            for (int i = 0; i < count; i++)
+            {
+                DependencyObject child = VisualTreeHelper.GetChild(parent, i);
+                if (child is T typedChild)
+                {
+                    return typedChild;
+                }
+
+                T? result = FindVisualChild<T>(child);
+                if (result != null)
+                {
+                    return result;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Finds the first ancestor of the specified type.
+        /// </summary>
+        /// <typeparam name="T">The type of ancestor to find.</typeparam>
+        /// <param name="current">The starting element.</param>
+        /// <returns>The ancestor element if found; otherwise, <c>null</c>.</returns>
+        private static T? FindAncestor<T>(DependencyObject? current)
+            where T : DependencyObject
+        {
+            while (current != null)
+            {
+                if (current is T typed)
+                {
+                    return typed;
+                }
+
+                current = VisualTreeHelper.GetParent(current);
+            }
+
+            return null;
         }
     }
 }
