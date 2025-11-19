@@ -762,9 +762,32 @@ namespace Item_eyez.Database
             // Enforce encrypted connections by default
             builder.Encrypt = true;
 
-            // Only allow trusting server cert if explicitly requested via env override
-            string? trustEnv = Environment.GetEnvironmentVariable("ITEMEYEZ_DB_TRUST_CERT");
-            builder.TrustServerCertificate = bool.TryParse(trustEnv, out bool trust) && trust;
+            // For clearly local SQL Server instances, trust the certificate to
+            // avoid install-time friction on each client machine.
+            string dataSource = builder.DataSource?.Trim() ?? string.Empty;
+            bool isLocalServer =
+                string.Equals(dataSource, "localhost", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(dataSource, ".", StringComparison.OrdinalIgnoreCase) ||
+                dataSource.StartsWith("localhost\\", StringComparison.OrdinalIgnoreCase) ||
+                dataSource.StartsWith(".\\", StringComparison.OrdinalIgnoreCase);
+
+            if (isLocalServer)
+            {
+                builder.TrustServerCertificate = true;
+            }
+            else
+            {
+                // For non-local servers, optionally allow an environment variable
+                // to control whether the server certificate should be trusted.
+                string? trustEnv = Environment.GetEnvironmentVariable("ITEMEYEZ_DB_TRUST_CERT");
+                if (!string.IsNullOrWhiteSpace(trustEnv) &&
+                    bool.TryParse(trustEnv, out bool trust))
+                {
+                    builder.TrustServerCertificate = trust;
+                }
+                // If the env var is not set, respect whatever was specified
+                // in the original connection string.
+            }
 
             // Reasonable defaults to reduce connection spoofing risk
             builder.ConnectTimeout = Math.Max(builder.ConnectTimeout, 15);
