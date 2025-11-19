@@ -75,6 +75,28 @@ jobs:
           $pkg.Version = $env:release_version
           $xml.Save('Item-eyez.Installer/Product.wxs')
 
+      - name: Update app version in csproj
+        shell: pwsh
+        run: |
+          [xml]$proj = Get-Content 'Item-eyez/Item-eyez.csproj'
+          $pg = $proj.Project.PropertyGroup | Select-Object -First 1
+          if (-not $pg.Version) {
+            $v = $proj.CreateElement('Version')
+            $pg.AppendChild($v) | Out-Null
+          }
+          if (-not $pg.AssemblyVersion) {
+            $av = $proj.CreateElement('AssemblyVersion')
+            $pg.AppendChild($av) | Out-Null
+          }
+          if (-not $pg.FileVersion) {
+            $fv = $proj.CreateElement('FileVersion')
+            $pg.AppendChild($fv) | Out-Null
+          }
+          $pg.Version = $env:release_version
+          $pg.AssemblyVersion = $env:release_version
+          $pg.FileVersion = $env:release_version
+          $proj.Save('Item-eyez/Item-eyez.csproj')
+
       - name: Restore
         run: dotnet restore item-eyez.sln
 
