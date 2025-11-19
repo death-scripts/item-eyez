@@ -18,6 +18,8 @@
 // ----------------------------------------------------------------------------
 using System.Collections.ObjectModel;
 using System.Data;
+using System.IO;
+using System.Text.Json;
 using Item_eyez.Viewmodels;
 using Microsoft.Data.SqlClient;
 
@@ -746,6 +748,261 @@ namespace Item_eyez.Database
 
                 connection.Open();
                 _ = command.ExecuteNonQuery();
+            }
+
+            this.OnDataChanged();
+        }
+
+        /// <summary>
+        /// Exports all database rows and relationships to a JSON file.
+        /// </summary>
+        /// <param name="filePath">The destination file path.</param>
+        public void ExportData(string filePath)
+        {
+            if (string.IsNullOrWhiteSpace(filePath))
+            {
+                throw new ArgumentException("File path must not be empty.", nameof(filePath));
+            }
+
+            DatabaseExportModel snapshot = new();
+
+            using (SqlConnection connection = new(connectionString))
+            {
+                connection.Open();
+
+                // Rooms
+                using (SqlCommand command = new("SELECT id, name, description, parent_room_id FROM dbo.room", connection))
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        DatabaseExportRoom room = new()
+                        {
+                            Id = reader.GetGuid(0),
+                            Name = reader.GetString(1),
+                            Description = reader.IsDBNull(2) ? null : reader.GetString(2),
+                            ParentRoomId = reader.IsDBNull(3) ? null : reader.GetGuid(3),
+                        };
+                        snapshot.Rooms.Add(room);
+                    }
+                }
+
+                // Containers
+                using (SqlCommand command = new("SELECT id, name, description FROM dbo.container", connection))
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        DatabaseExportContainer container = new()
+                        {
+                            Id = reader.GetGuid(0),
+                            Name = reader.GetString(1),
+                            Description = reader.IsDBNull(2) ? null : reader.GetString(2),
+                        };
+                        snapshot.Containers.Add(container);
+                    }
+                }
+
+                // Items
+                using (SqlCommand command = new("SELECT id, name, description, value, categories FROM dbo.item", connection))
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        DatabaseExportItem item = new()
+                        {
+                            Id = reader.GetGuid(0),
+                            Name = reader.GetString(1),
+                            Description = reader.IsDBNull(2) ? null : reader.GetString(2),
+                            Value = reader.IsDBNull(3) ? null : reader.GetDecimal(3),
+                            Categories = reader.IsDBNull(4) ? null : reader.GetString(4),
+                        };
+                        snapshot.Items.Add(item);
+                    }
+                }
+
+                // Item-Container relationships
+                using (SqlCommand command = new("SELECT item_id, container_id FROM dbo.isContainedIn", connection))
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        DatabaseExportItemContainer link = new()
+                        {
+                            ItemId = reader.GetGuid(0),
+                            ContainerId = reader.GetGuid(1),
+                        };
+                        snapshot.ItemContainers.Add(link);
+                    }
+                }
+
+                // Item-Room relationships
+                using (SqlCommand command = new("SELECT item_id, room_id FROM dbo.isStoredIn", connection))
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        DatabaseExportItemRoom link = new()
+                        {
+                            ItemId = reader.GetGuid(0),
+                            RoomId = reader.GetGuid(1),
+                        };
+                        snapshot.ItemRooms.Add(link);
+                    }
+                }
+            }
+
+            JsonSerializerOptions options = new()
+            {
+                WriteIndented = true,
+            };
+
+            string? directory = Path.GetDirectoryName(filePath);
+            if (!string.IsNullOrWhiteSpace(directory) && !Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+
+            using FileStream stream = new(filePath, FileMode.Create, FileAccess.Write, FileShare.None);
+            JsonSerializer.Serialize(stream, snapshot, options);
+        }
+
+        /// <summary>
+        /// Imports database data from the specified JSON file.
+        /// </summary>
+        /// <param name="filePath">The source file path.</param>
+        /// <param name="resetExisting">If true, clears existing data before importing.</param>
+        public void ImportData(string filePath, bool resetExisting)
+        {
+            if (string.IsNullOrWhiteSpace(filePath))
+            {
+                throw new ArgumentException("File path must not be empty.", nameof(filePath));
+            }
+
+            if (!File.Exists(filePath))
+            {
+                throw new FileNotFoundException("Backup file not found.", filePath);
+            }
+
+            DatabaseExportModel? snapshot;
+            using (FileStream stream = new(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                snapshot = JsonSerializer.Deserialize<DatabaseExportModel>(stream);
+            }
+
+            if (snapshot == null)
+            {
+                throw new InvalidOperationException("Backup file is empty or invalid.");
+            }
+
+            using SqlConnection connection = new(connectionString);
+            connection.Open();
+            using SqlTransaction transaction = connection.BeginTransaction();
+
+            try
+            {
+                if (resetExisting)
+                {
+                    // Clear existing data in a safe order.
+                    foreach (string sql in new[]
+                    {
+                        "DELETE FROM dbo.isContainedIn",
+                        "DELETE FROM dbo.isStoredIn",
+                        "DELETE FROM dbo.item",
+                        "DELETE FROM dbo.container",
+                        "DELETE FROM dbo.room",
+                    })
+                    {
+                        using SqlCommand clearCommand = new(sql, connection, transaction);
+                        _ = clearCommand.ExecuteNonQuery();
+                    }
+                }
+
+                // Rooms
+                foreach (DatabaseExportRoom room in snapshot.Rooms)
+                {
+                    using SqlCommand command = new(
+                        "INSERT INTO dbo.room (id, name, description, parent_room_id) VALUES (@id, @name, @description, @parent_room_id)",
+                        connection,
+                        transaction);
+
+                    _ = command.Parameters.Add("@id", SqlDbType.UniqueIdentifier).Value = room.Id;
+                    _ = command.Parameters.Add("@name", SqlDbType.NVarChar, 255).Value = room.Name;
+                    _ = command.Parameters.Add("@description", SqlDbType.NVarChar, -1).Value = (object?)room.Description ?? DBNull.Value;
+                    _ = command.Parameters.Add("@parent_room_id", SqlDbType.UniqueIdentifier).Value = (object?)room.ParentRoomId ?? DBNull.Value;
+
+                    _ = command.ExecuteNonQuery();
+                }
+
+                // Containers
+                foreach (DatabaseExportContainer container in snapshot.Containers)
+                {
+                    using SqlCommand command = new(
+                        "INSERT INTO dbo.container (id, name, description) VALUES (@id, @name, @description)",
+                        connection,
+                        transaction);
+
+                    _ = command.Parameters.Add("@id", SqlDbType.UniqueIdentifier).Value = container.Id;
+                    _ = command.Parameters.Add("@name", SqlDbType.NVarChar, 255).Value = container.Name;
+                    _ = command.Parameters.Add("@description", SqlDbType.NVarChar, -1).Value = (object?)container.Description ?? DBNull.Value;
+
+                    _ = command.ExecuteNonQuery();
+                }
+
+                // Items
+                foreach (DatabaseExportItem item in snapshot.Items)
+                {
+                    using SqlCommand command = new(
+                        "INSERT INTO dbo.item (id, name, description, value, categories) VALUES (@id, @name, @description, @value, @categories)",
+                        connection,
+                        transaction);
+
+                    _ = command.Parameters.Add("@id", SqlDbType.UniqueIdentifier).Value = item.Id;
+                    _ = command.Parameters.Add("@name", SqlDbType.NVarChar, 255).Value = item.Name;
+                    _ = command.Parameters.Add("@description", SqlDbType.NVarChar, -1).Value = (object?)item.Description ?? DBNull.Value;
+                    SqlParameter valueParam = command.Parameters.Add("@value", SqlDbType.Decimal);
+                    valueParam.Precision = 18;
+                    valueParam.Scale = 2;
+                    valueParam.Value = (object?)item.Value ?? DBNull.Value;
+                    _ = command.Parameters.Add("@categories", SqlDbType.NVarChar, -1).Value = (object?)item.Categories ?? DBNull.Value;
+
+                    _ = command.ExecuteNonQuery();
+                }
+
+                // Item-Container links
+                foreach (DatabaseExportItemContainer link in snapshot.ItemContainers)
+                {
+                    using SqlCommand command = new(
+                        "INSERT INTO dbo.isContainedIn (item_id, container_id) VALUES (@item_id, @container_id)",
+                        connection,
+                        transaction);
+
+                    _ = command.Parameters.Add("@item_id", SqlDbType.UniqueIdentifier).Value = link.ItemId;
+                    _ = command.Parameters.Add("@container_id", SqlDbType.UniqueIdentifier).Value = link.ContainerId;
+
+                    _ = command.ExecuteNonQuery();
+                }
+
+                // Item-Room links
+                foreach (DatabaseExportItemRoom link in snapshot.ItemRooms)
+                {
+                    using SqlCommand command = new(
+                        "INSERT INTO dbo.isStoredIn (item_id, room_id) VALUES (@item_id, @room_id)",
+                        connection,
+                        transaction);
+
+                    _ = command.Parameters.Add("@item_id", SqlDbType.UniqueIdentifier).Value = link.ItemId;
+                    _ = command.Parameters.Add("@room_id", SqlDbType.UniqueIdentifier).Value = link.RoomId;
+
+                    _ = command.ExecuteNonQuery();
+                }
+
+                transaction.Commit();
+            }
+            catch
+            {
+                transaction.Rollback();
+                throw;
             }
 
             this.OnDataChanged();

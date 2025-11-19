@@ -19,6 +19,10 @@
             <MenuItem Header="File">
                 <MenuItem Command="{Binding ResetDatabaseCommand}" Header="Reset Database" />
                 <MenuItem Command="{Binding PopulateSampleDataCommand}" Header="Populate Sample Data" />
+                <Separator />
+                <MenuItem Command="{Binding ExportDataCommand}" Header="Export Data Backup..." />
+                <MenuItem Command="{Binding ImportDataCommand}" Header="Import Data Backup..." />
+                <Separator />
                 <MenuItem Command="{Binding ImportAccessCommand}" Header="Import Legacy .accdb" />
             </MenuItem>
             <MenuItem Header="Theme">

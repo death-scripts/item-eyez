@@ -228,5 +228,18 @@ namespace Item_eyez.Database
         /// <param name="newName">The new name of the room.</param>
         /// <param name="newDescription">The new description of the room.</param>
         void UpdateRoom(Guid roomId, string newName, string newDescription);
+
+        /// <summary>
+        /// Exports all database data to the specified file.
+        /// </summary>
+        /// <param name="filePath">The destination file path.</param>
+        void ExportData(string filePath);
+
+        /// <summary>
+        /// Imports database data from the specified file.
+        /// </summary>
+        /// <param name="filePath">The source file path.</param>
+        /// <param name="resetExisting">If true, clears existing data before importing.</param>
+        void ImportData(string filePath, bool resetExisting);
     }
 }

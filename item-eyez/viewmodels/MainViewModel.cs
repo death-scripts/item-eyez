@@ -93,6 +93,16 @@ namespace Item_eyez.Viewmodels
         public ICommand ResetDatabaseCommand => new RelayCommand(this.ResetDatabase);
 
         /// <summary>
+        /// Gets the export database data command.
+        /// </summary>
+        public ICommand ExportDataCommand => new RelayCommand(this.ExportDatabaseData);
+
+        /// <summary>
+        /// Gets the import database data command.
+        /// </summary>
+        public ICommand ImportDataCommand => new RelayCommand(this.ImportDatabaseData);
+
+        /// <summary>
         /// Determines whether the specified text contains keyword.
         /// </summary>
         /// <param name="text">The text.</param>
@@ -317,6 +327,72 @@ namespace Item_eyez.Viewmodels
             catch (Exception ex)
             {
                 _ = MessageBox.Show($"Failed to import: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>
+        /// Exports the current SQL database data to a JSON backup file.
+        /// </summary>
+        private void ExportDatabaseData()
+        {
+            SaveFileDialog dialog = new()
+            {
+                Filter = "Item-eyez backup (*.json)|*.json",
+                Title = "Export database data",
+                FileName = "item-eyez-backup.json",
+            };
+
+            if (dialog.ShowDialog() != true)
+            {
+                return;
+            }
+
+            try
+            {
+                ItemEyezDatabase.Instance().ExportData(dialog.FileName);
+                _ = MessageBox.Show("Database export completed successfully.", "Export", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                _ = MessageBox.Show($"Failed to export: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>
+        /// Imports database data from a JSON backup file.
+        /// </summary>
+        private void ImportDatabaseData()
+        {
+            OpenFileDialog dialog = new()
+            {
+                Filter = "Item-eyez backup (*.json)|*.json|All files (*.*)|*.*",
+                Title = "Import database data",
+            };
+
+            if (dialog.ShowDialog() != true)
+            {
+                return;
+            }
+
+            MessageBoxResult result = MessageBox.Show(
+                "Importing data will replace the current database contents with the contents of the selected file. This cannot be undone. Do you want to continue?",
+                "Confirm Import",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (result != MessageBoxResult.Yes)
+            {
+                return;
+            }
+
+            try
+            {
+                ItemEyezDatabase.Instance().ImportData(dialog.FileName, resetExisting: true);
+                _ = MessageBox.Show("Database import completed successfully.", "Import", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                _ = MessageBox.Show($"Failed to import backup: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
