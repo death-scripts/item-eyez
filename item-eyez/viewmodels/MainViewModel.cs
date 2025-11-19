@@ -96,6 +96,16 @@ namespace Item_eyez.Viewmodels
         public ICommand PopulateSampleDataCommand => new RelayCommand(this.PopulateSampleData);
 
         /// <summary>
+        /// Gets the visibility for the populate sample data menu item.
+        /// Only visible in debug builds.
+        /// </summary>
+#if DEBUG
+        public Visibility PopulateSampleDataVisibility => Visibility.Visible;
+#else
+        public Visibility PopulateSampleDataVisibility => Visibility.Collapsed;
+#endif
+
+        /// <summary>
         /// Gets the reset database command.
         /// </summary>
         /// <value>

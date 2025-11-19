@@ -18,7 +18,7 @@
         <Menu DockPanel.Dock="Top" Style="{DynamicResource MenuStyle1}">
             <MenuItem Header="File">
                 <MenuItem Command="{Binding ResetDatabaseCommand}" Header="Reset Database" />
-                <MenuItem Command="{Binding PopulateSampleDataCommand}" Header="Populate Sample Data" />
+                <MenuItem Command="{Binding PopulateSampleDataCommand}" Header="Populate Sample Data" Visibility="{Binding PopulateSampleDataVisibility}" />
                 <MenuItem Command="{Binding InstallLatestReleaseCommand}" Header="Install Latest Release..." />
                 <Separator />
                 <MenuItem Command="{Binding ExportDataCommand}" Header="Export Data Backup..." />
