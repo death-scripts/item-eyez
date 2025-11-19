@@ -21,6 +21,7 @@ using System.Data.OleDb;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
+using System.Security.Cryptography;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
@@ -377,7 +378,8 @@ namespace Item_eyez.Viewmodels
                 string releaseJson = await releaseResponse.Content.ReadAsStringAsync().ConfigureAwait(true);
 
                 using JsonDocument document = JsonDocument.Parse(releaseJson);
-                if (!document.RootElement.TryGetProperty("assets", out JsonElement assetsElement) ||
+                JsonElement root = document.RootElement;
+                if (!root.TryGetProperty("assets", out JsonElement assetsElement) ||
                     assetsElement.ValueKind != JsonValueKind.Array)
                 {
                     throw new InvalidOperationException("Latest release does not contain any assets.");
@@ -410,6 +412,21 @@ namespace Item_eyez.Viewmodels
                     throw new InvalidOperationException("The MSI asset in the latest release is missing download information.");
                 }
 
+                // Read checksum directly from the asset's digest field (e.g. "sha256:...").
+                string? digest = msiAsset.TryGetProperty("digest", out JsonElement digestElement)
+                    ? digestElement.GetString()
+                    : null;
+
+                if (string.IsNullOrWhiteSpace(digest) ||
+                    !digest.StartsWith("sha256:", StringComparison.OrdinalIgnoreCase))
+                {
+                    throw new InvalidOperationException("The MSI asset in the latest release does not expose a SHA-256 digest.");
+                }
+
+                string expectedChecksum = digest.Substring("sha256:".Length)
+                    .Trim()
+                    .ToLowerInvariant();
+
                 string tempPath = Path.Combine(Path.GetTempPath(), assetName);
 
                 // Download the MSI securely over HTTPS.
@@ -419,6 +436,21 @@ namespace Item_eyez.Viewmodels
                 await using (FileStream fileStream = new(tempPath, FileMode.Create, FileAccess.Write, FileShare.None))
                 {
                     await msiResponse.Content.CopyToAsync(fileStream).ConfigureAwait(true);
+                }
+
+                // Verify the downloaded MSI against the expected SHA-256 checksum.
+                using (FileStream fs = new(tempPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                using (SHA256 sha256 = SHA256.Create())
+                {
+                    byte[] hashBytes = sha256.ComputeHash(fs);
+                    string actualChecksum = BitConverter.ToString(hashBytes).Replace("-", string.Empty, StringComparison.Ordinal).ToLowerInvariant();
+
+                    if (!string.Equals(actualChecksum, expectedChecksum, StringComparison.OrdinalIgnoreCase))
+                    {
+                        fs.Close();
+                        File.Delete(tempPath);
+                        throw new InvalidOperationException("Downloaded installer failed checksum verification and has been deleted.");
+                    }
                 }
 
                 MessageBoxResult runInstaller = MessageBox.Show(
