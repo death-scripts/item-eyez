@@ -924,7 +924,8 @@
             <!--  Increased Menu font size by 2pt  -->
             <Setter Property="FontSize" Value="14" />
             <Setter Property="FontStyle" Value="{DynamicResource {x:Static SystemFonts.MenuFontStyleKey}}" />
-            <Setter Property="FontWeight" Value="{DynamicResource {x:Static SystemFonts.MenuFontWeightKey}}" />
+            <!--  Force bold font for menu headers and items  -->
+            <Setter Property="FontWeight" Value="Bold" />
             <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.MenuTextBrushKey}}" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
             <Setter Property="Template">

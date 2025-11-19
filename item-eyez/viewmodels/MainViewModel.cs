@@ -18,6 +18,11 @@
 // ----------------------------------------------------------------------------
 using System.Data;
 using System.Data.OleDb;
+using System.Diagnostics;
+using System.IO;
+using System.Net.Http;
+using System.Text.Json;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using Item_eyez.Controls;
@@ -75,6 +80,11 @@ namespace Item_eyez.Viewmodels
         /// The import access command.
         /// </value>
         public ICommand ImportAccessCommand => new RelayCommand(this.ImportAccessDatabase);
+
+        /// <summary>
+        /// Gets the install latest release command.
+        /// </summary>
+        public ICommand InstallLatestReleaseCommand => new RelayCommand(this.InstallLatestRelease);
 
         /// <summary>
         /// Gets the populate sample data command.
@@ -327,6 +337,173 @@ namespace Item_eyez.Viewmodels
             catch (Exception ex)
             {
                 _ = MessageBox.Show($"Failed to import: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>
+        /// Downloads and installs the latest MSI release from GitHub, then attempts to launch the installed app.
+        /// </summary>
+        private void InstallLatestRelease()
+        {
+            _ = this.InstallLatestReleaseAsync();
+        }
+
+        /// <summary>
+        /// Asynchronously downloads and installs the latest MSI release from GitHub.
+        /// </summary>
+        /// <returns>The task.</returns>
+        private async Task InstallLatestReleaseAsync()
+        {
+            MessageBoxResult confirmation = MessageBox.Show(
+                "This will download and run the latest Item-eyez installer (MSI) from GitHub. " +
+                "You may be prompted by Windows to confirm the installation. Continue?",
+                "Install Latest Release",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
+
+            if (confirmation != MessageBoxResult.Yes)
+            {
+                return;
+            }
+
+            try
+            {
+                using HttpClient client = new();
+                client.DefaultRequestHeaders.UserAgent.ParseAdd("item-eyez-updater/1.0");
+
+                // Get metadata for the latest release.
+                using HttpResponseMessage releaseResponse = await client.GetAsync("https://api.github.com/repos/death-scripts/item-eyez/releases/latest").ConfigureAwait(true);
+                releaseResponse.EnsureSuccessStatusCode();
+                string releaseJson = await releaseResponse.Content.ReadAsStringAsync().ConfigureAwait(true);
+
+                using JsonDocument document = JsonDocument.Parse(releaseJson);
+                if (!document.RootElement.TryGetProperty("assets", out JsonElement assetsElement) ||
+                    assetsElement.ValueKind != JsonValueKind.Array)
+                {
+                    throw new InvalidOperationException("Latest release does not contain any assets.");
+                }
+
+                JsonElement msiAsset = default;
+                foreach (JsonElement asset in assetsElement.EnumerateArray())
+                {
+                    if (asset.TryGetProperty("name", out JsonElement nameElement))
+                    {
+                        string? name = nameElement.GetString();
+                        if (!string.IsNullOrWhiteSpace(name) &&
+                            name.EndsWith(".msi", StringComparison.OrdinalIgnoreCase))
+                        {
+                            msiAsset = asset;
+                            break;
+                        }
+                    }
+                }
+
+                if (msiAsset.ValueKind == JsonValueKind.Undefined)
+                {
+                    throw new InvalidOperationException("No MSI asset was found in the latest release.");
+                }
+
+                string? downloadUrl = msiAsset.GetProperty("browser_download_url").GetString();
+                string? assetName = msiAsset.GetProperty("name").GetString();
+                if (string.IsNullOrWhiteSpace(downloadUrl) || string.IsNullOrWhiteSpace(assetName))
+                {
+                    throw new InvalidOperationException("The MSI asset in the latest release is missing download information.");
+                }
+
+                string tempPath = Path.Combine(Path.GetTempPath(), assetName);
+
+                // Download the MSI securely over HTTPS.
+                using HttpResponseMessage msiResponse = await client.GetAsync(downloadUrl).ConfigureAwait(true);
+                msiResponse.EnsureSuccessStatusCode();
+
+                await using (FileStream fileStream = new(tempPath, FileMode.Create, FileAccess.Write, FileShare.None))
+                {
+                    await msiResponse.Content.CopyToAsync(fileStream).ConfigureAwait(true);
+                }
+
+                MessageBoxResult runInstaller = MessageBox.Show(
+                    "The latest installer has been downloaded. Windows will now run the installer. " +
+                    "Follow the prompts to complete the installation.",
+                    "Run Installer",
+                    MessageBoxButton.OKCancel,
+                    MessageBoxImage.Information);
+
+                if (runInstaller != MessageBoxResult.OK)
+                {
+                    return;
+                }
+
+                // Use the shell so Windows can prompt for elevation and run MSI with the default handler.
+                ProcessStartInfo startInfo = new()
+                {
+                    FileName = tempPath,
+                    UseShellExecute = true,
+                    Verb = "open",
+                };
+
+                _ = Process.Start(startInfo);
+
+                // Close this instance after starting the installer so only the
+                // installed application instance remains for normal use.
+                Application.Current.Shutdown();
+            }
+            catch (Exception ex)
+            {
+                _ = MessageBox.Show(
+                    $"An error occurred while installing the latest release: {ex.Message}",
+                    "Install Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>
+        /// Attempts to launch the installed Item-eyez application after installation.
+        /// </summary>
+        private void TryLaunchInstalledItemEyez()
+        {
+            try
+            {
+                string? programFiles = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
+                string? programFilesX86 = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86);
+
+                string[] candidatePaths =
+                [
+                    Path.Combine(programFiles, "item-eyez", "Item-eyez.exe"),
+                    Path.Combine(programFiles, "Item-eyez", "Item-eyez.exe"),
+                    Path.Combine(programFilesX86, "item-eyez", "Item-eyez.exe"),
+                    Path.Combine(programFilesX86, "Item-eyez", "Item-eyez.exe"),
+                ];
+
+                foreach (string candidate in candidatePaths)
+                {
+                    if (!string.IsNullOrWhiteSpace(candidate) && File.Exists(candidate))
+                    {
+                        ProcessStartInfo startInfo = new()
+                        {
+                            FileName = candidate,
+                            UseShellExecute = true,
+                        };
+
+                        _ = Process.Start(startInfo);
+                        return;
+                    }
+                }
+
+                _ = MessageBox.Show(
+                    "The installer has finished. If Item-eyez did not start automatically, " +
+                    "please launch it from the Start menu or the installation folder.",
+                    "Installation Complete",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                _ = MessageBox.Show(
+                    $"The installer completed, but Item-eyez could not be started automatically: {ex.Message}",
+                    "Launch Warning",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
             }
         }
 

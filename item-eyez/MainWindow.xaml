@@ -19,6 +19,7 @@
             <MenuItem Header="File">
                 <MenuItem Command="{Binding ResetDatabaseCommand}" Header="Reset Database" />
                 <MenuItem Command="{Binding PopulateSampleDataCommand}" Header="Populate Sample Data" />
+                <MenuItem Command="{Binding InstallLatestReleaseCommand}" Header="Install Latest Release..." />
                 <Separator />
                 <MenuItem Command="{Binding ExportDataCommand}" Header="Export Data Backup..." />
                 <MenuItem Command="{Binding ImportDataCommand}" Header="Import Data Backup..." />
