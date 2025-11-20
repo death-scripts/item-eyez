@@ -53,6 +53,16 @@ jobs:
       - name: Build MSI (WiX v4)
         run: dotnet build Item-eyez.Installer/Item-eyez.Installer.wixproj -c $env:Configuration
 
+      - name: Clean Bundle intermediates
+        shell: pwsh
+        run: |
+          Remove-Item -Recurse -Force -ErrorAction SilentlyContinue Item-eyez.Bootstrapper\bin
+          Remove-Item -Recurse -Force -ErrorAction SilentlyContinue Item-eyez.Bootstrapper\obj
+          dotnet clean Item-eyez.Bootstrapper/Item-eyez.Bootstrapper.wixproj -c $env:Configuration
+
+      - name: Build Bundle (WiX v4)
+        run: dotnet build Item-eyez.Bootstrapper/Item-eyez.Bootstrapper.wixproj -c $env:Configuration
+
       - name: Locate MSI
         shell: pwsh
         run: |
@@ -68,4 +78,21 @@ jobs:
         with:
           name: ItemEyezInstaller
           path: ${{ env.msi_path }}
+          if-no-files-found: error
+
+      - name: Locate Bundle
+        shell: pwsh
+        run: |
+          $bundle = Get-ChildItem -Path "Item-eyez.Bootstrapper/bin" -Recurse -Filter *.exe |
+            Sort-Object LastWriteTime -Descending |
+            Select-Object -First 1
+          if (-not $bundle) { throw "Bundle not found under Item-eyez.Bootstrapper/bin" }
+          "bundle_path=$($bundle.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          Write-Host "Bundle path: $($bundle.FullName)"
+
+      - name: Upload Bundle Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ItemEyezBundle
+          path: ${{ env.bundle_path }}
           if-no-files-found: error

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:bal="http://wixtoolset.org/schemas/v4/wxs/bal"
+     xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
+	<Bundle Name="ItemEyezBundle"
+			Version="1.0.0.0"
+			Manufacturer="death-scripts"
+			UpgradeCode="D2153BB6-C678-439A-A1B0-6D6C75C0C7D5">
+		<BootstrapperApplication Id="WixStandardBootstrapperApplication.HyperlinkLicense">
+			<bal:WixStandardBootstrapperApplication Theme="hyperlinkLicense" LicenseUrl="https://opensource.org/licenses/MIT" />
+		</BootstrapperApplication>
+
+		<!-- Detect the SQLEXPRESS instance to avoid reinstalling SQL Server Express 2022. -->
+		<util:RegistrySearch Id="SqlExpressInstanceExists"
+							 Variable="SqlExpressInstalled"
+							 Root="HKLM"
+							 Key="SOFTWARE\Microsoft\Microsoft SQL Server\Instance Names\SQL"
+							 Value="SQLEXPRESS"
+							 Result="exists" />
+
+		<Chain>
+			<ExePackage Id="SqlExpress2022"
+						Name="SQL2025-SSEI-Expr.exe"
+						SourceFile="..\\Item-eyez.Bootstrapper\\SQL2025-SSEI-Expr.exe"
+						DisplayName="Microsoft SQL Server 2022 Express"
+						DetectCondition="SqlExpressInstalled"
+						InstallArguments="/Q /ACTION=Install /FEATURES=SQLEngine /INSTANCENAME=SQLEXPRESS /SQLSVCACCOUNT=&quot;NT AUTHORITY\NETWORK SERVICE&quot; /SQLSYSADMINACCOUNTS=&quot;BUILTIN\ADMINISTRATORS&quot; /TCPENABLED=1 /NPENABLED=1 /IACCEPTSQLSERVERLICENSETERMS=1 /HIDECONSOLE=1 /SkipRules=RebootRequirementCheck"
+						UninstallArguments="/Q /ACTION=Uninstall /INSTANCENAME=SQLEXPRESS /IACCEPTSQLSERVERLICENSETERMS=1 /HIDECONSOLE=1"
+						PerMachine="yes"
+						Vital="yes" />
+
+			<MsiPackage Id="ItemEyezMsi"
+						SourceFile="..\Item-eyez.Installer\bin\x64\$(var.Configuration)\ItemEyezInstaller.msi"
+						Visible="yes"
+						Vital="yes" />
+		</Chain>
+	</Bundle>
+</Wix>

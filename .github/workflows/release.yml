@@ -75,6 +75,16 @@ jobs:
           $pkg.Version = $env:release_version
           $xml.Save('Item-eyez.Installer/Product.wxs')
 
+      - name: Update Bundle Version in WiX
+        shell: pwsh
+        run: |
+          [xml]$xml = Get-Content 'Item-eyez.Bootstrapper/Bundle.wxs'
+          $ns = New-Object System.Xml.XmlNamespaceManager($xml.NameTable)
+          $ns.AddNamespace('wxs','http://wixtoolset.org/schemas/v4/wxs')
+          $bundle = $xml.SelectSingleNode('//wxs:Bundle', $ns)
+          $bundle.Version = $env:release_version
+          $xml.Save('Item-eyez.Bootstrapper/Bundle.wxs')
+
       - name: Update app version in csproj
         shell: pwsh
         run: |
@@ -125,6 +135,16 @@ jobs:
       - name: Build MSI (WiX v4)
         run: dotnet build Item-eyez.Installer/Item-eyez.Installer.wixproj -c $env:Configuration
 
+      - name: Clean Bundle intermediates
+        shell: pwsh
+        run: |
+          Remove-Item -Recurse -Force -ErrorAction SilentlyContinue Item-eyez.Bootstrapper\bin
+          Remove-Item -Recurse -Force -ErrorAction SilentlyContinue Item-eyez.Bootstrapper\obj
+          dotnet clean Item-eyez.Bootstrapper/Item-eyez.Bootstrapper.wixproj -c $env:Configuration
+
+      - name: Build Bundle (WiX v4)
+        run: dotnet build Item-eyez.Bootstrapper/Item-eyez.Bootstrapper.wixproj -c $env:Configuration
+
       - name: Locate MSI
         id: msi
         shell: pwsh
@@ -135,6 +155,16 @@ jobs:
           if (-not $msi) { throw "MSI not found" }
           "msi_path=$($msi.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
           Write-Host "MSI: $($msi.FullName)"
+
+      - name: Locate Bundle
+        shell: pwsh
+        run: |
+          $bundle = Get-ChildItem -Path "Item-eyez.Bootstrapper/bin" -Recurse -Filter *.exe |
+            Sort-Object LastWriteTime -Descending |
+            Select-Object -First 1
+          if (-not $bundle) { throw "Bundle not found under Item-eyez.Bootstrapper/bin" }
+          "bundle_path=$($bundle.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          Write-Host "Bundle: $($bundle.FullName)"
 
       - name: Create Git Tag (if needed)
         if: startsWith(github.ref, 'refs/tags/') == false
@@ -155,10 +185,18 @@ jobs:
           prerelease: false
           files: |
             ${{ env.msi_path }}
+            ${{ env.bundle_path }}
 
       - name: Upload MSI Artifact
         uses: actions/upload-artifact@v4
         with:
           name: ItemEyezInstaller
           path: ${{ env.msi_path }}
+          if-no-files-found: error
+
+      - name: Upload Bundle Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ItemEyezBundle
+          path: ${{ env.bundle_path }}
           if-no-files-found: error

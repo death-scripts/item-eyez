@@ -28,6 +28,22 @@ ItemEyez is a WPF application for organizing items in rooms and containers. The 
 
    The resulting `ItemEyezInstaller.exe` will install SQL Server Express if it is not present, and then install or upgrade ItemEyez.
 
+### Windows build (MSBuild)
+
+1. Build the MSI:
+
+   ```bash
+   dotnet build Item-eyez.Installer\\Item-eyez.Installer.wixproj -c Release -p:Platform=x64
+   ```
+
+2. Build the bootstrapper EXE (this installs SQL Server Express 2022 when SQLEXPRESS is missing, then runs the MSI):
+
+   ```bash
+   dotnet build Item-eyez.Bootstrapper\\Item-eyez.Bootstrapper.wixproj -c Release -p:Platform=x64
+   ```
+
+   The EXE output is at `Item-eyez.Bootstrapper\\bin\\Release\\x64\\ItemEyezBundle.exe`.
+
 ## Installer Behavior
 
 - Detects a SQL Server Express instance named `SQLEXPRESS`. If missing, SQL Server Express is installed silently.

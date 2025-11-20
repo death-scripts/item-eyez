@@ -1,0 +1,27 @@
+<Project Sdk="WixToolset.Sdk/4.0.6">
+  <PropertyGroup>
+    <OutputName>ItemEyezBundle</OutputName>
+    <OutputType>Bundle</OutputType>
+    <Platform>x64</Platform>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <!-- Avoid stale .wixobj/.wixpdb causing duplicate entry sections -->
+  <Target Name="CleanBootstrapperOutputs"
+          BeforeTargets="CoreCompile"
+          Condition="'$(SkipBootstrapperClean)' != 'true'">
+    <RemoveDir Directories="$(MSBuildProjectDirectory)\bin\$(Platform)\$(Configuration)"
+               ContinueOnError="WarnAndContinue" />
+    <RemoveDir Directories="$(MSBuildProjectDirectory)\obj\$(Platform)\$(Configuration)"
+               ContinueOnError="WarnAndContinue" />
+  </Target>
+
+  <ItemGroup>
+    <Compile Include="Bundle.wxs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="WixToolset.Bal.wixext" Version="4.0.6" />
+    <PackageReference Include="WixToolset.Util.wixext" Version="4.0.6" />
+  </ItemGroup>
+</Project>
